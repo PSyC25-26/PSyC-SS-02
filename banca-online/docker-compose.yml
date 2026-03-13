@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: banca-mysql
+    environment:
+      MYSQL_DATABASE: banca_online
+      MYSQL_USER: banca_user
+      MYSQL_PASSWORD: mi_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - banca_mysql_data:/var/lib/mysql
+
+volumes:
+  banca_mysql_data:
