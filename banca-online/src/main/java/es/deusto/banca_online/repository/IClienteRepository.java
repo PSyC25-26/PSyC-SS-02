@@ -13,7 +13,6 @@ public interface IClienteRepository extends JpaRepository<Cliente, Long> {
     // ello que debe coincidir los nombres de los campos tambien.
 
 
-
     // Buscar cliente por email (util para validar que no exista)
     Optional<Cliente> findByEmail(String email);
 
@@ -22,4 +21,8 @@ public interface IClienteRepository extends JpaRepository<Cliente, Long> {
 
     // Verificar si ya existe un email (más eficiente que findByEmail)
     boolean existsByEmail(String email);
+
+    // Verificar si ya existe un dni (más eficiente que findByDni)
+    boolean existsByDni(String dni);
+
 }
