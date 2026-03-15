@@ -1,6 +1,6 @@
 USE banca_online;
 
-CREATE TABLE cliente (
+CREATE TABLE IF NOT EXISTS cliente (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     dni VARCHAR(20) UNIQUE,
     nombre VARCHAR(100),
@@ -13,7 +13,7 @@ CREATE TABLE cliente (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE cuenta (
+CREATE TABLE IF NOT EXISTS cuenta (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     cliente_id BIGINT NOT NULL,
     tipo ENUM('CORRIENTE','AHORRO') NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE cuenta (
     FOREIGN KEY (cliente_id) REFERENCES cliente(id)
 );
 
-CREATE TABLE transaccion (
+CREATE TABLE IF NOT EXISTS transaccion (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     tipo ENUM('DEPOSITO','RETIRO','TRANSFERENCIA') NOT NULL,
     descripcion VARCHAR(200),
