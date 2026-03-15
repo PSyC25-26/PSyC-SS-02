@@ -2,7 +2,7 @@ package es.deusto.banca_online.services;
 
 import es.deusto.banca_online.entity.Cliente;
 import es.deusto.banca_online.repository.IClienteRepository;
-import es.deusto.banca_online.dto.CrearClienteRequest;
+import es.deusto.banca_online.dto.ClienteRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -38,7 +38,7 @@ public class ClienteService {
 
     //CREAR/CREATE cliente
     @Transactional
-    public Cliente crearCliente(CrearClienteRequest request) {
+    public Cliente crearCliente(ClienteRequest request) {
         // Validaciones extra
         // Email unico
         if (clienteRepository.existsByEmail(request.getEmail())) {
@@ -94,7 +94,7 @@ public class ClienteService {
 
     // ACTUALIZAR/UPDATE cliente
     @Transactional
-    public Cliente actualizarCliente(Long id, CrearClienteRequest request) {
+    public Cliente actualizarCliente(Long id, ClienteRequest request) {
         Cliente cliente = buscarPorId(id); // validar existencia del cliente
 
         // Validar email unico si se cambia

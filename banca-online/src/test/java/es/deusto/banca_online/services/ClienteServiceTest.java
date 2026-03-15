@@ -1,6 +1,6 @@
 package es.deusto.banca_online.services;
 
-import es.deusto.banca_online.dto.CrearClienteRequest;
+import es.deusto.banca_online.dto.ClienteRequest;
 import es.deusto.banca_online.entity.Cliente;
 import es.deusto.banca_online.repository.IClienteRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +30,7 @@ class ClienteServiceTest {
     // la bd falsa
     private ClienteService clienteService;
 
-    private CrearClienteRequest requestValido;
+    private ClienteRequest requestValido;
     private Cliente clienteGuardado;
 
 
@@ -39,7 +39,7 @@ class ClienteServiceTest {
     @BeforeEach  // Se ejecuta antes de cada test
     void setUp() {
         // Preparo un request válido
-        requestValido = new CrearClienteRequest();
+        requestValido = new ClienteRequest();
         requestValido.setDni("12345678A");
         requestValido.setNombre("Juan");
         requestValido.setPrimerApellido("Pérez");
@@ -344,7 +344,7 @@ class ClienteServiceTest {
         when(clienteRepository.existsByDni("87654321B")).thenReturn(false);
 
         // Request con datos actualizados
-        CrearClienteRequest requestActualizado = new CrearClienteRequest();
+        ClienteRequest requestActualizado = new ClienteRequest();
         requestActualizado.setNombre("Juan Actualizado");
         requestActualizado.setDni("87654321B");
         requestActualizado.setEmail("nuevo@test.com");
@@ -384,7 +384,7 @@ class ClienteServiceTest {
         when(clienteRepository.findById(id)).thenReturn(Optional.of(clienteGuardado));
         when(clienteRepository.existsByEmail("email@duplicado.com")).thenReturn(true);
 
-        CrearClienteRequest request = new CrearClienteRequest();
+        ClienteRequest request = new ClienteRequest();
         request.setEmail("email@duplicado.com");
         request.setNombre("Juan");
         request.setDni(clienteGuardado.getDni());
@@ -409,7 +409,7 @@ class ClienteServiceTest {
         when(clienteRepository.findById(id)).thenReturn(Optional.of(clienteGuardado));
         when(clienteRepository.existsByDni("87654321B")).thenReturn(true);
 
-        CrearClienteRequest request = new CrearClienteRequest();
+        ClienteRequest request = new ClienteRequest();
         request.setEmail(clienteGuardado.getEmail());
         request.setNombre("Juan");
         request.setDni("87654321B");
