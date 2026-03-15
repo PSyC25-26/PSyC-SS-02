@@ -36,8 +36,25 @@ public class ClienteRequest {
 
 
     /*--------------------
-       GETTERS/SETTERS
+        CONSTRUCTORES
     --------------------*/
+    public ClienteRequest(String dni, String nombre, String primerApellido, String segundoApellido, LocalDate fechaNacimiento, String telefono, String email, String direccion) {
+        this.dni = dni;
+        this.nombre = nombre;
+        this.primerApellido = primerApellido;
+        this.segundoApellido = segundoApellido;
+        this.fechaNacimiento = fechaNacimiento;
+        this.telefono = telefono;
+        this.email = email;
+        this.direccion = direccion;
+    }
+
+    public ClienteRequest() {
+    }
+
+    /*--------------------
+                   GETTERS/SETTERS
+                --------------------*/
     public String getDni() {
         return dni;
     }
