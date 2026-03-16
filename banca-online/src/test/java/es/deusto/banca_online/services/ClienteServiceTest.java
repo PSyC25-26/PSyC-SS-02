@@ -230,6 +230,8 @@ class ClienteServiceTest {
         System.out.println("Test buscarPorId_ClienteExiste pasado");
     }
 
+
+
     @Test
     void buscarPorId_ClienteNoExiste_LanzaExcepcion() {
         // Hacemos que si alguien llama al id = 999L le devuelva algo nulo

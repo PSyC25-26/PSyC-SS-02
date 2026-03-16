@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/clientes")
@@ -39,6 +41,13 @@ public class ClienteController {
         //Ahora sí, tiene ID ni fecha_creacion y es por ello que hay que mapearlo
         ClienteResponse response = mapToDto(clienteCreado);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // CARGAR clientes
+    @GetMapping
+    public ResponseEntity<List<Cliente>> listarTodos() {
+        List<Cliente> clientes = clienteService.listarTodos();
+        return ResponseEntity.ok(clientes);
     }
 
 

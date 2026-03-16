@@ -44,6 +44,9 @@ class ClienteRepositoryTest {
         System.out.println("Cliente guardado con ID: " + guardado.getId());
     }
 
+
+
+
     @Test
     void testFindByEmail() {
         // 1. CREAR: Preparamos datos

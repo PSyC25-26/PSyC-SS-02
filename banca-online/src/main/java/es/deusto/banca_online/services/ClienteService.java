@@ -6,6 +6,7 @@ import es.deusto.banca_online.dto.ClienteRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 // Marcamos que es la clase que va a contener la logica de negocio y por tanto,
@@ -135,6 +136,12 @@ public class ClienteService {
 
 
     // BUSCAR/READ
+    // todos los clientes
+    public List<Cliente> listarTodos() {
+        return clienteRepository.findAll();
+    }
+
+
     // por id. No esta en el repositorio porque JPA la da
     @Transactional(readOnly = true) //Indicamos que solo vamos a leer la BD y por tanto
     //el metodo no tiene permisos para modificarla.
