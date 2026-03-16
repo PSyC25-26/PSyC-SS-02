@@ -12,11 +12,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 
@@ -32,6 +35,8 @@ class ClienteServiceTest {
 
     private ClienteRequest requestValido;
     private Cliente clienteGuardado;
+    private List<Cliente> clientesMock;
+
 
 
 
@@ -53,6 +58,20 @@ class ClienteServiceTest {
         clienteGuardado.setNombre("Juan");
         clienteGuardado.setEmail("juan@test.com");
         clienteGuardado.setFechaCreacion(LocalDateTime.now());
+
+        // Segundo cliente para la lista
+        Cliente cliente2 = new Cliente();
+        cliente2.setId(2L);
+        cliente2.setNombre("María");
+        cliente2.setEmail("maria@test.com");
+        cliente2.setDni("87654321B");
+        cliente2.setPrimerApellido("Gómez");
+        cliente2.setFechaNacimiento(LocalDate.of(1992, 2, 2));
+        cliente2.setFechaCreacion(LocalDateTime.now());
+
+        clientesMock = Arrays.asList(clienteGuardado, cliente2);
+
+
     }
 
     // DATOS INVALDOS - CREAR
@@ -212,6 +231,40 @@ class ClienteServiceTest {
 
 
     // BÚSQUEDAS
+    @Test
+    void listarTodos_DeberiaRetornarTodosLosClientes() {
+        // Cuando se ejecute el findAll, devolver el mock de clientes
+        when(clienteRepository.findAll()).thenReturn(clientesMock);
+
+        // Llamamos al metodo
+        List<Cliente> resultado = clienteService.listarTodos();
+
+        // Validamos
+        assertThat(resultado).hasSize(2); // Que hay dos clientes
+        assertThat(resultado).extracting(Cliente::getNombre)
+                .containsExactly("Juan", "María"); // Con estos nombres
+
+        // Validamos que se ha llamado al metodo 1 vez
+        verify(clienteRepository, times(1)).findAll();
+    }
+
+
+    @Test
+    void listarTodos_CuandoNoHayClientes_DeberiaRetornarListaVacia() {
+        // Cuando se ejecute el findAll, devolver un Array vacío
+        when(clienteRepository.findAll()).thenReturn(Arrays.asList());
+
+        // Llamamos al metodo
+        List<Cliente> resultado = clienteService.listarTodos();
+
+        // Validamos que está vacío
+        assertThat(resultado).isEmpty();
+
+        // Validamos que se ha llamado al metodo 1 vez
+        verify(clienteRepository, times(1)).findAll();
+    }
+
+
     @Test
     void buscarPorId_ClienteExiste_DevuelveCliente() {
         Long id = 1L;

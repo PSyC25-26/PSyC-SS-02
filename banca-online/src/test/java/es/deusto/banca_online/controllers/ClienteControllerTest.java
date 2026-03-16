@@ -17,7 +17,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -42,6 +45,8 @@ class ClienteControllerTest {
     private ClienteRequest clienteRequest;
     private Cliente clienteEntity;
     private LocalDateTime fechaFija;
+    private List<Cliente> clientesMock;
+
 
     /*
     FLUJO QUE VA A TENER:
@@ -79,6 +84,20 @@ class ClienteControllerTest {
         clienteEntity.setEmail("juan@test.com");
         clienteEntity.setFechaNacimiento(LocalDate.of(1990, 1, 1));
         clienteEntity.setFechaCreacion(fechaFija);
+
+        // Crear segundo cliente para la lista
+        Cliente cliente2 = new Cliente();
+        cliente2.setId(2L);
+        cliente2.setNombre("María");
+        cliente2.setEmail("maria@test.com");
+        cliente2.setDni("87654321B");
+        cliente2.setPrimerApellido("Gómez");
+        cliente2.setFechaNacimiento(LocalDate.of(1992, 2, 2));
+        cliente2.setFechaCreacion(fechaFija);
+
+        // Inicializar lista de clientesMock para los tests
+        clientesMock = Arrays.asList(clienteEntity, cliente2);
+
     }
 
 
@@ -128,6 +147,43 @@ class ClienteControllerTest {
 
 
 
+    // DATOS CORRECTOS - Obtener todos los clientes
+    @Test
+    void listarTodos_CuandoHayClientes_DeberiaRetornarLista() throws Exception {
+        // Cuando se llame al metodo listarTodos, utilizamos el clientesMock
+        when(clienteService.listarTodos()).thenReturn(clientesMock);
+
+        // Llamamos al endpoint y verificamos los datos
+        mockMvc.perform(get("/api/clientes")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].nombre").value("Juan"))
+                .andExpect(jsonPath("$[0].email").value("juan@test.com"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].nombre").value("María"))
+                .andExpect(jsonPath("$[1].email").value("maria@test.com"));
+
+        // Verificamos que se haya llamado al servicio listarTodos 1 vez
+        verify(clienteService, times(1)).listarTodos();
+    }
+
+    // DATOS INCORRECTOS - Obtener todos los clientes
+    @Test
+    void listarTodos_CuandoNoHayClientes_DeberiaRetornarListaVacia() throws Exception {
+        // Cuando se llame al metodo listarTodos, utilizamos un Array vacío
+        when(clienteService.listarTodos()).thenReturn(Arrays.asList());
+
+        // Llamamos al endpoint y verificamos los datos
+        mockMvc.perform(get("/api/clientes")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()) // Que ha devuelto el status 200
+                .andExpect(jsonPath("$", hasSize(0))); // Que el array tiene size 0
+
+        // Verificamos que se haya llamado al servicio listarTodos 1 vez
+        verify(clienteService, times(1)).listarTodos();
+    }
 
 
 

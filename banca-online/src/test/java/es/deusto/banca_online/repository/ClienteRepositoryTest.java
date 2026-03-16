@@ -5,8 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,6 +20,9 @@ class ClienteRepositoryTest {
     // Inyectamos el repostorio sin tener que crear uno
     @Autowired
     private IClienteRepository clienteRepository;
+
+    @Autowired
+    private TestEntityManager entityManager;
 
 
     /*------------
@@ -44,6 +50,53 @@ class ClienteRepositoryTest {
         System.out.println("Cliente guardado con ID: " + guardado.getId());
     }
 
+    // Devolver todos los clientes si existen - VÁLIDO
+    @Test
+    void findAll_DeberiaRetornarTodosLosClientes() {
+        // Crear y guardar varios clientes
+        Cliente cliente1 = new Cliente();
+        cliente1.setDni("11111111A");
+        cliente1.setNombre("Juan");
+        cliente1.setEmail("juan@test.com");
+        cliente1.setFechaNacimiento(LocalDate.of(1990, 1, 1));
+        entityManager.persist(cliente1);
+
+        Cliente cliente2 = new Cliente();
+        cliente2.setDni("22222222B");
+        cliente2.setNombre("María");
+        cliente2.setEmail("maria@test.com");
+        cliente2.setFechaNacimiento(LocalDate.of(1991, 2, 2));
+        entityManager.persist(cliente2);
+
+        Cliente cliente3 = new Cliente();
+        cliente3.setDni("33333333C");
+        cliente3.setNombre("Pedro");
+        cliente3.setEmail("pedro@test.com");
+        cliente3.setFechaNacimiento(LocalDate.of(1992, 3, 3));
+        entityManager.persist(cliente3);
+
+        entityManager.flush();
+
+        // Ejecutar findAll
+        List<Cliente> clientes = clienteRepository.findAll();
+
+        // Verificar resultados
+        assertThat(clientes).hasSize(3); // Clientes deberia ser una lista de 3
+        // Y contener los siguientes emails:
+        assertThat(clientes).extracting(Cliente::getEmail)
+                .containsExactlyInAnyOrder("juan@test.com", "maria@test.com", "pedro@test.com");
+    }
+
+
+    // Devolver todos los clientes si existen - IINVÁLIDO
+    @Test
+    void findAll_CuandoNoHayClientes_DeberiaRetornarListaVacia() {
+        // Buscar los clientes
+        List<Cliente> clientes = clienteRepository.findAll();
+
+        // Debe devolver vacío
+        assertThat(clientes).isEmpty();
+    }
 
 
 
