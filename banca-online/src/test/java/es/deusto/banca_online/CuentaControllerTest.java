@@ -1,57 +1,48 @@
 package es.deusto.banca_online;
 
-import es.deusto.banca_online.controllers.CuentaController;
 import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.dto.CuentaResponse;
+import es.deusto.banca_online.entity.Cliente;
+import es.deusto.banca_online.repository.IClienteRepository;
 import es.deusto.banca_online.services.CuentaService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@Transactional
 class CuentaControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
     private CuentaService cuentaService;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private IClienteRepository clienteRepository;
 
     @Test
-    void crearCuenta_debeGuardarCorrectamente() throws Exception {
+    void crearCuenta_debeGuardarCorrectamente() {
+        Cliente cliente = new Cliente();
+        cliente.setNombre("Test");
+        cliente.setDni("TEST-" + java.util.UUID.randomUUID().toString().substring(0, 8));
+        cliente.setEmail("test@test.com");
+        cliente.setFechaNacimiento(java.time.LocalDate.of(1990, 1, 1));
+        cliente.setFechaCreacion(java.time.LocalDateTime.now());
+        clienteRepository.save(cliente);
+
         CuentaRequest request = new CuentaRequest();
-        request.setClienteId(1L);
+        request.setClienteId(cliente.getId());
         request.setTipoCuenta("CORRIENTE");
         request.setSaldoInicial(500.0);
 
-        CuentaResponse response = new CuentaResponse();
-        response.setId(1L);
-        response.setNumeroCuenta("ES1234567890ABCDEF12");
-        response.setSaldo(500.0);
-        response.setTipoCuenta("CORRIENTE");
-        response.setClienteId(1L);
+        CuentaResponse response = cuentaService.crearCuenta(request);
 
-        Mockito.when(cuentaService.crearCuenta(Mockito.any())).thenReturn(response);
-
-        mockMvc.perform(post("/cuentas")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.numeroCuenta").value("ES1234567890ABCDEF12"))
-                .andExpect(jsonPath("$.saldo").value(500.0))
-                .andExpect(jsonPath("$.tipoCuenta").value("CORRIENTE"));
+        assertNotNull(response);
+        assertNotNull(response.getNumeroCuenta());
+        assertEquals("CORRIENTE", response.getTipoCuenta());
+        assertEquals(500.0, response.getSaldo());
+        assertEquals(cliente.getId(), response.getClienteId());
     }
 }
