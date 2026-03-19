@@ -32,3 +32,51 @@ function mostrarErrorCampo(campoId, errId) {
     document.getElementById(campoId).classList.add('error');
     document.getElementById(errId).style.display = 'block';
 }
+
+//Integrar formulario con endpoint POST /cuentas
+//Probar la creación desde el frontend
+async function crearCuenta() {
+    if (!validarFormulario()) return;
+
+    const body = {
+        clienteId: parseInt(document.getElementById('clienteId').value),
+        tipoCuenta: document.getElementById('tipoCuenta').value,
+        saldoInicial: parseFloat(document.getElementById('saldoInicial').value) || 0.0
+    };
+
+    try {
+        const response = await fetch('/cuentas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+
+        //Mostrar mensajes de éxito o error
+        if (response.ok) {
+            mostrarMensaje(
+                `✅ Cuenta creada con éxito. Número: ${data.numeroCuenta} | Saldo: ${data.saldo}€`,
+                'exito'
+            );
+            limpiarFormulario();
+        } else {
+            mostrarMensaje(`❌ Error: ${data.message || 'No se pudo crear la cuenta.'}`, 'error');
+        }
+    } catch (error) {
+        mostrarMensaje('❌ Error de conexión con el servidor.', 'error');
+    }
+}
+
+function mostrarMensaje(texto, tipo) {
+    const div = document.getElementById('mensaje');
+    div.textContent = texto;
+    div.className = tipo;
+    div.style.display = 'block';
+}
+
+function limpiarFormulario() {
+    document.getElementById('clienteId').value = '';
+    document.getElementById('tipoCuenta').value = '';
+    document.getElementById('saldoInicial').value = '';
+}
