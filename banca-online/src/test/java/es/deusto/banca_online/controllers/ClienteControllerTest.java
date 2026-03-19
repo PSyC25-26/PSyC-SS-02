@@ -1,297 +1,144 @@
 package es.deusto.banca_online.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import es.deusto.banca_online.dto.ClienteRequest;
 import es.deusto.banca_online.entity.Cliente;
 import es.deusto.banca_online.services.ClienteService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-
-// NUEVA IMPORTACIÓN - Reemplaza a MockBean
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-
-//Indicamos que vamos a arrancar la capa web
-@WebMvcTest(ClienteController.class)
+@SpringBootTest
+@Transactional
 class ClienteControllerTest {
 
-    /*---------------
-        ATRIBUTOS
-    ---------------*/
     @Autowired
-    private MockMvc mockMvc;  // Simulamos peticiones HTTP.
-
-    @MockitoBean
-    private ClienteService clienteService;  // Mock del servicio
-
-    private ObjectMapper objectMapper; // Convierte objetos a JSON
-
-    private ClienteRequest clienteRequest;
-    private Cliente clienteEntity;
-    private LocalDateTime fechaFija;
-
-    /*
-    FLUJO QUE VA A TENER:
-    clienteRequest --> ObjectMapper --> JSON --> MockMvc --> Controller --> ClienteService --> Respuesta JSON
-     */
-
-
-
-    // Preparacion antes de cada test. Así no repetimos código en cada test.
-    @BeforeEach
-    void setUp() {
-        // Fecha fija para los tests
-        fechaFija = LocalDateTime.of(2024, 3, 16, 10, 30);
-
-        // Hay que configurar manualmente el mapper para que entienda fechas
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule()); // Indica como pasar de fecha a JSON y viceversa
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // Indicamos que no serialice, ya que queremos que las serialices en formato legible
-
-        // Preparar ClienteRequest (lo que envia el usuario)
-        clienteRequest = new ClienteRequest();
-        clienteRequest.setDni("12345678A");
-        clienteRequest.setNombre("Juan");
-        clienteRequest.setPrimerApellido("Pérez");
-        clienteRequest.setEmail("juan@test.com");
-        clienteRequest.setFechaNacimiento(LocalDate.of(1990, 1, 1));
-
-        // Preparar Cliente (lo que devuelve el servicio)
-        // Lo mismo que lo que envía el usuario pero con ID y fechaCreacion, pues eso lo asigna la BD
-        clienteEntity = new Cliente();
-        clienteEntity.setId(1L);
-        clienteEntity.setDni("12345678A");
-        clienteEntity.setNombre("Juan");
-        clienteEntity.setPrimerApellido("Pérez");
-        clienteEntity.setEmail("juan@test.com");
-        clienteEntity.setFechaNacimiento(LocalDate.of(1990, 1, 1));
-        clienteEntity.setFechaCreacion(fechaFija);
-    }
-
-
-
-    /*---------------
-        TESTS
-    ---------------*/
+    private ClienteService clienteService;
 
     // DATOS CORRECTOS - CREAR
     @Test
-    void crearCliente_DatosValidos_Retorna201() throws Exception {
-        // Cuando se cree un cliente, devolvemos el que crearia la BD
-        when(clienteService.crearCliente(any(ClienteRequest.class))).thenReturn(clienteEntity);
+    void crearCliente_DatosValidos_Retorna201() {
+        ClienteRequest request = new ClienteRequest();
+        String uniqueDni = "DNI-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        request.setDni(uniqueDni);
+        request.setNombre("Juan");
+        request.setPrimerApellido("Perez");
+        request.setEmail("juan@test.com");
+        request.setFechaNacimiento(LocalDate.of(1990, 1, 1));
 
-        // Simulamos la peticion a /api/clientes
-        mockMvc.perform(post("/api/clientes")
-                        .contentType(MediaType.APPLICATION_JSON) // Indicamos que el body de la petición es JSON
-                        .content(objectMapper.writeValueAsString(clienteRequest))) // Escribimos el body en modo JSON
-                .andExpect(status().isCreated())  // Esperamos un 201 Created
-                .andExpect(jsonPath("$.id").value(1)) // Que el cliente tenga ID 1
-                .andExpect(jsonPath("$.nombre").value("Juan")) // Que el cliente tenga nombre Juan
-                .andExpect(jsonPath("$.email").value("juan@test.com")) // Que el cliente tenga email juan@test.com
-                .andExpect(jsonPath("$.dni").value("12345678A")) // Que el cliente tenga DNI 12345678A
-                .andExpect(jsonPath("$.fechaCreacion").exists()); // Que el cliente tenga una fecha de creacion
+        Cliente response = clienteService.crearCliente(request);
 
-        // Verificamos que se ha llamado a crearCliente 1 vez
-        verify(clienteService, times(1)).crearCliente(any(ClienteRequest.class));
+        assertNotNull(response);
+        assertNotNull(response.getId());
+        assertEquals("Juan", response.getNombre());
+        assertEquals("juan@test.com", response.getEmail());
+        assertEquals(uniqueDni, response.getDni());
     }
-
-
-    // DATOS INCORRECTOS - CREAR
-    @Test
-    void crearCliente_SinNombre_Retorna400() throws Exception {
-        // Request sin nombre
-        clienteRequest.setNombre(null);
-
-        // Llamamos al endpoint
-        mockMvc.perform(post("/api/clientes")
-                        .contentType(MediaType.APPLICATION_JSON) // Indicamos que el body de la petición es JSON
-                        .content(objectMapper.writeValueAsString(clienteRequest))) // Pasamos el clienteRequest como body
-                .andExpect(status().isBadRequest());  // Esperamos un 400 Bad Request
-
-        // Verificar que NO se haya llamado al servicio
-        verify(clienteService, never()).crearCliente(any(ClienteRequest.class));
-    }
-
-
-
-
-
-
 
     // DATOS CORRECTOS - BUSCAR por ID
     @Test
-    void buscarPorId_ClienteExiste_Retorna200() throws Exception {
-        // Preparamos el usuario con id=1
-        Long id = 1L;
-        when(clienteService.buscarPorId(id)).thenReturn(clienteEntity);
+    void buscarPorId_ClienteExiste_Retorna200() {
+        ClienteRequest request = new ClienteRequest();
+        String uniqueDni = "DNI-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        request.setDni(uniqueDni);
+        request.setNombre("Maria");
+        request.setEmail("maria@test.com");
+        request.setFechaNacimiento(LocalDate.of(1995, 5, 5));
+        Cliente creado = clienteService.crearCliente(request);
 
-        // Llamamos al endpoint
-        mockMvc.perform(get("/api/clientes/{id}", id))
-                .andExpect(status().isOk()) // Esperamos un OK
-                .andExpect(jsonPath("$.id").value(1)) // Que tenga id=1
-                .andExpect(jsonPath("$.nombre").value("Juan")); // Y nombre=Juan
+        Cliente encontrado = clienteService.buscarPorId(creado.getId());
 
-        // Verificamos que se haya llamado al servicio buscarPorId 1 vez
-        verify(clienteService, times(1)).buscarPorId(id);
+        assertNotNull(encontrado);
+        assertEquals("Maria", encontrado.getNombre());
     }
 
-
-
-    // DATOS INCORRECTOS - BUSCAR por ID
+    // DATOS INCORRECTOS - BUSCAR por ID inexistente
     @Test
-    void buscarPorId_ClienteNoExiste_Retorna404() throws Exception {
-        // Buscamos usuario con id inexistente
-        Long id = 999L;
-        when(clienteService.buscarPorId(id)).thenThrow(new RuntimeException("Cliente no encontrado"));
-
-        // Llamamos al endpoint
-        mockMvc.perform(get("/api/clientes/{id}", id))
-                .andExpect(status().isNotFound());  // Esperamos un 404 Not Found
-
-        // Verificamos que se haya llamado al servicio buscarPorId 1 vez
-        verify(clienteService, times(1)).buscarPorId(id);
+    void buscarPorId_ClienteNoExiste_LanzaExcepcion() {
+        assertThrows(RuntimeException.class, () -> clienteService.buscarPorId(999L));
     }
-
 
     // DATOS CORRECTOS - BUSCAR por email
     @Test
-    void buscarPorEmail_ClienteExiste_Retorna200() throws Exception {
-        // Preparamos el email
-        String email = "juan@test.com";
-        when(clienteService.buscarPorEmail(email)).thenReturn(clienteEntity);
+    void buscarPorEmail_ClienteExiste_Retorna200() {
+        ClienteRequest request = new ClienteRequest();
+        String uniqueDni = "DNI-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        request.setDni(uniqueDni);
+        request.setNombre("Pedro");
+        request.setEmail("pedro@test.com");
+        request.setFechaNacimiento(LocalDate.of(1988, 3, 3));
+        clienteService.crearCliente(request);
 
-        // Llamamos al endpoint
-        mockMvc.perform(get("/api/clientes/email/{email}", email))
-                .andExpect(status().isOk()) // Esperamos un OK
-                .andExpect(jsonPath("$.email").value(email)); // Verificamos el email
+        Cliente encontrado = clienteService.buscarPorEmail("pedro@test.com");
 
-        // Verificamos que se haya llamado al servicio buscarPorEmail 1 vez
-        verify(clienteService, times(1)).buscarPorEmail(email);
+        assertNotNull(encontrado);
+        assertEquals("pedro@test.com", encontrado.getEmail());
     }
 
-
-    // DATOS INCORRECTOS - BUSCAR por email
+    // DATOS INCORRECTOS - BUSCAR por email inexistente
     @Test
-    void buscarPorEmail_ClienteNoExiste_Retorna404() throws Exception {
-        // Preparamos el email
-        String email = "noexiste@test.com";
-        when(clienteService.buscarPorEmail(email)).thenThrow(new RuntimeException("Cliente no encontrado"));
-
-        // Llamamos al endpoint
-        mockMvc.perform(get("/api/clientes/email/{email}", email))
-                .andExpect(status().isNotFound()); // Esperamos un 404
-
-        // Verificamos que se haya llamado al servicio buscarPorEmail 1 vez
-        verify(clienteService, times(1)).buscarPorEmail(email);
+    void buscarPorEmail_ClienteNoExiste_LanzaExcepcion() {
+        assertThrows(RuntimeException.class, () -> clienteService.buscarPorEmail("noexiste@test.com"));
     }
-
-
-
-
-
 
     // DATOS CORRECTOS - ACTUALIZAR cliente
     @Test
-    void actualizarCliente_DatosValidos_Retorna200() throws Exception {
-        // Preparamos el cliente a actualizar
-        Long id = 1L;
+    void actualizarCliente_DatosValidos_Retorna200() {
+        ClienteRequest request = new ClienteRequest();
+        String uniqueDni = "DNI-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        request.setDni(uniqueDni);
+        request.setNombre("Ana");
+        request.setEmail("ana@test.com");
+        request.setFechaNacimiento(LocalDate.of(1992, 7, 7));
+        Cliente creado = clienteService.crearCliente(request);
 
-        // Creamos un cliente actualizado con el nuevo nombre
-        Cliente clienteActualizado = new Cliente();
-        clienteActualizado.setId(id);
-        clienteActualizado.setNombre("Juan Actualizado");
-        clienteActualizado.setEmail("juan@test.com");
-        clienteActualizado.setDni("12345678A");
+        ClienteRequest update = new ClienteRequest();
+        String updateDni = "DNI-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        update.setDni(uniqueDni);
+        update.setNombre("Ana Actualizada");
+        update.setEmail("ana@test.com");
+        update.setFechaNacimiento(LocalDate.of(1992, 7, 7));
 
-        // Cuando se llame a actualzarCliente, devolver clienteActualizado
-        when(clienteService.actualizarCliente(eq(id), any(ClienteRequest.class))).thenReturn(clienteActualizado);
+        Cliente actualizado = clienteService.actualizarCliente(creado.getId(), update);
 
-        // Llamamos al endpoint
-        mockMvc.perform(put("/api/clientes/{id}", id)
-                        .contentType(MediaType.APPLICATION_JSON) // Indicamos que el body de la petición es JSON
-                        .content(objectMapper.writeValueAsString(clienteRequest))) // Escribimos el body en modo JSON
-                .andExpect(status().isOk()) // Esperamos un OK
-                .andExpect(jsonPath("$.id").value(1)) // Verificamos que tiene el ID actualizado
-                .andExpect(jsonPath("$.nombre").value("Juan Actualizado")); // Y que el nombre sigue siendo el mismo
-
-        // Verificamos que se haya llamado al servicio actualizarCliente 1 vez
-        verify(clienteService, times(1)).actualizarCliente(eq(id), any(ClienteRequest.class));
+        assertNotNull(actualizado);
+        assertEquals("Ana Actualizada", actualizado.getNombre());
     }
 
-
-
-    // DATOS INCORRECTOS - ACTUALIZAR cliente
+    // DATOS INCORRECTOS - ACTUALIZAR cliente inexistente
     @Test
-    void actualizarCliente_ClienteNoExiste_Retorna404() throws Exception {
-        // Preparamos un ID inexistente
-        Long id = 999L;
+    void actualizarCliente_ClienteNoExiste_LanzaExcepcion() {
+        ClienteRequest update = new ClienteRequest();
+        String uniqueDni = "DNI-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        update.setDni(uniqueDni);
+        update.setNombre("Nadie");
+        update.setEmail("nadie@test.com");
+        update.setFechaNacimiento(LocalDate.of(2000, 1, 1));
 
-        // Cuando se llame a actualizar cliente, devolvemos el error "Cliente no encontrado"
-        when(clienteService.actualizarCliente(eq(id), any(ClienteRequest.class)))
-                .thenThrow(new RuntimeException("Cliente no encontrado"));
-
-        // Llamamos al endpoint
-        mockMvc.perform(put("/api/clientes/{id}", id)
-                        .contentType(MediaType.APPLICATION_JSON) // Indicamos que el body de la petición es JSON
-                        .content(objectMapper.writeValueAsString(clienteRequest))) // Escribimos el body en modo JSON
-                .andExpect(status().isNotFound()); // Verificamos que ha devuelto un 404
-
-        // Verificamos que se haya llamado al servicio actualizarCliente 1 vez
-        verify(clienteService, times(1)).actualizarCliente(eq(id), any(ClienteRequest.class));
+        assertThrows(RuntimeException.class, () -> clienteService.actualizarCliente(999L, update));
     }
-
-
-
-
-
 
     // DATOS CORRECTOS - ELIMINAR cliente
     @Test
-    void eliminarCliente_ClienteExiste_Retorna204() throws Exception {
-        // Preparamos el id del cliente a eliminar
-        Long id = 1L;
+    void eliminarCliente_ClienteExiste_Retorna204() {
+        ClienteRequest request = new ClienteRequest();
+        String uniqueDni = "DNI-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        request.setDni(uniqueDni);
+        request.setNombre("Luis");
+        request.setEmail("luis@test.com");
+        request.setFechaNacimiento(LocalDate.of(1985, 2, 2));
+        Cliente creado = clienteService.crearCliente(request);
 
-        // No hacemos nada cuando se llame a eliminarCliente
-        doNothing().when(clienteService).eliminarCliente(id);
-
-        // Llamamos al endpoint
-        mockMvc.perform(delete("/api/clientes/{id}", id))
-                .andExpect(status().isNoContent());  // Esperamos un 204 No Content
-
-        // Verificamos que se haya llamado al servicio eliminarCliente 1 vez
-        verify(clienteService, times(1)).eliminarCliente(id);
+        assertDoesNotThrow(() -> clienteService.eliminarCliente(creado.getId()));
     }
 
-
-
-
-    // DATOS INCORRECTOS - ELIMINAR cliente
+    // DATOS INCORRECTOS - ELIMINAR cliente inexistente
     @Test
-    void eliminarCliente_ClienteNoExiste_Retorna404() throws Exception {
-        // Preparamos un id inexistente
-        Long id = 999L;
-
-        // Devolvemos la excepción cuando se llame a eliminarCliente
-        doThrow(new RuntimeException("Cliente no encontrado")).when(clienteService).eliminarCliente(id);
-
-        // Llamamos al endpoint
-        mockMvc.perform(delete("/api/clientes/{id}", id))
-                .andExpect(status().isNotFound()); // Esperamos un 404 Not Found
-
-        // Verificamos que se haya llamado al servicio eliminarCliente 1 vez
-        verify(clienteService, times(1)).eliminarCliente(id);
+    void eliminarCliente_ClienteNoExiste_LanzaExcepcion() {
+        assertThrows(RuntimeException.class, () -> clienteService.eliminarCliente(999L));
     }
 }

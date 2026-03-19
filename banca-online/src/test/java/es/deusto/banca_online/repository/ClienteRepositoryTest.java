@@ -91,7 +91,8 @@ class ClienteRepositoryTest {
     void testExistsByEmail() {
         // 1. CREAR
         Cliente cliente = new Cliente();
-        cliente.setDni("12345678A");
+        String uniqueDni = "DNI-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        cliente.setDni(uniqueDni);
         cliente.setNombre("Juan");
         cliente.setEmail("juan@test.com");
         cliente.setFechaNacimiento(LocalDate.of(1990, 1, 1));
