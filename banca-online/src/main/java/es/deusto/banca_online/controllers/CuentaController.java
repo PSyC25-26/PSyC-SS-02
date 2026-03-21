@@ -66,6 +66,6 @@ public class CuentaController {
     //GET /saldo
     @GetMapping("/saldo")
     public String vistaSaldo() {
-        return "saldo";  // Thymeleaf cargará saldo.html
+        return "saldo";
     }
 }

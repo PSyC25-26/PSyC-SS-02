@@ -28,7 +28,7 @@ async function consultarSaldo(cuentaId) {
     }
 
     try {
-        const response = await fetch(`/saldo/${cuentaId}`);
+        const response = await fetch(`/cuentas/saldo/${cuentaId}`);
 
         if (!response.ok) {
             if (response.status === 404) {
