@@ -42,29 +42,41 @@ function mostrarError(mensaje) {
 }
 
 // Función para cargar el saldo desde el endpoint /saldo/{cuentaId}
-async function cargarSaldo() {
-    // Obtenemos el ID de la cuenta desde el input hidden
-    const cuentaIdInput = document.getElementById('cuentaId');
-    const cuentaId = cuentaIdInput ? cuentaIdInput.value : null;
-    const contenedor = document.getElementById('saldoContenedor');
+async function consultarSaldo(cuentaId) {
+    const mensajeExito = document.getElementById('mensajeExito');
+    const mensajeError = document.getElementById('mensajeError');
+    const saldoMostrado = document.getElementById('saldoMostrado');
 
-    if (!cuentaId) {
-        contenedor.innerHTML = '<p>No se ha indicado ningún ID de cuenta.</p>';
-        return;
-    }
+    mensajeExito.style.display = 'none';
+    mensajeError.style.display = 'none';
+    saldoMostrado.textContent = '';
 
     try {
-        const response = await fetch(`/saldo/${cuentaId}`); // llamada al endpoint
+        const response = await fetch(`/saldo/${cuentaId}`);
         if (!response.ok) throw new Error('Cuenta no encontrada');
 
-        const data = await response.json(); // { "saldo": 1000.0 }
-        contenedor.innerHTML = `
-            <p>Saldo actual: <strong>${data.saldo.toFixed(2)} €</strong></p>
-        `;
+        const data = await response.json();
+        saldoMostrado.textContent = `Saldo actual: ${data.saldo.toFixed(2)} €`;
+        mensajeExito.style.display = 'block';
+        mensajeExito.textContent = 'Saldo cargado correctamente.';
     } catch (error) {
-        contenedor.innerHTML = `<p>Error al obtener el saldo: ${error.message}</p>`;
+        mensajeError.style.display = 'block';
+        mensajeError.textContent = 'Error: ' + error.message;
     }
 }
+
+// Escuchar submit del formulario
+document.getElementById('formSaldo').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const cuentaId = document.getElementById('cuentaId').value;
+    if (cuentaId && parseInt(cuentaId) > 0) {
+        consultarSaldo(cuentaId);
+    } else {
+        const mensajeError = document.getElementById('mensajeError');
+        mensajeError.style.display = 'block';
+        mensajeError.textContent = 'Introduce un ID de cuenta válido.';
+    }
+});
 
 // Ejecutar al cargar la página
 document.addEventListener('DOMContentLoaded', cargarSaldo);
