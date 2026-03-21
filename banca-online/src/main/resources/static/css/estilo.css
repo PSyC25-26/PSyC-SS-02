@@ -282,3 +282,167 @@ button {
     margin-top: 10px;
     padding: 5px 10px;
 }
+
+/* Para consultar saldo */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Botón del formulario con estilo consistente */
+#formSaldo button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+#formSaldo button:hover {
+    background-color: #2980b9;
+}
+
+/* Espaciado interno de la card */
+.card {
+    padding: 30px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.card h2 {
+    margin-bottom: 15px;
+    text-align: center;
+    color: #2c3e50;
+}
+
+/* Formulario centrado y con espaciado */
+#formSaldo {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+}
+
+#formSaldo label {
+    font-weight: 500;
+    color: #34495e;
+}
+
+#formSaldo input {
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+}
+
+/* Mensajes de éxito/error centrados y con margen */
+#mensajeExito, #mensajeError {
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+    padding: 10px 0;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+#saldoMostrado {
+    font-size: 1.4em;
+    margin-top: 15px;
+    font-weight: bold;
+    text-align: center;
+}
+
+#formSaldo input {
+    background-color: #fefefe;
+    border: 1px solid #ccc;
+    transition: all 0.3s ease;
+}
+
+#formSaldo input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+    background-color: #ffffff;
+}
+
+#formSaldo button {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #fff;
+    font-weight: 600;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+#formSaldo button:hover {
+    background: linear-gradient(135deg, #2980b9, #1f6391);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(52, 152, 219, 0.3);
+}
+
+#mensajeExito {
+    background: linear-gradient(90deg, #d4edda, #a8e6a3);
+    color: #155724;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+#mensajeError {
+    background: linear-gradient(90deg, #f8d7da, #f1a1a6);
+    color: #721c24;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+#saldoMostrado {
+    background-color: #f0f4f8;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    color: #2c3e50;
+}
+
+.card > * {
+    animation: slideInUp 0.5s ease forwards;
+}
+
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Espaciado interno de la card y separación de elementos */
+.card form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card h2 {
+    margin-bottom: 25px;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+#mensajeExito,
+#mensajeError {
+    margin-top: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+#saldoMostrado {
+    margin-top: 25px;
+    font-size: 1.3em;
+    text-align: center;
+    padding: 15px;
+}
