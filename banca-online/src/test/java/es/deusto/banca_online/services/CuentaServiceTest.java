@@ -274,4 +274,28 @@ class CuentaServiceTest {
 
         System.out.println("Test crearCuenta_GeneraNumeroCuentaUnico pasado");
     }
+
+    //SALDO CORRECTO
+    @Test
+    void obtenerSaldo_CuentaExiste_DevuelveSaldoCorrecto() {
+        // GIVEN
+        Long cuentaId = 1L;
+        Double saldoEsperado = 1000.0;
+
+        Cuenta cuenta = new Cuenta();
+        cuenta.setId(cuentaId);
+        cuenta.setSaldo(saldoEsperado);
+
+        when(cuentaRepository.findById(cuentaId))
+                .thenReturn(Optional.of(cuenta));
+
+        // WHEN
+        Double saldo = cuentaService.obtenerSaldo(cuentaId);
+
+        // THEN
+        assertEquals(saldoEsperado, saldo);
+        verify(cuentaRepository, times(1)).findById(cuentaId);
+
+        System.out.println("Test obtenerSaldo_CuentaExiste pasado");
+    }
 }
