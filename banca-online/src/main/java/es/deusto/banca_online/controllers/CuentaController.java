@@ -2,6 +2,7 @@ package es.deusto.banca_online.controllers;
 
 import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.dto.CuentaResponse;
+import es.deusto.banca_online.dto.SaldoResponse;
 import es.deusto.banca_online.services.CuentaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -53,5 +54,12 @@ public class CuentaController {
             }
             throw e; // Otras excepciones se lanzan normalmente
         }
+    }
+
+    //GET  /saldo
+    @GetMapping("/saldo/{cuentaId}")
+    public ResponseEntity<SaldoResponse> verSaldo(@PathVariable Long cuentaId) {
+        Double saldo = cuentaService.obtenerSaldo(cuentaId);
+        return ResponseEntity.ok(new SaldoResponse(saldo));
     }
 }
