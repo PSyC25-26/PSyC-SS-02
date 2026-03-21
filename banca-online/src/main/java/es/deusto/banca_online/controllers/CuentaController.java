@@ -56,10 +56,16 @@ public class CuentaController {
         }
     }
 
-    //GET  /saldo
+    //GET  /saldo por Id
     @GetMapping("/saldo/{cuentaId}")
     public ResponseEntity<SaldoResponse> verSaldo(@PathVariable Long cuentaId) {
         Double saldo = cuentaService.obtenerSaldo(cuentaId);
         return ResponseEntity.ok(new SaldoResponse(saldo));
+    }
+
+    //GET /saldo
+    @GetMapping("/saldo")
+    public String vistaSaldo() {
+        return "saldo";  // Thymeleaf cargará saldo.html
     }
 }
