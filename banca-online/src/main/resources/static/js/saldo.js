@@ -1,8 +1,10 @@
+// Captura submit del formulario
 document.getElementById('formSaldo').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const cuentaId = document.getElementById('cuentaId').value;
+    const cuentaId = document.getElementById('cuentaId').value.trim();
 
+    // Validación rápida
     if (!cuentaId || parseInt(cuentaId) <= 0) {
         mostrarError('El ID de cuenta debe ser un número positivo.');
         return;
@@ -26,12 +28,15 @@ document.getElementById('formSaldo').addEventListener('submit', async (e) => {
         }
     } catch (error) {
         mostrarError('Error de conexión con el servidor.');
+        document.getElementById('saldoMostrado').textContent = '';
     }
 });
 
+// Función reutilizable para mostrar errores
 function mostrarError(mensaje) {
     const div = document.getElementById('mensajeError');
     div.textContent = ' X ' + mensaje;
     div.style.display = 'block';
+    div.style.color = 'red';
     document.getElementById('saldoMostrado').textContent = '';
 }
