@@ -298,4 +298,24 @@ class CuentaServiceTest {
 
         System.out.println("Test obtenerSaldo_CuentaExiste pasado");
     }
+
+    //CUENTA NO EXISTE
+    @Test
+    void obtenerSaldo_CuentaNoExiste_LanzaExcepcion() {
+        // GIVEN
+        Long cuentaId = 999L;
+
+        when(cuentaRepository.findById(cuentaId))
+                .thenReturn(Optional.empty());
+
+        // WHEN + THEN
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            cuentaService.obtenerSaldo(cuentaId);
+        });
+
+        assertEquals("Cuenta no encontrada", exception.getMessage());
+        verify(cuentaRepository, times(1)).findById(cuentaId);
+
+        System.out.println("Test obtenerSaldo_CuentaNoExiste pasado");
+    }
 }
