@@ -174,9 +174,123 @@ function mostrarClientes() {
             <p class="cliente-email">${cliente.email}</p>
             <p><small>ID: ${cliente.id}</small></p>
             <p><small>DNI: ${cliente.dni || 'No especificado'}</small></p>
+            <button class="btn-editar" onclick="abrirModalEditar(${cliente.id})">Editar / Eliminar</button>
         </div>
     `).join('');
 }
 
 // Cargar clientes al iniciar la página
 document.addEventListener('DOMContentLoaded', cargarClientes);
+
+
+
+// funcion editar
+async function abrirModalEditar(id) {
+    try {
+        const response = await fetch(`/api/clientes/${id}`);
+        if (!response.ok) throw new Error('No encontrado');
+
+        const cliente = await response.json();
+
+        document.getElementById('editId').value = cliente.id;
+        document.getElementById('editNombre').value = cliente.nombre || '';
+        document.getElementById('editPrimerApellido').value = cliente.primerApellido || '';
+        document.getElementById('editSegundoApellido').value = cliente.segundoApellido || '';
+        document.getElementById('editDni').value = cliente.dni || '';
+        document.getElementById('editEmail').value = cliente.email || '';
+        document.getElementById('editTelefono').value = cliente.telefono || '';
+        document.getElementById('editDireccion').value = cliente.direccion || '';
+        const fn = cliente.fechaNacimiento;
+        document.getElementById('editFechaNacimiento').value = Array.isArray(fn)
+            ? `${fn[0]}-${String(fn[1]).padStart(2,'0')}-${String(fn[2]).padStart(2,'0')}`
+            : fn || '';
+        document.getElementById('modalEditarEliminar').style.display = 'block';
+
+    } catch (error) {
+        alert('Error al cargar el cliente');
+    }
+}
+
+const modalEditarEliminar = document.getElementById('modalEditarEliminar');
+const btnCerrarEditar = document.getElementById('btnCerrarEditar');
+const formEditar = document.getElementById('formEditar');
+const btnEliminar = document.getElementById('btnEliminar');
+const mensajeExitoEditar = document.getElementById('mensajeExitoEditar');
+const mensajeErrorEditar = document.getElementById('mensajeErrorEditar');
+
+btnCerrarEditar.addEventListener('click', () => {
+    modalEditarEliminar.style.display = 'none';
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target === modalEditarEliminar) modalEditarEliminar.style.display = 'none';
+});
+
+function ocultarMensajesEditar() {
+    mensajeExitoEditar.style.display = 'none';
+    mensajeErrorEditar.style.display = 'none';
+}
+
+// GUARDAR cambios (PUT)
+formEditar.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editId').value;
+    const datos = {
+        dni: document.getElementById('editDni').value,
+        nombre: document.getElementById('editNombre').value,
+        primerApellido: document.getElementById('editPrimerApellido').value,
+        segundoApellido: document.getElementById('editSegundoApellido').value,
+        fechaNacimiento: document.getElementById('editFechaNacimiento').value,
+        email: document.getElementById('editEmail').value,
+        telefono: document.getElementById('editTelefono').value,
+        direccion: document.getElementById('editDireccion').value
+    };
+
+    try {
+        const response = await fetch(`/api/clientes/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+
+        if (response.ok) {
+            mensajeExitoEditar.textContent = 'Cliente actualizado con éxito';
+            mensajeExitoEditar.style.display = 'block';
+            await cargarClientes();
+            setTimeout(() => { modalEditarEliminar.style.display = 'none'; }, 2000);
+        } else {
+            const error = await response.json().catch(() => ({}));
+            mensajeErrorEditar.textContent = (error.message || 'Error al actualizar');
+            mensajeErrorEditar.style.display = 'block';
+        }
+    } catch {
+        mensajeErrorEditar.textContent = 'Error de conexión con el servidor';
+        mensajeErrorEditar.style.display = 'block';
+    }
+});
+
+// ELIMINAR (DELETE)
+btnEliminar.addEventListener('click', async () => {
+    const id = document.getElementById('editId').value;
+    if (!confirm('¿Seguro que quieres eliminar este cliente?')) return;
+
+    try {
+        const response = await fetch(`/api/clientes/${id}`, { method: 'DELETE' });
+
+        if (response.status === 204) {
+            mensajeExitoEditar.textContent = 'Cliente eliminado con éxito';
+            mensajeExitoEditar.style.display = 'block';
+            await cargarClientes();
+            setTimeout(() => { modalEditarEliminar.style.display = 'none'; }, 2000);
+        } else if (response.status === 404) {
+            mensajeErrorEditar.textContent = 'Cliente no encontrado';
+            mensajeErrorEditar.style.display = 'block';
+        } else {
+            mensajeErrorEditar.textContent = 'Error al eliminar el cliente';
+            mensajeErrorEditar.style.display = 'block';
+        }
+    } catch {
+        mensajeErrorEditar.textContent = 'Error de conexión con el servidor';
+        mensajeErrorEditar.style.display = 'block';
+    }
+});

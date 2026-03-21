@@ -109,6 +109,62 @@
                 <p>Cargando clientes...</p>
             </div>
         </div>
+
+        <!-- Editar/eliminar cliente -->
+        <div id="modalEditarEliminar" class="form">
+            <div class="form-contenido">
+                <div class="form-header">
+                    <h2>Editar / Eliminar Cliente</h2>
+                    <button class="btn-cerrar" id="btnCerrarEditar">&times;</button>
+                </div>
+
+                <form id="formEditar">
+                    <input type="hidden" id="editId">
+
+                    <div class="form-group">
+                        <label for="editNombre">Nombre *</label>
+                        <input type="text" id="editNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPrimerApellido">Primer Apellido</label>
+                        <input type="text" id="editPrimerApellido">
+                    </div>
+                    <div class="form-group">
+                        <label for="editSegundoApellido">Segundo Apellido</label>
+                        <input type="text" id="editSegundoApellido">
+                    </div>
+                    <div class="form-group">
+                        <label for="editDni">DNI *</label>
+                        <input type="text" id="editDni" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email *</label>
+                        <input type="email" id="editEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTelefono">Teléfono</label>
+                        <input type="tel" id="editTelefono">
+                    </div>
+                    <div class="form-group">
+                        <label for="editFechaNacimiento">Fecha de Nacimiento *</label>
+                        <input type="date" id="editFechaNacimiento" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDireccion">Dirección</label>
+                        <input type="text" id="editDireccion">
+                    </div>
+
+                    <div class="form-footer">
+                        <button type="button" class="btn-danger" id="btnEliminar">🗑 Eliminar</button>
+                        <button type="submit" class="btn-primario">Guardar cambios</button>
+                    </div>
+                </form>
+
+                <div id="mensajeExitoEditar" class="mensaje-exito" style="display:none;"></div>
+                <div id="mensajeErrorEditar" class="mensaje-error" style="display:none;"></div>
+            </div>
+        </div>
+
     </div>
     </main>
 
