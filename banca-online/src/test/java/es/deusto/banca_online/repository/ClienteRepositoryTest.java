@@ -59,6 +59,7 @@ class ClienteRepositoryTest {
         cliente1.setNombre("Juan");
         cliente1.setEmail("juan@test.com");
         cliente1.setFechaNacimiento(LocalDate.of(1990, 1, 1));
+        cliente1.setFechaCreacion(LocalDateTime.now());
         entityManager.persist(cliente1);
 
         Cliente cliente2 = new Cliente();
@@ -66,6 +67,7 @@ class ClienteRepositoryTest {
         cliente2.setNombre("María");
         cliente2.setEmail("maria@test.com");
         cliente2.setFechaNacimiento(LocalDate.of(1991, 2, 2));
+        cliente2.setFechaCreacion(LocalDateTime.now());
         entityManager.persist(cliente2);
 
         Cliente cliente3 = new Cliente();
@@ -73,6 +75,7 @@ class ClienteRepositoryTest {
         cliente3.setNombre("Pedro");
         cliente3.setEmail("pedro@test.com");
         cliente3.setFechaNacimiento(LocalDate.of(1992, 3, 3));
+        cliente3.setFechaCreacion(LocalDateTime.now());
         entityManager.persist(cliente3);
 
         entityManager.flush();
