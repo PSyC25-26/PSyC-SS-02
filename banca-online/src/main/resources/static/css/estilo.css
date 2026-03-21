@@ -251,3 +251,34 @@ h1 {
 .btn-editar:hover {
     background-color: #d68910;
 }
+
+.mensajeExito {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.mensajeError {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.saldoMostrado {
+    font-size: 1.2em;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.card {
+    border: 1px solid #ccc;
+    padding: 20px;
+    width: 350px;
+    margin: 50px auto;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #ccc;
+    text-align: center;
+}
+
+button {
+    margin-top: 10px;
+    padding: 5px 10px;
+}

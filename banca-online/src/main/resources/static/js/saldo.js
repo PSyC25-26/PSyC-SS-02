@@ -40,3 +40,31 @@ function mostrarError(mensaje) {
     div.style.color = 'red';
     document.getElementById('saldoMostrado').textContent = '';
 }
+
+// Función para cargar el saldo desde el endpoint /saldo/{cuentaId}
+async function cargarSaldo() {
+    // Obtenemos el ID de la cuenta desde el input hidden
+    const cuentaIdInput = document.getElementById('cuentaId');
+    const cuentaId = cuentaIdInput ? cuentaIdInput.value : null;
+    const contenedor = document.getElementById('saldoContenedor');
+
+    if (!cuentaId) {
+        contenedor.innerHTML = '<p>No se ha indicado ningún ID de cuenta.</p>';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/saldo/${cuentaId}`); // llamada al endpoint
+        if (!response.ok) throw new Error('Cuenta no encontrada');
+
+        const data = await response.json(); // { "saldo": 1000.0 }
+        contenedor.innerHTML = `
+            <p>Saldo actual: <strong>${data.saldo.toFixed(2)} €</strong></p>
+        `;
+    } catch (error) {
+        contenedor.innerHTML = `<p>Error al obtener el saldo: ${error.message}</p>`;
+    }
+}
+
+// Ejecutar al cargar la página
+document.addEventListener('DOMContentLoaded', cargarSaldo);
