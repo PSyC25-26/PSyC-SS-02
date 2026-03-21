@@ -2,29 +2,31 @@
 <html lang="es">
 <head>
     <title>Consulta de Saldo</title>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="css/estilo.css">
 </head>
-
-
 <body>
 <div class="card">
     <h2>Consultar saldo</h2>
 
+    <!-- Formulario -->
     <form id="formSaldo">
-        <input type="number" id="cuentaId" placeholder="Introduce ID de cuenta" />
-        <br>
-        <button type="submit">Consultar saldo</button>
+        <label for="cuentaId">ID de la cuenta:</label>
+        <input type="number" id="cuentaId" placeholder="Introduce ID de cuenta" min="1" required />
+        <button type="submit">Consultar</button>
     </form>
 
+    <!-- Mensajes -->
     <div id="mensajeExito" class="mensajeExito" style="display:none;"></div>
     <div id="mensajeError" class="mensajeError" style="display:none;"></div>
 
+    <!-- Saldo mostrado -->
     <div id="saldoMostrado" class="saldoMostrado"></div>
 </div>
 
-<script src="/js/cuenta.js"></script>
-<script src="/js/saldo.js"></script> <!-- vamos a crear este -->
+<!-- Scripts -->
+<script src="/js/cuenta.js"></script> <!-- Opcional, si quieres usar funciones compartidas -->
+<script src="/js/saldo.js"></script>
 </body>
 </html>
