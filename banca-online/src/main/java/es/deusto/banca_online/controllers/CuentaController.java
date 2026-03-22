@@ -7,10 +7,12 @@ import es.deusto.banca_online.services.CuentaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Controller
 @RestController
 @RequestMapping("/cuentas")
 public class CuentaController {
@@ -57,15 +59,22 @@ public class CuentaController {
     }
 
     //GET  /saldo por Id
+    @ResponseBody
     @GetMapping("/saldo/{cuentaId}")
     public ResponseEntity<SaldoResponse> verSaldo(@PathVariable Long cuentaId) {
-        Double saldo = cuentaService.obtenerSaldo(cuentaId);
-        return ResponseEntity.ok(new SaldoResponse(saldo));
+        try {
+            Double saldo = cuentaService.obtenerSaldo(cuentaId);
+            return ResponseEntity.ok(new SaldoResponse(saldo));
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Cuenta no encontrada")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            throw e;
+        }
     }
 
-    //GET /saldo
     @GetMapping("/saldo")
     public String vistaSaldo() {
-        return "saldo";
+        return "consultar-saldo";
     }
 }
