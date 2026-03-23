@@ -4,6 +4,7 @@ import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.dto.CuentaResponse;
 import es.deusto.banca_online.dto.SaldoResponse;
 import es.deusto.banca_online.services.CuentaService;
+import es.deusto.banca_online.services.TransferService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +19,11 @@ import java.util.List;
 public class CuentaController {
 
     private final CuentaService cuentaService;
+    private final TransferService transferService;
 
-    public CuentaController(CuentaService cuentaService) {
+    public CuentaController(CuentaService cuentaService, TransferService transferService) {
         this.cuentaService = cuentaService;
+        this.transferService = transferService;
     }
 
     //POST /cuentas
@@ -76,5 +79,21 @@ public class CuentaController {
     @GetMapping("/saldo")
     public String vistaSaldo() {
         return "consultar-saldo";
+    }
+
+    //Transferencia de dinero entre cuentas
+    @PostMapping("/transferir")
+    public ResponseEntity<Void> transferirDinero(@RequestParam String cuentaOrigen,
+                                                  @RequestParam String cuentaDestino,
+                                                  @RequestParam double cantidad) {
+        try {
+            transferService.transferirDinero(cuentaOrigen, cuentaDestino, cantidad);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Cuenta no encontrada")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            throw e;
+        }
     }
 }

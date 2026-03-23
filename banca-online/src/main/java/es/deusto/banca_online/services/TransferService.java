@@ -24,7 +24,6 @@ public class TransferService {
    public void transferirDinero(String cuentaOrigen, String cuentaDestino, double cantidad) {
 
         // Verificar que tanto la cuenta de origen como la de destino existen
-
         Cuenta origen = cuentaRepository.findByNumeroCuenta(cuentaOrigen)
                 .orElseThrow(() -> new RuntimeException("Cuenta de origen no encontrada"));
         Cuenta destino = cuentaRepository.findByNumeroCuenta(cuentaDestino)
