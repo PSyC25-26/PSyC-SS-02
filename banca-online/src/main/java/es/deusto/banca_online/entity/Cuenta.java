@@ -1,8 +1,11 @@
 package es.deusto.banca_online.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
+@Data
 @Entity
 @Table(name = "cuenta")
 public class Cuenta {
@@ -41,25 +44,5 @@ public class Cuenta {
     @PrePersist
     protected void onCreate() {
         this.fechaCreacion = LocalDateTime.now();
-    }
-
-    //Getters y setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getNumeroCuenta() { return numeroCuenta; }
-    public void setNumeroCuenta(String numeroCuenta) { this.numeroCuenta = numeroCuenta; }
-
-    public Double getSaldo() { return saldo; }
-    public void setSaldo(Double saldo) { this.saldo = saldo; }
-
-    public ETipoCuenta getTipoCuenta() { return tipoCuenta; }
-    public void setTipoCuenta(ETipoCuenta tipoCuenta) { this.tipoCuenta = tipoCuenta; }
-
-    public Cliente getCliente() { return cliente; }
-    public void setCliente(Cliente cliente) { this.cliente = cliente; }
-
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
     }
 }
