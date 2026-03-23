@@ -9,7 +9,6 @@ import es.deusto.banca_online.repository.ICuentaRepository;
 import es.deusto.banca_online.repository.IClienteRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -65,5 +64,13 @@ public class CuentaService {
                 .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
 
         return cuenta.getSaldo();
+    }
+
+    public void actualizarSaldo(Long cuentaId, Double nuevoSaldo) {
+        Cuenta cuenta = cuentaRepository.findById(cuentaId)
+                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+
+        cuenta.setSaldo(nuevoSaldo);
+        cuentaRepository.save(cuenta);
     }
 }
