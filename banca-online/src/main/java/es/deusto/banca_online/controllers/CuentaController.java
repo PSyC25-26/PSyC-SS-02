@@ -3,6 +3,7 @@ package es.deusto.banca_online.controllers;
 import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.dto.CuentaResponse;
 import es.deusto.banca_online.dto.SaldoResponse;
+import es.deusto.banca_online.dto.TransferenciaDTO;
 import es.deusto.banca_online.services.CuentaService;
 import es.deusto.banca_online.services.TransferService;
 import jakarta.validation.Valid;
@@ -83,12 +84,10 @@ public class CuentaController {
 
     //Transferencia de dinero entre cuentas
     @PostMapping("/transferir")
-    public ResponseEntity<Void> transferirDinero(@RequestParam String cuentaOrigen,
-                                                  @RequestParam String cuentaDestino,
-                                                  @RequestParam double cantidad) {
+    public ResponseEntity<TransferenciaDTO> transferirDinero(@RequestBody @Valid TransferenciaDTO transferenciaDTO) {
         try {
-            transferService.transferirDinero(cuentaOrigen, cuentaDestino, cantidad);
-            return ResponseEntity.ok().build();
+            TransferenciaDTO transferencia = transferService.transferirDinero(transferenciaDTO);
+            return ResponseEntity.ok(transferencia);
         } catch (RuntimeException e) {
             if (e.getMessage() != null && e.getMessage().contains("Cuenta no encontrada")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
