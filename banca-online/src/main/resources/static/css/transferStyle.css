@@ -1,0 +1,92 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    text-align: center;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    margin: 50px auto;
+    width: 320px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+input {
+    width: 90%;
+    padding: 8px;
+    margin: 5px 0 15px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#btnTransferir {
+    background-color: #3498db;
+    color: white;
+}
+
+#btnLimpiar {
+    background-color: #e74c3c;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+/* Mensajes */
+.mensaje-transferencia {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
+}
+
+.exito {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.no-encontrada {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* Resumen */
+.resumen-transferencia {
+    display: none;
+    margin-top: 15px;
+    padding: 10px;
+    background: #eef6ff;
+    border-radius: 5px;
+    text-align: left;
+}
+
+/* Spinner simple */
+.loading-spinner {
+    border: 2px solid #fff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
