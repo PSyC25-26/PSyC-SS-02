@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.dto.CuentaResponse;
+import es.deusto.banca_online.services.TransferService;
 import es.deusto.banca_online.entity.ETipoCuenta;
 import es.deusto.banca_online.services.CuentaService;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,9 @@ class CuentaControllerTest {
 
     @MockitoBean
     private CuentaService cuentaService;  // Mock del servicio
+
+    @MockitoBean
+    private TransferService transferService;  // Mock del servicio
 
     private ObjectMapper objectMapper; // Convierte objetos a JSON
 
