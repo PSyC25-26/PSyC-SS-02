@@ -296,4 +296,51 @@ class CuentaControllerTest {
         // Verificamos que se haya llamado al servicio crearCuenta 1 vez
         verify(cuentaService, times(1)).crearCuenta(any(CuentaRequest.class));
     }
+
+    //SALDO CORRECTO (200 OK)
+    @Test
+    void verSaldo_CuandoCuentaExiste_RetornaSaldo() throws Exception {
+        // Simulamos saldo
+        when(cuentaService.obtenerSaldo(1L)).thenReturn(1000.0);
+
+        // Llamamos al endpoint
+        mockMvc.perform(get("/cuentas/saldo/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.saldo").value(1000.0));
+
+        // Verificamos llamada al servicio
+        verify(cuentaService, times(1)).obtenerSaldo(1L);
+    }
+
+    //CUENTA NO ENCONTRADA (404)
+    @Test
+    void verSaldo_CuentaNoExiste_Retorna404() throws Exception {
+        // Simulamos excepción
+        when(cuentaService.obtenerSaldo(999L))
+                .thenThrow(new RuntimeException("Cuenta no encontrada con id: 999"));
+
+        // Llamamos al endpoint
+        mockMvc.perform(get("/cuentas/saldo/999")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        // Verificamos llamada al servicio
+        verify(cuentaService, times(1)).obtenerSaldo(999L);
+    }
+
+    //EXCEPTION NO CONTROLADA
+    @Test
+    void verSaldo_ErrorInterno_LanzaExcepcion() throws Exception {
+        // Simulamos error inesperado
+        when(cuentaService.obtenerSaldo(1L))
+                .thenThrow(new RuntimeException("Error de base de datos"));
+
+        // Esperamos excepción (no 404)
+        mockMvc.perform(get("/cuentas/saldo/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+
+        verify(cuentaService, times(1)).obtenerSaldo(1L);
+    }
 }
