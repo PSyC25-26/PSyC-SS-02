@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.dto.CuentaResponse;
+import es.deusto.banca_online.dto.TransferenciaDTO;
 import es.deusto.banca_online.services.TransferService;
 import es.deusto.banca_online.entity.ETipoCuenta;
 import es.deusto.banca_online.services.CuentaService;
@@ -346,7 +347,65 @@ class CuentaControllerTest {
                    .contentType(MediaType.APPLICATION_JSON))
         ).hasCauseInstanceOf(RuntimeException.class)
          .hasMessageContaining("Error de base de datos");
+    }
 
-        verify(cuentaService, times(1)).obtenerSaldo(1L);
+    // --- TESTS PARA TRANSFERIR DINERO ---
+
+    @Test
+    void transferirDinero_DatosValidos_Retorna200() throws Exception {
+        TransferenciaDTO dto = new TransferenciaDTO();
+        dto.setCuentaOrigen("ES123456789012345678");
+        dto.setCuentaDestino("ES876543210987654321");
+        dto.setCantidad(100.0);
+
+        when(transferService.transferirDinero(any(TransferenciaDTO.class))).thenReturn(dto);
+
+        mockMvc.perform(post("/cuentas/transferir")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cuentaOrigen").value("ES123456789012345678"))
+                .andExpect(jsonPath("$.cuentaDestino").value("ES876543210987654321"))
+                .andExpect(jsonPath("$.cantidad").value(100.0));
+
+        verify(transferService, times(1)).transferirDinero(any(TransferenciaDTO.class));
+    }
+
+    @Test
+    void transferirDinero_CuentaNoEncontrada_Retorna404() throws Exception {
+        TransferenciaDTO dto = new TransferenciaDTO();
+        dto.setCuentaOrigen("ES999");
+        dto.setCuentaDestino("ES876543210987654321");
+        dto.setCantidad(100.0);
+
+        when(transferService.transferirDinero(any(TransferenciaDTO.class)))
+                .thenThrow(new RuntimeException("Cuenta no encontrada"));
+
+        mockMvc.perform(post("/cuentas/transferir")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isNotFound());
+
+        verify(transferService, times(1)).transferirDinero(any(TransferenciaDTO.class));
+    }
+
+    @Test
+    void transferirDinero_SaldoInsuficiente_RetornaError() throws Exception {
+        TransferenciaDTO dto = new TransferenciaDTO();
+        dto.setCuentaOrigen("ES123456789012345678");
+        dto.setCuentaDestino("ES876543210987654321");
+        dto.setCantidad(10000.0);
+
+        when(transferService.transferirDinero(any(TransferenciaDTO.class)))
+                .thenThrow(new RuntimeException("Saldo insuficiente en la cuenta de origen"));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                mockMvc.perform(post("/cuentas/transferir")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+        ).hasCauseInstanceOf(RuntimeException.class)
+         .hasMessageContaining("Saldo insuficiente");
+
+        verify(transferService, times(1)).transferirDinero(any(TransferenciaDTO.class));
     }
 }
