@@ -17,8 +17,12 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest //Indicamos que como es test, no queremos que se guarde en la BD.
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@DataJpaTest(properties = {
+    "spring.jpa.hibernate.ddl-auto=create-drop",
+    "spring.sql.init.mode=never",
+    "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect"
+}) //Indicamos que como es test, no queremos que se guarde en la BD.
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class CuentaRepositoryTest {
 
     // Inyectamos el repositorio sin tener que crear uno
