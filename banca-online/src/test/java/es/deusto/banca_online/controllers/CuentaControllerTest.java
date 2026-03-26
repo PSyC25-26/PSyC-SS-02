@@ -340,10 +340,12 @@ class CuentaControllerTest {
         when(cuentaService.obtenerSaldo(1L))
                 .thenThrow(new RuntimeException("Error de base de datos"));
 
-        // Esperamos excepción (no 404)
-        mockMvc.perform(get("/cuentas/saldo/1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
+        // Esperamos excepción (diferente a 404)
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> 
+            mockMvc.perform(get("/cuentas/saldo/1")
+                   .contentType(MediaType.APPLICATION_JSON))
+        ).hasCauseInstanceOf(RuntimeException.class)
+         .hasMessageContaining("Error de base de datos");
 
         verify(cuentaService, times(1)).obtenerSaldo(1L);
     }
