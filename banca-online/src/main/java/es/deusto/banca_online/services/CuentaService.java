@@ -2,11 +2,10 @@ package es.deusto.banca_online.services;
 
 import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.dto.CuentaResponse;
-import es.deusto.banca_online.entity.Cuenta;
-import es.deusto.banca_online.entity.Cliente;
-import es.deusto.banca_online.entity.ETipoCuenta;
+import es.deusto.banca_online.entity.*;
 import es.deusto.banca_online.repository.ICuentaRepository;
 import es.deusto.banca_online.repository.IClienteRepository;
+import es.deusto.banca_online.repository.ITransaccionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +17,12 @@ public class CuentaService {
 
     private final ICuentaRepository cuentaRepository;
     private final IClienteRepository clienteRepository;
+    private final ITransaccionRepository transaccionRepository;
 
-    public CuentaService(ICuentaRepository cuentaRepository, IClienteRepository clienteRepository) {
+    public CuentaService(ICuentaRepository cuentaRepository, IClienteRepository clienteRepository, ITransaccionRepository transaccionRepository) {
         this.cuentaRepository = cuentaRepository;
         this.clienteRepository = clienteRepository;
+        this.transaccionRepository = transaccionRepository;
     }
 
     public CuentaResponse crearCuenta(CuentaRequest request) {
@@ -72,5 +73,33 @@ public class CuentaService {
 
         cuenta.setSaldo(nuevoSaldo);
         cuentaRepository.save(cuenta);
+    }
+
+    public CuentaResponse depositarDinero(Long cuentaId, Double monto) {
+        if (monto == null || monto <= 0) {
+            throw new IllegalArgumentException("El monto a depositar debe ser mayor a cero");
+        }
+
+        Cuenta cuenta = cuentaRepository.findById(cuentaId)
+                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+
+        // Actualizamos el saldo
+        cuenta.setSaldo(cuenta.getSaldo() + monto);
+        Cuenta cuentaActualizada = cuentaRepository.save(cuenta);
+
+        Transaccion transaccion = new Transaccion();
+        transaccion.setTipo(ETipoTransaccion.DEPOSITO);
+        transaccion.setDescripcion("Depósito en cuenta " + cuenta.getNumeroCuenta());
+        transaccion.setTotal(monto);
+
+        // Al ser un depósito, el dinero entra a esta cuenta, por lo que es la "cuentaDestino".
+        // La cuentaOrigen queda como null.
+        transaccion.setCuentaDestino(cuenta);
+
+        // Guardamos el historial
+        transaccionRepository.save(transaccion);
+        // ----------------------------------------------
+
+        return toResponse(cuentaActualizada);
     }
 }

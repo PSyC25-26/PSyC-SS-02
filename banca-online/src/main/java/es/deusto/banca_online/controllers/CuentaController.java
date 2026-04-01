@@ -95,4 +95,26 @@ public class CuentaController {
             throw e;
         }
     }
+
+    // PUT /cuentas/1/depositar/50
+    @PutMapping("/{cuentaId}/depositar/{monto}")
+    public ResponseEntity<CuentaResponse> depositarDinero(
+            @PathVariable Long cuentaId,
+            @PathVariable Double monto) {
+        try {
+            // Llamamos a nuestro nuevo servicio
+            CuentaResponse response = cuentaService.depositarDinero(cuentaId, monto);
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            // Capturamos el error si el monto es inválido (por ejemplo negativo, etc...)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Cuenta no encontrada")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            throw e;
+        }
+    }
 }
