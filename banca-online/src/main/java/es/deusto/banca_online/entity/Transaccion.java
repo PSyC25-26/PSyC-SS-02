@@ -1,6 +1,7 @@
 package es.deusto.banca_online.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -20,6 +21,8 @@ public class Transaccion {
     @Column(length = 200)
     private String descripcion;
 
+    // Añadimos @Positive para asegurar que el movimiento siempre es mayor a 0
+    @Positive(message = "El importe de la transacción debe ser estrictamente mayor a cero")
     @Column(nullable = false)
     private Double total;
 

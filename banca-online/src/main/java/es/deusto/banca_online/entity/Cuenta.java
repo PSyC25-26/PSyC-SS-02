@@ -1,6 +1,7 @@
 package es.deusto.banca_online.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,8 @@ public class Cuenta {
     @Column(name = "numero_cuenta", nullable = false, unique = true)
     private String numeroCuenta;
 
+    // (para garantizar que el saldo no es negativo)
+    @Min(value = 0, message = "El saldo de la cuenta no puede ser menor a cero")
     @Column(nullable = false)
     private Double saldo;
 
