@@ -1,9 +1,6 @@
 package es.deusto.banca_online.controllers;
 
-import es.deusto.banca_online.dto.CuentaRequest;
-import es.deusto.banca_online.dto.CuentaResponse;
-import es.deusto.banca_online.dto.SaldoResponse;
-import es.deusto.banca_online.dto.TransferenciaDTO;
+import es.deusto.banca_online.dto.*;
 import es.deusto.banca_online.services.CuentaService;
 import es.deusto.banca_online.services.TransferService;
 import jakarta.validation.Valid;
@@ -96,18 +93,15 @@ public class CuentaController {
         }
     }
 
-    // PUT /cuentas/1/depositar/50
-    @PutMapping("/{cuentaId}/depositar/{monto}")
-    public ResponseEntity<CuentaResponse> depositarDinero(
-            @PathVariable Long cuentaId,
-            @PathVariable Double monto) {
+    // POST /cuentas/deposito
+    @PostMapping("/deposito")
+    public ResponseEntity<CuentaResponse> depositarDinero(@RequestBody @Valid DepositoRequest request) {
         try {
-            // Llamamos a nuestro nuevo servicio
-            CuentaResponse response = cuentaService.depositarDinero(cuentaId, monto);
+            // Usamos los datos que vienen dentro del DTO
+            CuentaResponse response = cuentaService.depositarDinero(request.getCuentaId(), request.getMonto());
             return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
-            // Capturamos el error si el monto es inválido (por ejemplo negativo, etc...)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         } catch (RuntimeException e) {

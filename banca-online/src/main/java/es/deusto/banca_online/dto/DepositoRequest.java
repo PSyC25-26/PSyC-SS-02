@@ -1,5 +1,31 @@
 package es.deusto.banca_online.dto;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+
 public class DepositoRequest {
 
+    @NotNull(message = "El ID de la cuenta es obligatorio")
+    private Long cuentaId;
+
+    @NotNull(message = "El monto es obligatorio")
+    @DecimalMin(value = "0.01", message = "El monto a depositar debe ser mayor a cero")
+    private Double monto;
+
+    // Getters y Setters
+    public Long getCuentaId() {
+        return cuentaId;
+    }
+
+    public void setCuentaId(Long cuentaId) {
+        this.cuentaId = cuentaId;
+    }
+
+    public Double getMonto() {
+        return monto;
+    }
+
+    public void setMonto(Double monto) {
+        this.monto = monto;
+    }
 }
