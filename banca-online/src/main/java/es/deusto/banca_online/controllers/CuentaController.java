@@ -111,4 +111,26 @@ public class CuentaController {
             throw e;
         }
     }
+
+    // POST /cuentas/retiro
+    @PostMapping("/retiro")
+    public ResponseEntity<CuentaResponse> retirarDinero(@RequestBody @Valid RetiroRequest request) {
+        try {
+            // Llamamos al servicio de retiro que creamos en el paso anterior
+            CuentaResponse response = cuentaService.retirarDinero(request.getCuentaId(), request.getMonto());
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            // Capturamos errores de validación (monto <= 0) o de lógica (saldo insuficiente)
+            // Enviamos un 400 Bad Request
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+        } catch (RuntimeException e) {
+            // Capturamos si la cuenta no existe
+            if (e.getMessage() != null && e.getMessage().contains("Cuenta no encontrada")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            throw e;
+        }
+    }
 }
