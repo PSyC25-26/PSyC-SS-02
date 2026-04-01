@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realizar Depósito - Banca Online</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<div class="card">
+    <h2>Realizar Depósito</h2>
+
+    <form id="formDeposito">
+
+        <label for="cuentaId">ID de la Cuenta Destino:</label>
+        <input type="number" id="cuentaId" name="cuentaId" placeholder="Ej: 1" required>
+
+        <label for="monto">Monto a depositar (€):</label>
+        <input type="number" id="monto" name="monto" step="0.01" min="0.01" placeholder="Ej: 50.00" required>
+
+        <button type="submit" id="btnDepositar">Depositar Dinero</button>
+    </form>
+
+    <div id="mensajeExito" style="display: none;"></div>
+    <div id="mensajeError" style="display: none;"></div>
+</div>
+
+</body>
+</html>
