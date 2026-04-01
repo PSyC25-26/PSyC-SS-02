@@ -102,4 +102,41 @@ public class CuentaService {
 
         return toResponse(cuentaActualizada);
     }
+
+    public CuentaResponse retirarDinero(Long cuentaId, Double monto) {
+        if (monto == null || monto <= 0) {
+            throw new IllegalArgumentException("El monto a retirar debe ser mayor a cero");
+        }
+
+        // 2. Buscamos la cuenta en la base de datos
+        Cuenta cuenta = cuentaRepository.findById(cuentaId)
+                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+
+        // 3. Verificamos que haya saldo suficiente para el retiro
+        if (cuenta.getSaldo() < monto) {
+            throw new IllegalArgumentException("Saldo insuficiente para realizar el retiro");
+        }
+
+        // 4. Restamos el monto al saldo actual
+        cuenta.setSaldo(cuenta.getSaldo() - monto);
+
+        // 5. Guardamos la cuenta con el nuevo saldo
+        Cuenta cuentaActualizada = cuentaRepository.save(cuenta);
+
+        // --- REGISTRO DE TRANSACCIÓN ---
+        Transaccion transaccion = new Transaccion();
+        transaccion.setTipo(ETipoTransaccion.RETIRO); // Usamos el tipo RETIRO
+        transaccion.setDescripcion("Retiro en cuenta " + cuenta.getNumeroCuenta());
+        transaccion.setTotal(monto);
+
+        // La cuenta de Destino queda como null (no la establecemos).
+        transaccion.setCuentaOrigen(cuenta);
+
+        // Guardamos el historial
+        transaccionRepository.save(transaccion);
+        // ----------------------------------------------
+
+        // 6. Retornamos los datos actualizados
+        return toResponse(cuentaActualizada);
+    }
 }
