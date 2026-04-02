@@ -7,6 +7,7 @@ import es.deusto.banca_online.entity.Cuenta;
 import es.deusto.banca_online.entity.ETipoCuenta;
 import es.deusto.banca_online.repository.IClienteRepository;
 import es.deusto.banca_online.repository.ICuentaRepository;
+import es.deusto.banca_online.repository.ITransaccionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +38,9 @@ class CuentaServiceTest {
 
     @InjectMocks  // Inyecta los repositorios simulados dentro de CuentaService
     private CuentaService cuentaService;
+
+    @Mock
+    private ITransaccionRepository transaccionRepository;
 
     private CuentaRequest requestValido;
     private Cliente clienteExistente;
@@ -317,5 +321,92 @@ class CuentaServiceTest {
         verify(cuentaRepository, times(1)).findById(cuentaId);
 
         System.out.println("Test obtenerSaldo_CuentaNoExiste pasado");
+    }
+
+    // ==========================================
+    // TESTS PARA DEPOSITAR DINERO
+    // ==========================================
+
+    @Test
+    void depositarDinero_DatosValidos_AumentaSaldoYRegistraTransaccion() {
+        // GIVEN: Una cuenta con 1000€ y queremos depositar 500€
+        Long cuentaId = 1L;
+        Double montoDeposito = 500.0;
+
+        Cuenta cuenta = new Cuenta();
+        cuenta.setId(cuentaId);
+        cuenta.setSaldo(1000.0);
+        cuenta.setNumeroCuenta("ES123");
+        cuenta.setCliente(clienteExistente);
+        cuenta.setTipoCuenta(ETipoCuenta.CORRIENTE);
+
+        when(cuentaRepository.findById(cuentaId)).thenReturn(Optional.of(cuenta));
+        when(cuentaRepository.save(any(Cuenta.class))).thenReturn(cuenta);
+
+        // WHEN: Ejecutamos el depósito
+        CuentaResponse response = cuentaService.depositarDinero(cuentaId, montoDeposito);
+
+        // THEN: El saldo debe ser 1500€
+        assertEquals(1500.0, response.getSaldo());
+
+        // Verificamos que se guardó la cuenta y la transacción
+        verify(cuentaRepository, times(1)).save(cuenta);
+        // import es.deusto.banca_online.entity.Transaccion; (Asegúrate de tener el import)
+        verify(transaccionRepository, times(1)).save(any());
+
+        System.out.println("Test depositarDinero_DatosValidos pasado");
+    }
+
+    @Test
+    void depositarDinero_MontoInvalido_LanzaExcepcion() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            cuentaService.depositarDinero(1L, -50.0);
+        });
+        verify(cuentaRepository, never()).save(any());
+    }
+
+    @Test
+    void retirarDinero_DatosValidos_DisminuyeSaldoYRegistraTransaccion() {
+        // GIVEN: Una cuenta con 1000€ y queremos retirar 200€
+        Long cuentaId = 1L;
+        Double montoRetiro = 200.0;
+
+        Cuenta cuenta = new Cuenta();
+        cuenta.setId(cuentaId);
+        cuenta.setSaldo(1000.0);
+        cuenta.setNumeroCuenta("ES123");
+        cuenta.setCliente(clienteExistente);
+        cuenta.setTipoCuenta(ETipoCuenta.CORRIENTE);
+
+        when(cuentaRepository.findById(cuentaId)).thenReturn(Optional.of(cuenta));
+        when(cuentaRepository.save(any(Cuenta.class))).thenReturn(cuenta);
+
+        // WHEN: Ejecutamos el retiro
+        CuentaResponse response = cuentaService.retirarDinero(cuentaId, montoRetiro);
+
+        // THEN: El saldo debe ser 800€
+        assertEquals(800.0, response.getSaldo());
+        verify(cuentaRepository, times(1)).save(cuenta);
+        verify(transaccionRepository, times(1)).save(any());
+
+        System.out.println("Test retirarDinero_DatosValidos pasado");
+    }
+
+    @Test
+    void retirarDinero_SaldoInsuficiente_LanzaExcepcion() {
+        // GIVEN: Una cuenta con 50€ y queremos retirar 1000€
+        Cuenta cuenta = new Cuenta();
+        cuenta.setId(1L);
+        cuenta.setSaldo(50.0);
+
+        when(cuentaRepository.findById(1L)).thenReturn(Optional.of(cuenta));
+
+        // WHEN & THEN: Debe lanzar excepción de argumento ilegal
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            cuentaService.retirarDinero(1L, 1000.0);
+        });
+
+        assertEquals("Saldo insuficiente para realizar el retiro", exception.getMessage());
+        verify(cuentaRepository, never()).save(any());
     }
 }

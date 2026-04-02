@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import es.deusto.banca_online.dto.DepositoRequest;
+import es.deusto.banca_online.dto.RetiroRequest;
 
 // NUEVA IMPORTACIÓN - Reemplaza a MockBean
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -407,5 +409,78 @@ class CuentaControllerTest {
          .hasMessageContaining("Saldo insuficiente");
 
         verify(transferService, times(1)).transferirDinero(any(TransferenciaDTO.class));
+    }
+
+    // ==========================================
+    // TESTS PARA ENDPOINT POST /cuentas/deposito
+    // ==========================================
+
+    @Test
+    void depositarDinero_DatosValidos_Retorna200() throws Exception {
+        // Preparamos el Request
+        DepositoRequest depositoRequest = new DepositoRequest();
+        depositoRequest.setCuentaId(1L);
+        depositoRequest.setMonto(150.0);
+
+        // Preparamos el Response esperado
+        cuentaResponse.setSaldo(1150.0); // 1000 originales + 150
+
+        when(cuentaService.depositarDinero(1L, 150.0)).thenReturn(cuentaResponse);
+
+        // Ejecutamos la petición POST
+        mockMvc.perform(post("/cuentas/deposito")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(depositoRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.saldo").value(1150.0));
+
+        verify(cuentaService, times(1)).depositarDinero(1L, 150.0);
+    }
+
+    @Test
+    void depositarDinero_CuentaNoExiste_Retorna404() throws Exception {
+        DepositoRequest depositoRequest = new DepositoRequest();
+        depositoRequest.setCuentaId(999L);
+        depositoRequest.setMonto(100.0);
+
+        when(cuentaService.depositarDinero(999L, 100.0))
+                .thenThrow(new RuntimeException("Cuenta no encontrada"));
+
+        mockMvc.perform(post("/cuentas/deposito")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(depositoRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void retirarDinero_DatosValidos_Retorna200() throws Exception {
+        RetiroRequest retiroRequest = new RetiroRequest();
+        retiroRequest.setCuentaId(1L);
+        retiroRequest.setMonto(200.0);
+
+        cuentaResponse.setSaldo(800.0); // 1000 originales - 200
+
+        when(cuentaService.retirarDinero(1L, 200.0)).thenReturn(cuentaResponse);
+
+        mockMvc.perform(post("/cuentas/retiro")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(retiroRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.saldo").value(800.0));
+    }
+
+    @Test
+    void retirarDinero_SaldoInsuficiente_Retorna400() throws Exception {
+        RetiroRequest retiroRequest = new RetiroRequest();
+        retiroRequest.setCuentaId(1L);
+        retiroRequest.setMonto(5000.0); // Monto gigante para provocar error
+
+        when(cuentaService.retirarDinero(1L, 5000.0))
+                .thenThrow(new IllegalArgumentException("Saldo insuficiente"));
+
+        mockMvc.perform(post("/cuentas/retiro")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(retiroRequest)))
+                .andExpect(status().isBadRequest()); // Esperamos error 400
     }
 }
