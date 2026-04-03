@@ -78,6 +78,19 @@ public class CuentaController {
     public String vistaSaldo() {
         return "consultar-saldo";
     }
+    
+    //GET /cuentas/{clienteId}
+    @GetMapping("/{clienteId}")
+    public ResponseEntity<List<CuentaResponse>> obtenerCuentasPorClienteId(@PathVariable Long clienteId) {
+        try {
+            return ResponseEntity.ok(cuentaService.obtenerCuentasPorCliente(clienteId));
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Cliente no encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            throw e;
+        }
+    }
 
     //Transferencia de dinero entre cuentas
     @PostMapping("/transferir")
