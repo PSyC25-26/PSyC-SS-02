@@ -304,6 +304,71 @@ class CuentaControllerTest {
         verify(cuentaService, times(1)).crearCuenta(any(CuentaRequest.class));
     }
 
+
+
+    // DATOS CORRECTOS - Con cuentas
+    @Test
+    void obtenerCuentasPorClienteId_CuandoHayCuentas_DeberiaRetornarLista() throws Exception {
+        // Configuramos el mock para devolver la lista de cuentas simuladas
+        when(cuentaService.obtenerCuentasPorCliente(1L)).thenReturn(cuentasMock);
+
+        // Llamamos al endpoint con el nuevo formato path variable
+        mockMvc.perform(get("/cuentas/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                // Esperamos un 200 OK
+                .andExpect(status().isOk())
+                // Verificamos que devuelve un array con 2 elementos
+                .andExpect(jsonPath("$", hasSize(2)))
+                // Validamos primer cuenta
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].numeroCuenta").value("ES123456789012345678"))
+                .andExpect(jsonPath("$[0].saldo").value(1000.0))
+                // Validamos segunda cuenta
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].numeroCuenta").value("ES876543210987654321"))
+                .andExpect(jsonPath("$[1].saldo").value(500.0));
+
+        // Verificamos que se ha llamado al servicio 1 vez
+        verify(cuentaService, times(1)).obtenerCuentasPorCliente(1L);
+    }
+
+    // DATOS INCORRECTOS - Cliente no existe
+    @Test
+    void obtenerCuentasPorClienteId_ClienteNoExiste_Retorna404() throws Exception {
+        // Cuando se consulta un cliente que no existe, el servicio lanza excepción
+        when(cuentaService.obtenerCuentasPorCliente(999L))
+                .thenThrow(new RuntimeException("Cliente no encontrado con id: 999"));
+
+        // Llamamos al endpoint con un ID de cliente inexistente
+        mockMvc.perform(get("/cuentas/999")
+                        .contentType(MediaType.APPLICATION_JSON))
+                // Esperamos un 404 Not Found porque el cliente no existe
+                .andExpect(status().isNotFound());
+
+        // Verificamos que se ha llamado al servicio obtenerCuentasPorCliente 1 vez
+        verify(cuentaService, times(1)).obtenerCuentasPorCliente(999L);
+    }
+
+    // DATOS CORRECTOS - Cliente sin cuentas
+    @Test
+    void obtenerCuentasPorClienteId_CuandoNoHayCuentas_DeberiaRetornarListaVacia() throws Exception {
+        // Configuramos el mock para devolver una lista vacía
+        when(cuentaService.obtenerCuentasPorCliente(1L)).thenReturn(Arrays.asList());
+
+        // Llamamos al endpoint con un cliente que no tiene cuentas
+        mockMvc.perform(get("/cuentas/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                // Esperamos un 200 OK (no es error, solo lista vacía)
+                .andExpect(status().isOk())
+                // Verificamos que devuelve un array con 0 elementos
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        // Verificamos que se ha llamado al servicio obtenerCuentasPorCliente 1 vez
+        verify(cuentaService, times(1)).obtenerCuentasPorCliente(1L);
+    }
+
+
+
     //SALDO CORRECTO (200 OK)
     @Test
     void verSaldo_CuandoCuentaExiste_RetornaSaldo() throws Exception {
