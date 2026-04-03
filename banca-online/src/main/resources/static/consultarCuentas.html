@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Cuentas - Banca Online</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<main>
+    <div class="container">
+        <h1>Consultar Cuentas del Cliente</h1>
+
+        <!-- Formulario de búsqueda -->
+        <div class="card" style="width: 100%; max-width: 500px; margin: 0 auto 40px;">
+            <h2>Buscar Cuentas</h2>
+            <form id="formBuscarCuentas">
+                <div class="form-group">
+                    <label for="clienteId">ID del Cliente *</label>
+                    <input type="number" id="clienteId" name="clienteId" 
+                           placeholder="Ingrese el ID del cliente" min="1" required>
+                </div>
+                <button type="submit" class="btn-primario" style="width: 100%; margin-top: 15px;">
+                    Buscar Cuentas
+                </button>
+            </form>
+
+            <!-- Mensajes de estado -->
+            <div id="mensajeExito" class="mensaje-exito" style="display: none; margin-top: 15px;"></div>
+            <div id="mensajeError" class="mensaje-error" style="display: none; margin-top: 15px;"></div>
+        </div>
+
+        <!-- Lista de cuentas -->
+        <div class="lista" id="listaCuentasContainer" style="display: none;">
+            <h3 id="tituloCuentas">Cuentas del Cliente</h3>
+            <div id="listaCuentas">
+                <!-- Se llenará con JavaScript -->
+            </div>
+        </div>
+
+        <!-- Mensaje cuando no hay cuentas -->
+        <div id="noCuentasContainer" style="display: none; text-align: center; margin-top: 40px;">
+            <p style="font-size: 18px; color: #7f8c8d;">
+                No hay cuentas registradas para este cliente
+            </p>
+        </div>
+    </div>
+</main>
+
+<script src="js/consultar-cuentas.js"></script>
+</body>
+</html>
