@@ -94,7 +94,7 @@ public class CuentaController {
     }
 
     // POST /cuentas/deposito
-    @PostMapping("/deposito")
+    @PostMapping("/depositar")
     public ResponseEntity<CuentaResponse> depositarDinero(@RequestBody @Valid DepositoRequest request) {
         try {
             // Usamos los datos que vienen dentro del DTO
