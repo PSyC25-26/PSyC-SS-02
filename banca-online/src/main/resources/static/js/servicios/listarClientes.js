@@ -84,10 +84,13 @@ function initListarClientes() {
 
         if (btnEditar) {
             btnEditar.onclick = () => {
-                const seleccionado = document.querySelector('.fila-cliente[style*="background-color: rgb(227, 242, 253)"]');
+                const seleccionado = document.querySelector('.fila-cliente.seleccionado');
                 if (seleccionado) {
-                    console.log('➡️ Editar cliente ID:', seleccionado.dataset.id);
-                    alert(`Editar cliente ID: ${seleccionado.dataset.id}`);
+                    const id = seleccionado.dataset.id;
+                    console.log('➡️ Editar cliente ID:', id);
+                    // Guardar el ID seleccionado para pasarlo al modal
+                    window.clienteIdParaEditar = id;
+                    GestorModales.abrir('editarClienteForm', 'editarClienteForm.html');
                 } else {
                     alert('Seleccione un cliente primero');
                 }
@@ -96,10 +99,15 @@ function initListarClientes() {
 
         if (btnEliminar) {
             btnEliminar.onclick = () => {
-                const seleccionado = document.querySelector('.fila-cliente[style*="background-color: rgb(227, 242, 253)"]');
+                const seleccionado = document.querySelector('.fila-cliente.seleccionado');
                 if (seleccionado) {
-                    console.log('➡️ Eliminar cliente ID:', seleccionado.dataset.id);
-                    alert(`Eliminar cliente ID: ${seleccionado.dataset.id}`);
+                    const id = seleccionado.dataset.id;
+                    const nombre = seleccionado.querySelector('td:nth-child(2)')?.innerText || 'Cliente';
+                    console.log('➡️ Eliminar cliente ID:', id);
+
+                    // Guardar el ID para que lo coja el modal
+                    window.clienteIdParaEliminar = id;
+                    GestorModales.abrir('eliminarClienteForm', 'eliminarClienteForm.html');
                 } else {
                     alert('Seleccione un cliente primero');
                 }

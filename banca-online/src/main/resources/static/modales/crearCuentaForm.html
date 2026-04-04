@@ -1,0 +1,38 @@
+<!-- Formulario creación de cuenta -->
+<div class="form-contenido">
+    <div class="form-header">
+        <h2>🏦 Crear Nueva Cuenta</h2>
+        <button class="btn-cerrar" id="btnCerrarCrearCuenta">&times;</button>
+    </div>
+
+    <div class="form-scroll">
+        <form id="formCrearCuenta">
+            <div class="form-group">
+                <label for="clienteId">ID del Cliente *</label>
+                <input type="number" id="clienteId" name="clienteId" required min="1" placeholder="Ingrese el ID del cliente">
+            </div>
+
+            <div class="form-group">
+                <label for="tipoCuenta">Tipo de Cuenta *</label>
+                <select id="tipoCuenta" name="tipoCuenta" required class="form-control">
+                    <option value="">-- Selecciona un tipo --</option>
+                    <option value="CORRIENTE">Corriente</option>
+                    <option value="AHORRO">Ahorro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="saldoInicial">Saldo Inicial (€)</label>
+                <input type="number" id="saldoInicial" name="saldoInicial" min="0" step="0.01" placeholder="0.00">
+            </div>
+
+            <div class="form-footer">
+                <button type="button" class="btn-secundario" id="btnCancelarCrearCuenta">Cancelar</button>
+                <button type="submit" class="btn-primario">Guardar Cuenta</button>
+            </div>
+        </form>
+
+        <div id="mensajeExitoCuenta" class="mensaje-exito" style="display: none;"></div>
+        <div id="mensajeErrorCuenta" class="mensaje-error" style="display: none;"></div>
+    </div>
+</div>

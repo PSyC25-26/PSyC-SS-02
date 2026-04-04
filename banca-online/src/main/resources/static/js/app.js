@@ -54,8 +54,7 @@ function generarMenu() {
     const opciones = currentRole === 'admin'
         ? [
             { nombre: '📋 Gestionar Clientes', modal: 'listarClientes', archivo: 'listarClientes.html' },
-            { nombre: '➕ Crear cuenta', modal: 'crearCuenta', archivo: 'crearCuenta.html' },
-            { nombre: '📋 Ver clientes', modal: 'verClientes', archivo: 'verClientes.html' }
+            { nombre: '🏦 Gestionar Cuentas', modal: 'listarCuentas', archivo: 'listarCuentas.html' },
         ]
         : [
             { nombre: '💰 Consultar saldo', modal: 'consultarSaldo', archivo: 'consultarSaldo.html' }

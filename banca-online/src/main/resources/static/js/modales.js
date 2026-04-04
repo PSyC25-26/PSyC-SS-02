@@ -61,13 +61,19 @@ const GestorModales = {
     // DEVOLVER el TÍTULO de cada modal
     getTitulo(modalNombre) {
         const titulos = {
+            // CLIENTES
             listarClientes: '📋 Gestión de Clientes',
             crearClienteForm: '👤 Crear nuevo cliente',
-            consultarSaldo: '💰 Consultar saldo',
-            deposito: '💵 Depositar dinero',
-            retiro: '💸 Retirar dinero',
-            transferencia: '🔄 Transferir dinero',
-            crearCuenta: '👤 Crear nueva cuenta'
+            editarClienteForm: '✏️ Editar Cliente',
+            eliminarClienteForm: '🗑 Eliminar Cliente',
+
+            // CUENTAS
+            crearCuentaForm: '🏦 Crear Nueva Cuenta',
+            // consultarSaldo: '💰 Consultar saldo',
+            // deposito: '💵 Depositar dinero',
+            // retiro: '💸 Retirar dinero',
+            // transferencia: '🔄 Transferir dinero',
+            // crearCuenta: '👤 Crear nueva cuenta'
         };
         return titulos[modalNombre] || 'Formulario';
     },
