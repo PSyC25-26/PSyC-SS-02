@@ -1,0 +1,47 @@
+// Estado global
+let currentRole = null;
+
+// SIMULACIÓN LOGIN (despues habra que conectarlo con backend real)
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    // Aqui habrá que llamar al backend
+    // Por ahora, hacemos mediante simulación:
+    if (email === 'admin@banco.com' && password === 'admin123') {
+        currentRole = 'admin';
+        iniciarSesion();
+    } else if (email === 'cliente@banco.com' && password === 'cliente123') {
+        currentRole = 'cliente';
+        iniciarSesion();
+    } else {
+        mostrarError('Credenciales inválidas');
+    }
+});
+
+
+// INICIAR SESION
+function iniciarSesion() {
+    // Ocultar login, mostrar app
+    document.getElementById('loginScreen').style.display = 'none'; //Desactivamos el login
+    document.getElementById('mainApp').style.display = 'block'; //Activamos el main
+
+    // Mostramos rol
+    document.getElementById('userRole').innerHTML =
+        `<strong>Rol:</strong> ${currentRole === 'admin' ? '👑 Administrador' : '👤 Cliente'}`;
+
+    // Generamos el menu según el rol
+    generarMenu();
+}
+
+
+
+// CERRAR SESION
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    currentRole = null;
+    document.getElementById('mainApp').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('modalContainer').innerHTML = '';
+});
