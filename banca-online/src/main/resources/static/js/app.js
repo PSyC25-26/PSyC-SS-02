@@ -45,3 +45,21 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('modalContainer').innerHTML = '';
 });
+
+
+// MOSTRAR ERRORES
+function mostrarError(mensaje) {
+    const errorDiv = document.getElementById('loginError');
+    if (errorDiv) {
+        errorDiv.textContent = mensaje;
+        errorDiv.style.display = 'block';
+    } else {
+        console.error('Error: ', mensaje); // fallback
+    }
+}
+
+// QUITAR ERRORES AL ESCRIBIR
+document.getElementById('loginForm').addEventListener('input', () => {
+    const errorDiv = document.getElementById('loginError');
+    if (errorDiv) errorDiv.style.display = 'none';
+});
