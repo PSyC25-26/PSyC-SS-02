@@ -89,7 +89,18 @@ docker-compose up -d
 - Swagger: http://localhost:8080/swagger-ui.html
 - Formularios: http://localhost:8080/index.html
 
+
 ---
+
+##  Credenciales para test
+**Admin**
+- **Correo**: admin@banco.com
+- **Contraseña**: admin123
+
+**Cliente**
+- **Correo**: cliente@banco.com
+- **Contraseña**: cliente123
+
 
 ##  Endpoints API
 
