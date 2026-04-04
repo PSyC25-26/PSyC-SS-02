@@ -87,7 +87,7 @@ docker-compose up -d
  **Listo!** La aplicación estará disponible en:
 - API: http://localhost:8080/api/clientes
 - Swagger: http://localhost:8080/swagger-ui.html
-- Formularios: http://localhost:8080/clienteForm.html
+- Formularios: http://localhost:8080/index.html
 
 ---
 
