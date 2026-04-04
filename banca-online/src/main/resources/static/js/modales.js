@@ -61,7 +61,8 @@ const GestorModales = {
     // DEVOLVER el TÍTULO de cada modal
     getTitulo(modalNombre) {
         const titulos = {
-            crearCliente: '👤 Crear nuevo cliente',
+            listarClientes: '📋 Gestión de Clientes',
+            crearClienteForm: '👤 Crear nuevo cliente',
             consultarSaldo: '💰 Consultar saldo',
             deposito: '💵 Depositar dinero',
             retiro: '💸 Retirar dinero',

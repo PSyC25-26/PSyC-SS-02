@@ -36,44 +36,38 @@ function initListarClientes() {
                 return;
             }
 
-            // Crear tabla para mejor visualización
+            // Ahora usa clases CSS en lugar de estilos inline
             listaClientes.innerHTML = `
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            <th style="text-align: left; padding: 10px; border-bottom: 2px solid #3498db;">ID</th>
-                            <th style="text-align: left; padding: 10px; border-bottom: 2px solid #3498db;">Nombre</th>
-                            <th style="text-align: left; padding: 10px; border-bottom: 2px solid #3498db;">Email</th>
-                            <th style="text-align: left; padding: 10px; border-bottom: 2px solid #3498db;">DNI</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${clientes.map(cliente => `
-                            <tr style="cursor: pointer;" data-id="${cliente.id}" class="fila-cliente">
-                                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${cliente.id}</td>
-                                <td style="padding: 10px; border-bottom: 1px solid #ddd;">
-                                    <strong>${cliente.nombre || ''} ${cliente.primerApellido || ''}</strong>
-                                </td>
-                                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${cliente.email}</td>
-                                <td style="padding: 10px; border-bottom: 1px solid #ddd;">${cliente.dni || 'N/A'}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                <p style="margin-top: 10px; font-size: 12px; color: #666;">
-                    ✅ Total: ${clientes.length} clientes
-                </p>
-            `;
+        <table class="tabla-clientes">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>DNI</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${clientes.map(cliente => `
+                    <tr class="fila-cliente" data-id="${cliente.id}">
+                        <td>${cliente.id}</td>
+                        <td><strong>${cliente.nombre || ''} ${cliente.primerApellido || ''}</strong></td>
+                        <td class="cliente-email">${cliente.email}</td>
+                        <td>${cliente.dni || 'N/A'}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        <p class="total-clientes">✅ Total: ${clientes.length} clientes</p>
+    `;
 
-            // Agregar evento de selección a cada fila
+            // Agregar evento de selección
             document.querySelectorAll('.fila-cliente').forEach(fila => {
                 fila.addEventListener('click', () => {
-                    // Remover selección anterior
                     document.querySelectorAll('.fila-cliente').forEach(f => {
-                        f.style.backgroundColor = '';
+                        f.classList.remove('seleccionado');
                     });
-                    // Seleccionar nueva fila
-                    fila.style.backgroundColor = '#e3f2fd';
+                    fila.classList.add('seleccionado');
                     console.log('Cliente seleccionado ID:', fila.dataset.id);
                 });
             });
@@ -82,9 +76,9 @@ function initListarClientes() {
         // Botones de acción (por ahora solo console.log)
         if (btnCrear) {
             btnCrear.onclick = () => {
-                console.log('➡️ Abrir modal crear cliente');
+                console.log('➡️ Abriendo modal crear cliente');
                 // Aquí después abriremos el modal de crear cliente
-                alert('Próximamente: Crear cliente');
+                GestorModales.abrir('crearClienteForm', 'crearClienteForm.html');
             };
         }
 
@@ -118,5 +112,34 @@ function initListarClientes() {
         console.log('✅ listarClientes inicializado correctamente');
     }, 100);
 }
+
+
+// Función global para recargar la lista de clientes
+window.mostrarClientes = mostrarClientes;  // ← ESTA LÍNEA ES LA CLAVE
+window.recargarListaClientes = async function() {
+    const listaClientes = document.getElementById('listaClientes');
+    if (!listaClientes) return;
+
+    listaClientes.innerHTML = '<p>Cargando clientes...</p>';
+
+    try {
+        const response = await fetch('/api/clientes');
+        if (response.ok) {
+            const clientes = await response.json();
+            // Usar la función mostrarClientes que ya tienes
+            if (typeof mostrarClientes === 'function') {
+                mostrarClientes(clientes);
+            } else {
+                // Si no hay función mostrarClientes, recargar la página
+                location.reload();
+            }
+        } else {
+            listaClientes.innerHTML = '<p class="error">Error al cargar los clientes</p>';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        listaClientes.innerHTML = '<p class="error">Error de conexión con el servidor</p>';
+    }
+};
 
 window.initListarClientes = initListarClientes;

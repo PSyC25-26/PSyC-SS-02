@@ -82,3 +82,63 @@
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
+
+
+
+/* ============================================
+   ADMIN - Botones de acción
+   ============================================ */
+
+.acciones-botones {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+
+/* ============================================
+   ADMIN - Tabla de clientes
+   ============================================ */
+
+.tabla-clientes {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-clientes thead th {
+    text-align: left;
+    padding: 12px 10px;
+    border-bottom: 2px solid #3498db;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.tabla-clientes tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-clientes tbody tr:hover {
+    background-color: #f0f7ff;
+}
+
+.fila-cliente {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.fila-cliente.seleccionado {
+    background-color: #e3f2fd;
+}
+
+.cliente-email {
+    color: #3498db;
+}
+
+.total-clientes {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #666;
+    text-align: right;
+}
