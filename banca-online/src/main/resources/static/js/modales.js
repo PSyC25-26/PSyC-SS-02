@@ -15,6 +15,7 @@ const GestorModales = {
             // De lo contrario, hacemos fetch para traer el HTML de la carpeta correspondiente
             if (!html) {
                 const response = await fetch(`modales/${archivoHtml}`);
+                if (!response.ok) throw new Error('No se pudo cargar el modal'); // Manejo de errores de carga de modal
                 html = await response.text();
                 this.cache[archivoHtml] = html; // Lo metemos en caché
             }
@@ -76,16 +77,21 @@ const GestorModales = {
         const scriptAnterior = document.getElementById(`script-${modalNombre}`); // Buscamos el script del modal
         if (scriptAnterior) scriptAnterior.remove(); // Eliminamos el script si es que existe
 
-        // Cargamos el nuevo script
-        const script = document.createElement('script');
-        script.id = `script-${modalNombre}`;
-        script.src = `js/servicios/${modalNombre}.js`;
-        script.onload = () => {
-            // Inicializar el formulario si tiene función init
-            if (window[`init${modalNombre.charAt(0).toUpperCase() + modalNombre.slice(1)}`]) {
-                window[`init${modalNombre.charAt(0).toUpperCase() + modalNombre.slice(1)}`]();
-            }
-        };
-        document.body.appendChild(script);
+        return new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.id = `script-${modalNombre}`;
+            script.src = `js/servicios/${modalNombre}.js`;
+            script.onload = () => {
+                if (window[`init${modalNombre.charAt(0).toUpperCase() + modalNombre.slice(1)}`]) {
+                    window[`init${modalNombre.charAt(0).toUpperCase() + modalNombre.slice(1)}`]();
+                }
+                resolve();
+            };
+            script.onerror = () => {
+                console.error(`Error cargando script: ${modalNombre}.js`);
+                resolve();
+            };
+            document.body.appendChild(script);
+        });
     }
 };

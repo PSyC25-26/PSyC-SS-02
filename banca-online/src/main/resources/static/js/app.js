@@ -47,6 +47,29 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 });
 
 
+function generarMenu() {
+    const menuDiv = document.getElementById('menuDinamico');
+    menuDiv.innerHTML = '';
+
+    const opciones = currentRole === 'admin'
+        ? [
+            { nombre: '➕ Crear cuenta', modal: 'crearCuenta', archivo: 'crearCuenta.html' },
+            { nombre: '📋 Ver clientes', modal: 'verClientes', archivo: 'verClientes.html' }
+        ]
+        : [
+            { nombre: '💰 Consultar saldo', modal: 'consultarSaldo', archivo: 'consultarSaldo.html' }
+        ];
+
+    opciones.forEach(op => {
+        const btn = document.createElement('button');
+        btn.textContent = op.nombre;
+        btn.className = 'btn-menu';
+        btn.onclick = () => GestorModales.abrir(op.modal, op.archivo);
+        menuDiv.appendChild(btn);
+    });
+}
+
+
 // MOSTRAR ERRORES
 function mostrarError(mensaje) {
     const errorDiv = document.getElementById('loginError');

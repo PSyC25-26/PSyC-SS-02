@@ -1,11 +1,16 @@
 // Función para mostrar errores
 function mostrarError(mensaje) {
     const mensajeError = document.getElementById('mensajeError');
+    if (!mensajeError) return;
+
     mensajeError.style.display = 'block';
     mensajeError.textContent = '❌ ' + mensaje;
 
-    document.getElementById('mensajeExito').style.display = 'none';
-    document.getElementById('saldoMostrado').textContent = '';
+    const mensajeExito = document.getElementById('mensajeExito');
+    if (mensajeExito) mensajeExito.style.display = 'none';
+
+    const saldoMostrado = document.getElementById('saldoMostrado');
+    if (saldoMostrado) saldoMostrado.textContent = '';
 }
 
 // Función para mostrar saldo correctamente
@@ -13,11 +18,17 @@ function mostrarSaldo(saldo) {
     const mensajeExito = document.getElementById('mensajeExito');
     const saldoMostrado = document.getElementById('saldoMostrado');
 
-    mensajeExito.style.display = 'block';
-    mensajeExito.textContent = '✅ Saldo cargado correctamente.';
-    saldoMostrado.textContent = `Saldo actual: ${saldo.toFixed(2)} €`;
+    if (mensajeExito) {
+        mensajeExito.style.display = 'block';
+        mensajeExito.textContent = '✅ Saldo cargado correctamente.';
+    }
 
-    document.getElementById('mensajeError').style.display = 'none';
+    if (saldoMostrado) {
+        saldoMostrado.textContent = `Saldo actual: ${saldo.toFixed(2)} €`;
+    }
+
+    const mensajeError = document.getElementById('mensajeError');
+    if (mensajeError) mensajeError.style.display = 'none';
 }
 
 // Función principal para consultar saldo
@@ -53,9 +64,26 @@ async function consultarSaldo(cuentaId) {
     }
 }
 
-// Listener único de submit
-document.getElementById('formSaldo').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const cuentaId = document.getElementById('cuentaId').value.trim();
-    consultarSaldo(cuentaId);
-});
+// Función de inicialización (se llama cuando el modal se abre)
+function initConsultarSaldo() {
+    const formSaldo = document.getElementById('formSaldo');
+
+    if (!formSaldo) {
+        console.error('Formulario de saldo no encontrado');
+        return;
+    }
+
+    // Remover listener anterior para evitar duplicados
+    const nuevoForm = formSaldo.cloneNode(true);
+    formSaldo.parentNode.replaceChild(nuevoForm, formSaldo);
+
+    // Agregar el listener al nuevo formulario
+    nuevoForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const cuentaId = document.getElementById('cuentaId').value.trim();
+        consultarSaldo(cuentaId);
+    });
+}
+
+// Exportar para uso global
+window.initConsultarSaldo = initConsultarSaldo;
