@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import jakarta.transaction.Transactional;
 
 @Service
 public class CuentaService {
@@ -25,6 +26,7 @@ public class CuentaService {
         this.transaccionRepository = transaccionRepository;
     }
 
+    @Transactional
     public CuentaResponse crearCuenta(CuentaRequest request) {
         Cliente cliente = clienteRepository.findById(request.getClienteId())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + request.getClienteId()));
@@ -67,6 +69,7 @@ public class CuentaService {
         return cuenta.getSaldo();
     }
 
+    @Transactional
     public void actualizarSaldo(Long cuentaId, Double nuevoSaldo) {
         Cuenta cuenta = cuentaRepository.findById(cuentaId)
                 .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
@@ -75,6 +78,7 @@ public class CuentaService {
         cuentaRepository.save(cuenta);
     }
 
+    @Transactional
     public CuentaResponse depositarDinero(Long cuentaId, Double monto) {
         if (monto == null || monto <= 0) {
             throw new IllegalArgumentException("El monto a depositar debe ser mayor a cero");
@@ -103,6 +107,7 @@ public class CuentaService {
         return toResponse(cuentaActualizada);
     }
 
+    @Transactional
     public CuentaResponse retirarDinero(Long cuentaId, Double monto) {
         if (monto == null || monto <= 0) {
             throw new IllegalArgumentException("El monto a retirar debe ser mayor a cero");

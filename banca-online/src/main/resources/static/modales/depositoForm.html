@@ -1,30 +1,23 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realizar Depósito - Banca Online</title>
-    <link rel="stylesheet" href="css/estilo.css">
-</head>
-<body>
-
-<div class="card">
-    <h2>Realizar Depósito</h2>
-
-    <form id="formDeposito">
-
-        <label for="cuentaId">ID de la Cuenta Destino:</label>
-        <input type="number" id="cuentaId" name="cuentaId" placeholder="Ej: 1" required>
-
-        <label for="monto">Monto a depositar (€):</label>
-        <input type="number" id="monto" name="monto" step="0.01" min="0.01" placeholder="Ej: 50.00" required>
-
-        <button type="submit" id="btnDepositar">Depositar Dinero</button>
-    </form>
-
-    <div id="mensajeExito" style="display: none;"></div>
-    <div id="mensajeError" style="display: none;"></div>
+<!-- Formulario de depósito -->
+<!-- Información de la cuenta -->
+<div id="infoCuentaDeposito" style="margin-bottom: 20px; padding: 15px; background: #f0f4f8; border-radius: 8px;">
+    <p><strong>Cuenta:</strong> <span id="cuentaNumeroDeposito"></span></p>
+    <p><strong>Saldo actual:</strong> <span id="cuentaSaldoDeposito"></span> €</p>
 </div>
-    <script src="js/servicios/deposito.js"></script>
-</body>
-</html>
+
+<form id="formDepositoForm">
+    <div class="form-group">
+        <label for="montoDeposito">Monto a Depositar (€) *</label>
+        <input type="number" id="montoDeposito" name="monto" required
+               min="0.01" step="0.01" placeholder="0.00">
+    </div>
+
+    <div class="form-footer">
+        <button type="button" class="btn-secundario" id="btnCancelarDepositoForm">Cancelar</button>
+        <button type="submit" class="btn-primario">Confirmar Depósito</button>
+    </div>
+</form>
+
+<div id="mensajeExitoDepositoForm" class="mensaje-exito" style="display: none;"></div>
+<div id="mensajeErrorDepositoForm" class="mensaje-error" style="display: none;"></div>
+

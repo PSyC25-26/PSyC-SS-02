@@ -1,13 +1,26 @@
-    <!-- Formulario -->
-    <form id="formSaldo">
-        <label for="cuentaId">ID de la cuenta:</label>
-        <input type="number" id="cuentaId" placeholder="Introduce ID de cuenta" min="1" required />
-        <button type="submit">Consultar</button>
-    </form>
+<!-- Formulario consultar saldo -->
+<div class="form-contenido">
+    <div class="form-header">
+        <h2>💰 Consultar Saldo</h2>
+        <button class="btn-cerrar" id="btnCerrarConsultarSaldo">&times;</button>
+    </div>
 
-    <!-- Mensajes -->
-    <div id="mensajeExito" class="mensajeExito" style="display:none;"></div>
-    <div id="mensajeError" class="mensajeError" style="display:none;"></div>
+    <div class="form-scroll">
+        <form id="formConsultarSaldo">
+            <div class="form-group">
+                <label for="cuentaNumero">Número de Cuenta *</label>
+                <input type="text" id="cuentaNumero" name="cuentaNumero" required
+                       placeholder="Ej: ES00 0000 0000 0000 0000 0000">
+            </div>
 
-    <!-- Saldo mostrado -->
-    <div id="saldoMostrado" class="saldoMostrado"></div>
+            <div class="form-footer">
+                <button type="button" class="btn-secundario" id="btnCancelarConsultarSaldo">Cancelar</button>
+                <button type="submit" class="btn-primario">Consultar Saldo</button>
+            </div>
+        </form>
+
+        <div id="mensajeExitoSaldo" class="mensaje-exito" style="display: none;"></div>
+        <div id="mensajeErrorSaldo" class="mensaje-error" style="display: none;"></div>
+        <div id="saldoMostrado" class="saldoMostrado" style="display: none;"></div>
+    </div>
+</div>

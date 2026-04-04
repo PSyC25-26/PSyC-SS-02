@@ -1,0 +1,28 @@
+
+<!-- Información de la cuenta origen -->
+<div id="infoCuentaOrigen" style="margin-bottom: 20px; padding: 15px; background: #f0f4f8; border-radius: 8px;">
+    <p><strong>Cuenta Origen:</strong> <span id="cuentaNumeroOrigen"></span></p>
+    <p><strong>Saldo disponible:</strong> <span id="cuentaSaldoOrigen"></span> €</p>
+</div>
+
+<form id="formTransferenciaForm">
+    <div class="form-group">
+        <label for="cuentaDestino">Cuenta Destino *</label>
+        <input type="text" id="cuentaDestino" name="cuentaDestino" required
+               placeholder="Ingrese el número de cuenta destino">
+    </div>
+
+    <div class="form-group">
+        <label for="montoTransferencia">Monto a Transferir (€) *</label>
+        <input type="number" id="montoTransferencia" name="monto" required
+               min="0.01" step="0.01" placeholder="0.00">
+    </div>
+
+    <div class="form-footer">
+        <button type="button" class="btn-secundario" id="btnCancelarTransferenciaForm">Cancelar</button>
+        <button type="submit" class="btn-primario">Confirmar Transferencia</button>
+    </div>
+</form>
+
+<div id="mensajeExitoTransferenciaForm" class="mensaje-exito" style="display: none;"></div>
+<div id="mensajeErrorTransferenciaForm" class="mensaje-error" style="display: none;"></div>

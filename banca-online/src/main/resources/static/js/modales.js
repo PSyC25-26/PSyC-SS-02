@@ -69,11 +69,10 @@ const GestorModales = {
 
             // CUENTAS
             crearCuentaForm: '🏦 Crear Nueva Cuenta',
-            // consultarSaldo: '💰 Consultar saldo',
-            // deposito: '💵 Depositar dinero',
-            // retiro: '💸 Retirar dinero',
-            // transferencia: '🔄 Transferir dinero',
-            // crearCuenta: '👤 Crear nueva cuenta'
+            detalleCuenta: '💳 Detalle de Cuenta',
+            deposito: '💵 Depositar Dinero',
+            retiroForm: '💸 Retirar Dinero',
+            transferenciaForm: '🔄 Transferir Dinero',
         };
         return titulos[modalNombre] || 'Formulario';
     },

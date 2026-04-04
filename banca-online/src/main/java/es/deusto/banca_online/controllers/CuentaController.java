@@ -94,7 +94,7 @@ public class CuentaController {
     }
 
     // POST /cuentas/deposito
-    @PostMapping("/deposito")
+    @PostMapping("/depositar")
     public ResponseEntity<CuentaResponse> depositarDinero(@RequestBody @Valid DepositoRequest request) {
         try {
             // Usamos los datos que vienen dentro del DTO
@@ -113,7 +113,7 @@ public class CuentaController {
     }
 
     // POST /cuentas/retiro
-    @PostMapping("/retiro")
+    @PostMapping("/retirar")
     public ResponseEntity<CuentaResponse> retirarDinero(@RequestBody @Valid RetiroRequest request) {
         try {
             // Llamamos al servicio de retiro que creamos en el paso anterior

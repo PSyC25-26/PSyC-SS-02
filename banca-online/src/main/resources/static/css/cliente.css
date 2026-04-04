@@ -116,3 +116,145 @@ body:has(#formSaldo) {
     background: linear-gradient(90deg, #f8d7da, #f1a1a6);
     color: #721c24;
 }
+
+
+
+/* ============================================
+   CLIENTE - Saldo mostrado
+   ============================================ */
+
+.saldoMostrado {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #e8f4f8;
+    text-align: center;
+}
+
+.saldoMostrado h3 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.saldoMostrado p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #27ae60;
+}
+
+/* ============================================
+   CLIENTE - Lista de cuentas
+   ============================================ */
+
+.lista-cuentas {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.lista-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    background: #3498db;
+    color: white;
+    padding: 12px 20px;
+    font-weight: bold;
+}
+
+.lista-items {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.cuenta-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.cuenta-item:hover {
+    background: #f0f7ff;
+}
+
+.cuenta-numero-lista {
+    font-family: monospace;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.cuenta-saldo-lista {
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.cuenta-tipo-lista {
+    color: #666;
+}
+
+/* Detalle de cuenta */
+.detalle-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.detalle-row:last-child {
+    border-bottom: none;
+}
+
+.detalle-label {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.detalle-valor {
+    color: #666;
+}
+
+.acciones-operaciones {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.btn-depositar-detalle, .btn-retirar-detalle, .btn-transferir-detalle {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+}
+
+.btn-depositar-detalle {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-depositar-detalle:hover {
+    background: #219a52;
+}
+
+.btn-retirar-detalle {
+    background: #e67e22;
+    color: white;
+}
+
+.btn-retirar-detalle:hover {
+    background: #d35400;
+}
+
+.btn-transferir-detalle {
+    background: #3498db;
+    color: white;
+}
+
+.btn-transferir-detalle:hover {
+    background: #2980b9;
+}
