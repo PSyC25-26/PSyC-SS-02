@@ -21,18 +21,18 @@ const GestorModales = {
             }
 
             // Creamos la estructura para el HTML
+            // CREAMOS LA ESTRUCTURA PARA EL HTML
             const modalHtml = `
-                <div id="modal-${modalNombre}" class="form active">
-                    <div class="form-contenido">
-                        <!-- Header -->
-                        <div class="form-header">
-                            <h2>${this.getTitulo(modalNombre)}</h2>
-                            <button class="btn-cerrar" onclick="GestorModales.cerrar('${modalNombre}')">×</button>
-                        </div>
-                        
-                        <!-- Cuerpo -->
-                        <div class="form-scroll">
-                            ${html}
+                <div id="modal-${modalNombre}" style="display: block !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.5) !important; z-index: 10000 !important;">
+                    <div style="display: flex; align-items: center; justify-content: center; min-height: 100%;">
+                        <div class="form-contenido" style="margin: 20px; width: 90%; max-width: 500px;">
+                            <div class="form-header">
+                                <h2>${this.getTitulo(modalNombre)}</h2>
+                                <button class="btn-cerrar" onclick="GestorModales.cerrar('${modalNombre}')">×</button>
+                            </div>
+                            <div class="form-scroll">
+                                ${html}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -61,6 +61,7 @@ const GestorModales = {
     // DEVOLVER el TÍTULO de cada modal
     getTitulo(modalNombre) {
         const titulos = {
+            crearCliente: '👤 Crear nuevo cliente',
             consultarSaldo: '💰 Consultar saldo',
             deposito: '💵 Depositar dinero',
             retiro: '💸 Retirar dinero',

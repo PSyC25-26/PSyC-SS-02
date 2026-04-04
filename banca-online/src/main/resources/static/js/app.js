@@ -53,6 +53,7 @@ function generarMenu() {
 
     const opciones = currentRole === 'admin'
         ? [
+            { nombre: '➕ Crear cliente', modal: 'crearCliente', archivo: 'clienteForm.html' },
             { nombre: '➕ Crear cuenta', modal: 'crearCuenta', archivo: 'crearCuenta.html' },
             { nombre: '📋 Ver clientes', modal: 'verClientes', archivo: 'verClientes.html' }
         ]
