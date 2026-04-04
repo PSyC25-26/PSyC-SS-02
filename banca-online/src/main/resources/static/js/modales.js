@@ -72,7 +72,7 @@ const GestorModales = {
             detalleCuenta: '💳 Detalle de Cuenta',
             deposito: '💵 Depositar Dinero',
             retiroForm: '💸 Retirar Dinero',
-            transferencia: '🔄 Transferir Dinero',
+            transferenciaForm: '🔄 Transferir Dinero',
         };
         return titulos[modalNombre] || 'Formulario';
     },

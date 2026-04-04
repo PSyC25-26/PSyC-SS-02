@@ -59,7 +59,7 @@ function initTransferenciaForm() {
                 mensajeExito.style.display = 'block';
             }
             const saldoSpan = document.getElementById('cuentaSaldoOrigen');
-            if (saldoSpan && nuevoSaldo !== undefined) {
+            if (saldoSpan && nuevoSaldo !== undefined && nuevoSaldo !== null) {
                 saldoSpan.textContent = nuevoSaldo.toFixed(2);
             }
             setTimeout(() => {
@@ -147,21 +147,18 @@ function initTransferenciaForm() {
 
                 timeoutId = setTimeout(() => mostrarAlertaTimeout(btnGuardar), 5000);
 
-                // Enviar el número de cuenta origen (String) y destino (String)
                 const formData = {
-                    cuentaOrigenNumero: cuenta.numeroCuenta,
-                    cuentaDestinoNumero: cuentaDestino,
-                    monto: parseFloat(monto)
+                    cuentaOrigen: cuenta.numeroCuenta,
+                    cuentaDestino: cuentaDestino,
+                    cantidad: parseFloat(monto)
                 };
 
                 console.log('📤 Transferencia:');
                 console.log('   Origen Número:', cuenta.numeroCuenta);
                 console.log('   Destino Número:', cuentaDestino);
-                console.log('   Monto:', formData.monto);
+                console.log('   Cantidad:', formData.cantidad);
 
                 try {
-                    console.log('📤 Número de cuenta origen ENVIADO:', cuenta.numeroCuenta);
-                    console.log('📤 Número de cuenta destino ENVIADO:', cuentaDestino);
                     const response = await fetch('/api/cuentas/transferir', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -177,14 +174,35 @@ function initTransferenciaForm() {
 
                     if (response.ok) {
                         const data = await response.json();
-                        mostrarExito(`✅ Transferencia exitosa! Nuevo saldo: ${data.saldo.toFixed(2)} €`, data.saldo);
+                        console.log('📥 Respuesta del servidor:', data);
+
+                        // Intentar obtener el saldo de diferentes formas
+                        let nuevoSaldo = null;
+                        if (data.saldo !== undefined) {
+                            nuevoSaldo = data.saldo;
+                        } else if (data.nuevoSaldoOrigen !== undefined) {
+                            nuevoSaldo = data.nuevoSaldoOrigen;
+                        }
+
+                        if (nuevoSaldo !== null) {
+                            mostrarExito(`✅ Transferencia exitosa! Nuevo saldo: ${nuevoSaldo.toFixed(2)} €`, nuevoSaldo);
+                        } else {
+                            mostrarExito(`✅ Transferencia exitosa!`, null);
+                        }
+
                         form.reset();
                         setTimeout(() => {
                             cerrarModal();
                         }, 2000);
                     } else {
-                        const error = await response.json();
-                        mostrarError(error.message || 'Error al realizar la transferencia');
+                        let errorMensaje = 'Error al realizar la transferencia';
+                        try {
+                            const error = await response.json();
+                            errorMensaje = error.message || errorMensaje;
+                        } catch (e) {
+                            // Si no se puede parsear el error
+                        }
+                        mostrarError(errorMensaje);
                         if (btnGuardar) {
                             btnGuardar.disabled = false;
                             btnGuardar.textContent = 'Confirmar Transferencia';
