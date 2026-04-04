@@ -69,7 +69,7 @@ const GestorModales = {
 
             // CUENTAS
             crearCuentaForm: '🏦 Crear Nueva Cuenta',
-            // consultarSaldo: '💰 Consultar saldo',
+            consultarSaldo: '💰 Consultar saldo',
             // deposito: '💵 Depositar dinero',
             // retiro: '💸 Retirar dinero',
             // transferencia: '🔄 Transferir dinero',

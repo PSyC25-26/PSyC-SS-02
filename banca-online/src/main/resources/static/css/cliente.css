@@ -116,3 +116,28 @@ body:has(#formSaldo) {
     background: linear-gradient(90deg, #f8d7da, #f1a1a6);
     color: #721c24;
 }
+
+
+
+/* ============================================
+   CLIENTE - Saldo mostrado
+   ============================================ */
+
+.saldoMostrado {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #e8f4f8;
+    text-align: center;
+}
+
+.saldoMostrado h3 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.saldoMostrado p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #27ae60;
+}
