@@ -1,0 +1,91 @@
+<div id="miForm">
+    <div class="form-contenido">
+            <!-- FORMULARIO -->
+            <form id="formCliente">
+                <div class="form-group">
+                    <label for="nombre">Nombre *</label>
+                    <input type="text" id="nombre" name="nombre" required placeholder="Ingrese el nombre">
+                </div>
+
+                <div class="form-group">
+                    <label for="primerApellido">Primer Apellido</label>
+                    <input type="text" id="primerApellido" name="primerApellido" placeholder="Ingrese el primer apellido">
+                </div>
+
+                <div class="form-group">
+                    <label for="segundoApellido">Segundo Apellido</label>
+                    <input type="text" id="segundoApellido" name="segundoApellido" placeholder="Ingrese el segundo apellido">
+                </div>
+
+                <div class="form-group">
+                    <label for="dni">DNI *</label>
+                    <input type="text" id="dni" name="dni" placeholder="12345678A" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required placeholder="ejemplo@gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" id="telefono" name="tlf" minlength="8" placeholder="Ingrese el número de teléfono">
+                </div>
+
+                <div class="form-group">
+                    <label for="fechaNacimiento">Fecha de Nacimiento *</label>
+                    <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="direccion">Dirección</label>
+                    <input type="text" id="direccion" name="direccion">
+                </div>
+
+                <div class="form-footer">
+                    <button type="button" class="btn-secundario" id="btnCancelar">Cancelar</button>
+                    <button type="submit" class="btn-primario" id="btnGuardar">Guardar Cliente</button>
+                </div>
+            </form>
+
+            <div id="mensajeExito" class="mensaje-exito" style="display: none;">✅ ¡Cliente creado con éxito!</div>
+            <div id="mensajeError" class="mensaje-error" style="display: none;">❌ Error al crear el cliente.</div>
+    </div>
+</div>
+
+<!--&lt;!&ndash; Lista de clientes &ndash;&gt;-->
+<!--<div class="lista">-->
+<!--    <h3>Clientes Registrados</h3>-->
+<!--    <div id="listaClientes">-->
+<!--        <p>Cargando clientes...</p>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--&lt;!&ndash; Modal Editar/Eliminar &ndash;&gt;-->
+<!--<div id="modalEditarEliminar" style="display: none;">-->
+<!--    <div class="form-contenido">-->
+<!--        <div class="form-header">-->
+<!--            <h2>Editar / Eliminar Cliente</h2>-->
+<!--            <button class="btn-cerrar" id="btnCerrarEditar">&times;</button>-->
+<!--        </div>-->
+
+<!--        <form id="formEditar">-->
+<!--            <input type="hidden" id="editId">-->
+<!--            <div class="form-group"><label>Nombre *</label><input type="text" id="editNombre" required></div>-->
+<!--            <div class="form-group"><label>Primer Apellido</label><input type="text" id="editPrimerApellido"></div>-->
+<!--            <div class="form-group"><label>Segundo Apellido</label><input type="text" id="editSegundoApellido"></div>-->
+<!--            <div class="form-group"><label>DNI *</label><input type="text" id="editDni" required></div>-->
+<!--            <div class="form-group"><label>Email *</label><input type="email" id="editEmail" required></div>-->
+<!--            <div class="form-group"><label>Teléfono</label><input type="tel" id="editTelefono"></div>-->
+<!--            <div class="form-group"><label>Fecha Nacimiento *</label><input type="date" id="editFechaNacimiento" required></div>-->
+<!--            <div class="form-group"><label>Dirección</label><input type="text" id="editDireccion"></div>-->
+<!--            <div class="form-footer">-->
+<!--                <button type="button" class="btn-danger" id="btnEliminar">🗑 Eliminar</button>-->
+<!--                <button type="submit" class="btn-primario">Guardar cambios</button>-->
+<!--            </div>-->
+<!--        </form>-->
+
+<!--        <div id="mensajeExitoEditar" class="mensaje-exito" style="display:none;"></div>-->
+<!--        <div id="mensajeErrorEditar" class="mensaje-error" style="display:none;"></div>-->
+<!--    </div>-->
+<!--</div>-->

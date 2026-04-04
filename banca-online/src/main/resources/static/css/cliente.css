@@ -1,0 +1,118 @@
+/* ============================================
+   CLIENTE - Consultar saldo y operaciones
+   ============================================ */
+
+/* Para consultar saldo - centrado vertical */
+body:has(#formSaldo) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Tarjeta de consulta de saldo */
+.card {
+    padding: 30px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.card h2 {
+    margin-bottom: 15px;
+    text-align: center;
+    color: #2c3e50;
+}
+
+.card > * {
+    animation: slideInUp 0.5s ease forwards;
+}
+
+.card form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Formulario específico de saldo */
+#formSaldo {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+}
+
+#formSaldo label {
+    font-weight: 500;
+    color: #34495e;
+}
+
+#formSaldo input {
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    background-color: #fefefe;
+    transition: all 0.3s ease;
+}
+
+#formSaldo input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+    background-color: #ffffff;
+}
+
+#formSaldo button {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    font-weight: 600;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+
+#formSaldo button:hover {
+    background: linear-gradient(135deg, #2980b9, #1f6391);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(52, 152, 219, 0.3);
+}
+
+/* Saldo mostrado */
+#saldoMostrado {
+    font-size: 1.4em;
+    margin-top: 15px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #f0f4f8;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    color: #2c3e50;
+}
+
+/* Mensajes específicos */
+#mensajeExito,
+#mensajeError {
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+#mensajeExito {
+    background: linear-gradient(90deg, #d4edda, #a8e6a3);
+    color: #155724;
+}
+
+#mensajeError {
+    background: linear-gradient(90deg, #f8d7da, #f1a1a6);
+    color: #721c24;
+}

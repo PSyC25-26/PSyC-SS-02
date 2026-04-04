@@ -1,0 +1,21 @@
+<!-- Confirmación eliminar cliente -->
+<div class="form-contenido">
+    <div id="infoCliente" style="text-align: center; margin: 20px 0;">
+        <p>¿Está seguro que desea eliminar al siguiente cliente?</p>
+        <div style="background: #f8d7da; padding: 15px; border-radius: 8px; margin: 15px 0;">
+            <p><strong>ID:</strong> <span id="eliminarId"></span></p>
+            <p><strong>Nombre:</strong> <span id="eliminarNombre"></span></p>
+            <p><strong>Email:</strong> <span id="eliminarEmail"></span></p>
+        </div>
+        <p style="color: #721c24; font-weight: bold;">⚠️ Esta acción no se puede deshacer.</p>
+    </div>
+
+    <div class="form-footer" style="justify-content: center;">
+        <button type="button" class="btn-secundario" id="btnCancelarEliminar">Cancelar</button>
+        <button type="button" class="btn-danger" id="btnConfirmarEliminar">🗑 Eliminar</button>
+    </div>
+
+    <div id="mensajeExitoEliminar" class="mensaje-exito" style="display: none;"></div>
+    <div id="mensajeErrorEliminar" class="mensaje-error" style="display: none;"></div>
+
+</div>

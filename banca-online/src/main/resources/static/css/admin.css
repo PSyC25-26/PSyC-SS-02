@@ -1,0 +1,178 @@
+/* ============================================
+   ADMIN - Lista de clientes y gestión
+   ============================================ */
+
+.lista {
+    margin-top: 40px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.lista h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+/* Grid de tarjetas de clientes */
+#listaClientes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.cliente-card {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #3498db;
+}
+
+.cliente-card p {
+    margin: 5px 0;
+}
+
+.cliente-card .cliente-email {
+    color: #3498db;
+    font-weight: 500;
+}
+
+.cliente-card .cliente-nombre {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* Tabla de clientes (alternativa a grid) */
+.tabla-clientes {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-clientes thead th {
+    text-align: left;
+    padding: 12px 10px;
+    border-bottom: 2px solid #3498db;
+    color: #2c3e50;
+}
+
+.tabla-clientes tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.fila-cliente {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.fila-cliente:hover {
+    background-color: #f0f7ff;
+}
+
+.fila-cliente.seleccionado {
+    background-color: #e3f2fd;
+}
+
+/* Botones de acción en grupo */
+.acciones-botones {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+
+
+/* ============================================
+   ADMIN - Botones de acción
+   ============================================ */
+
+.acciones-botones {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+
+/* ============================================
+   ADMIN - Tabla de clientes
+   ============================================ */
+
+.tabla-clientes {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-clientes thead th {
+    text-align: left;
+    padding: 12px 10px;
+    border-bottom: 2px solid #3498db;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.tabla-clientes tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-clientes tbody tr:hover {
+    background-color: #f0f7ff;
+}
+
+.fila-cliente {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.fila-cliente.seleccionado {
+    background-color: #e3f2fd;
+}
+
+.cliente-email {
+    color: #3498db;
+}
+
+.total-clientes {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #666;
+    text-align: right;
+}
+
+/* ============================================
+   CUENTAS - Tabla de cuentas
+   ============================================ */
+
+.tabla-cuentas {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-cuentas thead th {
+    text-align: left;
+    padding: 12px 10px;
+    border-bottom: 2px solid #3498db;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.tabla-cuentas tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.saldo-cuenta {
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.total-cuentas {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #666;
+    text-align: right;
+}

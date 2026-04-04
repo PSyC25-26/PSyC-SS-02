@@ -3,28 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realizar Depósito - Banca Online</title>
+    <title>Realizar Retiro - Banca Online</title>
     <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
 
 <div class="card">
-    <h2>Realizar Depósito</h2>
+    <h2>Realizar Retiro</h2>
 
-    <form id="formDeposito">
-
-        <label for="cuentaId">ID de la Cuenta Destino:</label>
+    <form id="formRetiro">
+        <label for="cuentaId">ID de la Cuenta Origen:</label>
         <input type="number" id="cuentaId" name="cuentaId" placeholder="Ej: 1" required>
 
-        <label for="monto">Monto a depositar (€):</label>
-        <input type="number" id="monto" name="monto" step="0.01" min="0.01" placeholder="Ej: 50.00" required>
+        <label for="monto">Monto a retirar (€):</label>
+        <input type="number" id="monto" name="monto" step="0.01" min="0.01" placeholder="Ej: 20.00" required>
 
-        <button type="submit" id="btnDepositar">Depositar Dinero</button>
+        <button type="submit" id="btnRetirar">Retirar Dinero</button>
     </form>
 
     <div id="mensajeExito" style="display: none;"></div>
     <div id="mensajeError" style="display: none;"></div>
 </div>
-    <script src="js/deposito.js"></script>
+
+<script src="js/servicios/retiro.js"></script>
+
 </body>
 </html>
