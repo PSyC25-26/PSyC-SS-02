@@ -109,9 +109,11 @@ docker-compose up -d
 | Método | Endpoint | Descripción | Status |
 |--------|----------|-------------|--------|
 | POST | `/api/cuentas` | Crear cuenta | 201 |
+| POST | `/api/cuentas/transferir` | Transferencia | 200 |
+| POST | `/api/cuentas/retiro` | Transferencia | 200 |
 | GET | `/api/cuentas?clienteId={id}` | Listar cuentas | 200 |
 | GET | `/api/cuentas/saldo/{cuentaId}` | Obtener saldo | 200 |
-| POST | `/api/cuentas/transferir` | Transferencia | 200 |
+
 
 ---
 
