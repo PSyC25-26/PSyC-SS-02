@@ -105,7 +105,7 @@ class CuentaControllerTest {
         when(cuentaService.crearCuenta(any(CuentaRequest.class))).thenReturn(cuentaResponse);
 
         // Simulamos la peticion a /cuentas
-        mockMvc.perform(post("/cuentas")
+        mockMvc.perform(post("/api/cuentas")
                         .contentType(MediaType.APPLICATION_JSON) // Indicamos que el body de la petición es JSON
                         .content(objectMapper.writeValueAsString(cuentaRequest))) // Escribimos el body en modo JSON
                 .andExpect(status().isCreated())  // Esperamos un 201 Created
@@ -127,7 +127,7 @@ class CuentaControllerTest {
         cuentaRequest.setClienteId(null);
 
         // Llamamos al endpoint
-        mockMvc.perform(post("/cuentas")
+        mockMvc.perform(post("/api/cuentas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(cuentaRequest)))
                 .andExpect(status().isBadRequest());  // Esperamos un 400 Bad Request
@@ -144,7 +144,7 @@ class CuentaControllerTest {
         cuentaRequest.setTipoCuenta(null);
 
         // Llamamos al endpoint
-        mockMvc.perform(post("/cuentas")
+        mockMvc.perform(post("/api/cuentas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(cuentaRequest)))
                 .andExpect(status().isBadRequest());  // Esperamos un 400 Bad Request
@@ -161,7 +161,7 @@ class CuentaControllerTest {
         cuentaRequest.setTipoCuenta("");
 
         // Llamamos al endpoint
-        mockMvc.perform(post("/cuentas")
+        mockMvc.perform(post("/api/cuentas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(cuentaRequest)))
                 .andExpect(status().isBadRequest());  // Esperamos un 400 Bad Request
@@ -182,7 +182,7 @@ class CuentaControllerTest {
                 .thenThrow(new IllegalArgumentException("No enum constant"));
 
         // Llamamos al endpoint
-        mockMvc.perform(post("/cuentas")
+        mockMvc.perform(post("/api/cuentas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(cuentaRequest)))
                 .andExpect(status().isBadRequest());  // Esperamos un 400 Bad Request
@@ -199,7 +199,7 @@ class CuentaControllerTest {
         cuentaRequest.setSaldoInicial(-100.0);
 
         // Llamamos al endpoint
-        mockMvc.perform(post("/cuentas")
+        mockMvc.perform(post("/api/cuentas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(cuentaRequest)))
                 .andExpect(status().isBadRequest());  // Esperamos un 400 Bad Request
@@ -216,7 +216,7 @@ class CuentaControllerTest {
         when(cuentaService.obtenerCuentasPorCliente(1L)).thenReturn(cuentasMock);
 
         // Llamamos al endpoint y verificamos los datos
-        mockMvc.perform(get("/cuentas")
+        mockMvc.perform(get("/api/cuentas")
                         .param("clienteId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -239,7 +239,7 @@ class CuentaControllerTest {
     @Test
     void obtenerCuentas_SinClienteId_Retorna400() throws Exception {
         // Llamamos al endpoint sin el parametro clienteId
-        mockMvc.perform(get("/cuentas")
+        mockMvc.perform(get("/api/cuentas")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest()); // Esperamos un 400 Bad Request
 
@@ -255,7 +255,7 @@ class CuentaControllerTest {
         when(cuentaService.obtenerCuentasPorCliente(1L)).thenReturn(Arrays.asList());
 
         // Llamamos al endpoint y verificamos los datos
-        mockMvc.perform(get("/cuentas")
+        mockMvc.perform(get("/api/cuentas")
                         .param("clienteId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()) // Que ha devuelto el status 200
@@ -274,7 +274,7 @@ class CuentaControllerTest {
                 .thenThrow(new RuntimeException("Cliente no encontrado con id: 999"));
 
         // Llamamos al endpoint
-        mockMvc.perform(get("/cuentas")
+        mockMvc.perform(get("/api/cuentas")
                         .param("clienteId", "999")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound()); // Esperamos un 404 Not Found
@@ -295,7 +295,7 @@ class CuentaControllerTest {
         cuentaRequest.setClienteId(999L);
 
         // Llamamos al endpoint
-        mockMvc.perform(post("/cuentas")
+        mockMvc.perform(post("/api/cuentas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(cuentaRequest)))
                 .andExpect(status().isNotFound()); // Esperamos un 404 Not Found
@@ -313,7 +313,7 @@ class CuentaControllerTest {
         when(cuentaService.obtenerCuentasPorCliente(1L)).thenReturn(cuentasMock);
 
         // Llamamos al endpoint con el nuevo formato path variable
-        mockMvc.perform(get("/cuentas/1")
+        mockMvc.perform(get("/api/cuentas/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 // Esperamos un 200 OK
                 .andExpect(status().isOk())
@@ -340,7 +340,7 @@ class CuentaControllerTest {
                 .thenThrow(new RuntimeException("Cliente no encontrado con id: 999"));
 
         // Llamamos al endpoint con un ID de cliente inexistente
-        mockMvc.perform(get("/cuentas/999")
+        mockMvc.perform(get("/api/cuentas/999")
                         .contentType(MediaType.APPLICATION_JSON))
                 // Esperamos un 404 Not Found porque el cliente no existe
                 .andExpect(status().isNotFound());
@@ -356,7 +356,7 @@ class CuentaControllerTest {
         when(cuentaService.obtenerCuentasPorCliente(1L)).thenReturn(Arrays.asList());
 
         // Llamamos al endpoint con un cliente que no tiene cuentas
-        mockMvc.perform(get("/cuentas/1")
+        mockMvc.perform(get("/api/cuentas/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 // Esperamos un 200 OK (no es error, solo lista vacía)
                 .andExpect(status().isOk())
@@ -376,7 +376,7 @@ class CuentaControllerTest {
         when(cuentaService.obtenerSaldo(1L)).thenReturn(1000.0);
 
         // Llamamos al endpoint
-        mockMvc.perform(get("/cuentas/saldo/1")
+        mockMvc.perform(get("/api/cuentas/saldo/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.saldo").value(1000.0));
@@ -393,7 +393,7 @@ class CuentaControllerTest {
                 .thenThrow(new RuntimeException("Cuenta no encontrada con id: 999"));
 
         // Llamamos al endpoint
-        mockMvc.perform(get("/cuentas/saldo/999")
+        mockMvc.perform(get("/api/cuentas/saldo/999")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
@@ -410,7 +410,7 @@ class CuentaControllerTest {
 
         // Esperamos excepción (diferente a 404)
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> 
-            mockMvc.perform(get("/cuentas/saldo/1")
+            mockMvc.perform(get("/api/cuentas/saldo/1")
                    .contentType(MediaType.APPLICATION_JSON))
         ).hasCauseInstanceOf(RuntimeException.class)
          .hasMessageContaining("Error de base de datos");
@@ -427,7 +427,7 @@ class CuentaControllerTest {
 
         when(transferService.transferirDinero(any(TransferenciaDTO.class))).thenReturn(dto);
 
-        mockMvc.perform(post("/cuentas/transferir")
+        mockMvc.perform(post("/api/cuentas/transferir")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -448,7 +448,7 @@ class CuentaControllerTest {
         when(transferService.transferirDinero(any(TransferenciaDTO.class)))
                 .thenThrow(new RuntimeException("Cuenta no encontrada"));
 
-        mockMvc.perform(post("/cuentas/transferir")
+        mockMvc.perform(post("/api/cuentas/transferir")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound());
@@ -467,7 +467,7 @@ class CuentaControllerTest {
                 .thenThrow(new RuntimeException("Saldo insuficiente en la cuenta de origen"));
 
         org.assertj.core.api.Assertions.assertThatThrownBy(() ->
-                mockMvc.perform(post("/cuentas/transferir")
+                mockMvc.perform(post("/api/cuentas/transferir")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
         ).hasCauseInstanceOf(RuntimeException.class)
@@ -493,7 +493,7 @@ class CuentaControllerTest {
         when(cuentaService.depositarDinero(1L, 150.0)).thenReturn(cuentaResponse);
 
         // Ejecutamos la petición POST
-        mockMvc.perform(post("/cuentas/deposito")
+        mockMvc.perform(post("/api/cuentas/deposito")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(depositoRequest)))
                 .andExpect(status().isOk())
@@ -511,7 +511,7 @@ class CuentaControllerTest {
         when(cuentaService.depositarDinero(999L, 100.0))
                 .thenThrow(new RuntimeException("Cuenta no encontrada"));
 
-        mockMvc.perform(post("/cuentas/deposito")
+        mockMvc.perform(post("/api/cuentas/deposito")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(depositoRequest)))
                 .andExpect(status().isNotFound());
@@ -527,7 +527,7 @@ class CuentaControllerTest {
 
         when(cuentaService.retirarDinero(1L, 200.0)).thenReturn(cuentaResponse);
 
-        mockMvc.perform(post("/cuentas/retiro")
+        mockMvc.perform(post("/api/cuentas/retiro")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(retiroRequest)))
                 .andExpect(status().isOk())
@@ -543,7 +543,7 @@ class CuentaControllerTest {
         when(cuentaService.retirarDinero(1L, 5000.0))
                 .thenThrow(new IllegalArgumentException("Saldo insuficiente"));
 
-        mockMvc.perform(post("/cuentas/retiro")
+        mockMvc.perform(post("/api/cuentas/retiro")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(retiroRequest)))
                 .andExpect(status().isBadRequest()); // Esperamos error 400
