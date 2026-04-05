@@ -25,7 +25,7 @@ const GestorModales = {
             const modalHtml = `
                 <div id="modal-${modalNombre}" style="display: block !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background-color: rgba(0,0,0,0.5) !important; z-index: 10000 !important;">
                     <div style="display: flex; align-items: center; justify-content: center; min-height: 100%;">
-                        <div class="form-contenido" style="margin: 20px; width: 90%; max-width: 500px;">
+                        <div class="form-contenido" style="margin: 20px; width: 90%; max-width: 700px;">
                             <div class="form-header">
                                 <h2>${this.getTitulo(modalNombre)}</h2>
                                 <button class="btn-cerrar" onclick="GestorModales.cerrar('${modalNombre}')">×</button>
