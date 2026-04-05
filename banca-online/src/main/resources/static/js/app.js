@@ -51,13 +51,14 @@ function generarMenuAdmin() {
 
     const opciones = [
         { nombre: '📋 Gestionar Clientes', modal: 'listarClientes', archivo: 'listarClientes.html' },
-        { nombre: '🏦 Gestionar Cuentas', modal: 'listarCuentas', archivo: 'listarCuentas.html' }
+        { nombre: '🏦 Gestionar Cuentas', modal: 'listarCuentas', archivo: 'listarCuentas.html' },
+        { nombre: '🔍 Consultar Cuentas', modal: 'consultarCuentasForm', archivo: 'consultarCuentas.html' }
     ];
 
     opciones.forEach(op => {
         const btn = document.createElement('button');
         btn.textContent = op.nombre;
-        btn.className = 'btn-menu';
+        btn.className = 'btn-menu'; // Mantiene el estilo de los otros botones
         btn.onclick = () => GestorModales.abrir(op.modal, op.archivo);
         menuDiv.appendChild(btn);
     });

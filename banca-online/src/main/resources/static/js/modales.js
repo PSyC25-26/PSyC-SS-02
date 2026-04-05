@@ -70,6 +70,7 @@ const GestorModales = {
             // CUENTAS
             crearCuentaForm: '🏦 Crear Nueva Cuenta',
             detalleCuenta: '💳 Detalle de Cuenta',
+            consultarCuentasForm: '🔍 Consultar Cuentas del Cliente',
             deposito: '💵 Depositar Dinero',
             retiroForm: '💸 Retirar Dinero',
             transferenciaForm: '🔄 Transferir Dinero',
