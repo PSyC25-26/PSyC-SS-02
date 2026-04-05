@@ -146,4 +146,19 @@ public class CuentaController {
             throw e;
         }
     }
+
+
+    // GET /api/cuentas/{cuentaId}/movimientos
+    @GetMapping("/{cuentaId}/movimientos")
+    public ResponseEntity<List<MovimientoResponse>> obtenerMovimientos(@PathVariable Long cuentaId) {
+        try {
+            List<MovimientoResponse> movimientos = cuentaService.obtenerMovimientos(cuentaId);
+            return ResponseEntity.ok(movimientos);
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Cuenta no encontrada")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            throw e;
+        }
+    }
 }
