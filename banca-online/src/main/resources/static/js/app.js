@@ -18,7 +18,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     } else if (email === 'cliente@banco.com' && password === 'cliente123') {
         currentRole = 'cliente';
         // TODO: Obtener el ID real del cliente desde el backend
-        currentClienteId = 41; // ID del cliente de prueba
+        currentClienteId = 4; // ID del cliente de prueba
         iniciarSesion();
     } else {
         mostrarError('Credenciales inválidas');
@@ -52,7 +52,6 @@ function generarMenuAdmin() {
     const opciones = [
         { nombre: '📋 Gestionar Clientes', modal: 'listarClientes', archivo: 'listarClientes.html' },
         { nombre: '🏦 Gestionar Cuentas', modal: 'listarCuentas', archivo: 'listarCuentas.html' },
-        { nombre: '🔍 Consultar Cuentas', modal: 'consultarCuentasForm', archivo: 'consultarCuentas.html' }
     ];
 
     opciones.forEach(op => {
