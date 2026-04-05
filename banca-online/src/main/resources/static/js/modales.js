@@ -8,6 +8,8 @@ const GestorModales = {
         // Obtenemos el contenedor donde va a ir el modal
         const modalContainer = document.getElementById('modalContainer');
 
+        modalContainer.innerHTML = '';
+        
         try {
             // Si se ha cargado antes el modal, lo cogemos de caché
             let html = this.cache[archivoHtml];
@@ -70,7 +72,6 @@ const GestorModales = {
             // CUENTAS
             crearCuentaForm: '🏦 Crear Nueva Cuenta',
             detalleCuenta: '💳 Detalle de Cuenta',
-            consultarCuentasForm: '🔍 Consultar Cuentas del Cliente',
             deposito: '💵 Depositar Dinero',
             retiroForm: '💸 Retirar Dinero',
             transferenciaForm: '🔄 Transferir Dinero',

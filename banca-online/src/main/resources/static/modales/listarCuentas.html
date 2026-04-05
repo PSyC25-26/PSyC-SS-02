@@ -15,6 +15,34 @@
     </select>
   </div>
 
+  <!-- 🆕 FILTROS ADICIONALES -->
+  <div class="filtros-avanzados" style="background: #f4f4f4; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+    <div style="flex: 1; min-width: 150px;">
+      <label style="display: block; font-size: 12px; margin-bottom: 5px;">🔍 Buscar por IBAN</label>
+      <input type="text" id="filtroIban" placeholder="Número de cuenta..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+    <div style="width: 120px;">
+      <label style="display: block; font-size: 12px; margin-bottom: 5px;">💰 Saldo mínimo</label>
+      <input type="number" id="filtroSaldoMin" placeholder="Mín. €" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+    <div style="width: 120px;">
+      <label style="display: block; font-size: 12px; margin-bottom: 5px;">💰 Saldo máximo</label>
+      <input type="number" id="filtroSaldoMax" placeholder="Máx. €" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+    <div style="width: 150px;">
+      <label style="display: block; font-size: 12px; margin-bottom: 5px;">📂 Tipo de cuenta</label>
+      <select id="filtroTipoCuenta" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        <option value="">Todos</option>
+        <option value="CORRIENTE">💳 Corriente</option>
+        <option value="AHORRO">🏦 Ahorro</option>
+      </select>
+    </div>
+    <div>
+      <button id="btnAplicarFiltros" class="btn-primario" style="padding: 8px 16px;">🔍 Aplicar Filtros</button>
+      <button id="btnLimpiarFiltros" class="btn-secundario" style="padding: 8px 16px;">🗑 Limpiar</button>
+    </div>
+  </div>
+
   <!-- Lista de cuentas -->
   <div id="listaCuentas">
     <p>Seleccione un cliente para ver sus cuentas...</p>

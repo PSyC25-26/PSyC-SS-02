@@ -5,9 +5,17 @@ function initListarCuentas() {
         const selectCliente = document.getElementById('selectClienteFiltro');
         const listaCuentas = document.getElementById('listaCuentas');
         const btnCrear = document.getElementById('btnCrearCuenta');
-        const btnVerCuentas = document.getElementById('btnVerCuentasCliente');
+        const btnAplicarFiltros = document.getElementById('btnAplicarFiltros');
+        const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros');
+        
+        // Referencias a los filtros
+        const filtroIban = document.getElementById('filtroIban');
+        const filtroSaldoMin = document.getElementById('filtroSaldoMin');
+        const filtroSaldoMax = document.getElementById('filtroSaldoMax');
+        const filtroTipoCuenta = document.getElementById('filtroTipoCuenta');
 
         let clientes = [];
+        let cuentasOriginales = []; // Guardar las cuentas originales sin filtrar
 
         async function cargarClientesSelect() {
             if (!selectCliente) return;
@@ -37,6 +45,7 @@ function initListarCuentas() {
             if (!listaCuentas) return;
             if (!clienteId) {
                 listaCuentas.innerHTML = '<p>📋 Seleccione un cliente para ver sus cuentas</p>';
+                cuentasOriginales = [];
                 return;
             }
 
@@ -45,29 +54,21 @@ function initListarCuentas() {
             try {
                 const response = await fetch(`/api/cuentas?clienteId=${clienteId}`);
 
-                // Manejar diferentes códigos de respuesta
-                if (response.status === 500) {
+                if (response.status === 500 || response.status === 404) {
                     listaCuentas.innerHTML = `
                         <div style="text-align: center; padding: 40px;">
                             <p>📭 <strong>Este cliente no tiene cuentas registradas</strong></p>
                             <p>Puede crear una nueva cuenta usando el botón "➕ Nueva Cuenta"</p>
                         </div>
                     `;
-                    return;
-                }
-
-                if (response.status === 404) {
-                    listaCuentas.innerHTML = `
-                        <div style="text-align: center; padding: 40px;">
-                            <p>📭 <strong>No se encontraron cuentas para este cliente</strong></p>
-                            <p>Puede crear una nueva cuenta usando el botón "➕ Nueva Cuenta"</p>
-                        </div>
-                    `;
+                    cuentasOriginales = [];
                     return;
                 }
 
                 if (response.ok) {
                     const cuentas = await response.json();
+                    cuentasOriginales = cuentas; // Guardar copia original
+                    
                     if (cuentas.length === 0) {
                         listaCuentas.innerHTML = `
                             <div style="text-align: center; padding: 40px;">
@@ -80,15 +81,73 @@ function initListarCuentas() {
                     }
                 } else {
                     listaCuentas.innerHTML = `<p class="error">❌ Error ${response.status}: No se pudieron cargar las cuentas</p>`;
+                    cuentasOriginales = [];
                 }
             } catch (error) {
                 console.error('Error:', error);
                 listaCuentas.innerHTML = '<p class="error">❌ Error de conexión con el servidor</p>';
+                cuentasOriginales = [];
+            }
+        }
+
+        // Función para aplicar filtros
+        function aplicarFiltros() {
+            if (!cuentasOriginales || cuentasOriginales.length === 0) return;
+
+            const ibanFilter = filtroIban?.value.toLowerCase() || '';
+            const saldoMin = parseFloat(filtroSaldoMin?.value) || 0;
+            const saldoMax = parseFloat(filtroSaldoMax?.value) || Infinity;
+            const tipoFilter = filtroTipoCuenta?.value || '';
+
+            const cuentasFiltradas = cuentasOriginales.filter(cuenta => {
+                // Filtro por IBAN
+                const cumpleIban = !ibanFilter || cuenta.numeroCuenta.toLowerCase().includes(ibanFilter);
+                
+                // Filtro por saldo mínimo y máximo
+                const saldo = cuenta.saldo || 0;
+                const cumpleSaldoMin = saldo >= saldoMin;
+                const cumpleSaldoMax = saldo <= saldoMax;
+                
+                // Filtro por tipo de cuenta
+                const cumpleTipo = !tipoFilter || cuenta.tipoCuenta === tipoFilter;
+                
+                return cumpleIban && cumpleSaldoMin && cumpleSaldoMax && cumpleTipo;
+            });
+
+            mostrarCuentas(cuentasFiltradas);
+            
+            // Mostrar mensaje de resultados
+            const totalSpan = document.querySelector('.total-cuentas');
+            if (totalSpan) {
+                totalSpan.innerHTML = `✅ Mostrando ${cuentasFiltradas.length} de ${cuentasOriginales.length} cuentas`;
+            }
+        }
+
+        // Función para limpiar filtros
+        function limpiarFiltros() {
+            if (filtroIban) filtroIban.value = '';
+            if (filtroSaldoMin) filtroSaldoMin.value = '';
+            if (filtroSaldoMax) filtroSaldoMax.value = '';
+            if (filtroTipoCuenta) filtroTipoCuenta.value = '';
+            
+            // Mostrar todas las cuentas originales
+            if (cuentasOriginales && cuentasOriginales.length > 0) {
+                mostrarCuentas(cuentasOriginales);
             }
         }
 
         function mostrarCuentas(cuentas) {
             if (!listaCuentas) return;
+
+            if (cuentas.length === 0) {
+                listaCuentas.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <p>🔍 <strong>No hay cuentas que coincidan con los filtros</strong></p>
+                        <p>Prueba con otros criterios de búsqueda</p>
+                    </div>
+                `;
+                return;
+            }
 
             listaCuentas.innerHTML = `
                 <table class="tabla-cuentas">
@@ -104,8 +163,10 @@ function initListarCuentas() {
                         ${cuentas.map(cuenta => `
                             <tr>
                                 <td><strong>${cuenta.numeroCuenta}</strong></td>
-                                <td>${cuenta.tipoCuenta}</td>
-                                <td class="saldo-cuenta">${cuenta.saldo?.toFixed(2) || '0.00'} €</td>
+                                <td>${cuenta.tipoCuenta === 'CORRIENTE' ? '💳 Corriente' : '🏦 Ahorro'}</td>
+                                <td class="saldo-cuenta" style="color: ${(cuenta.saldo || 0) < 0 ? '#e74c3c' : '#27ae60'}; font-weight: bold;">
+                                    ${(cuenta.saldo || 0).toFixed(2)} €
+                                </td>
                                 <td>${cuenta.fechaCreacion || '-'}</td>
                             </tr>
                         `).join('')}
@@ -123,8 +184,27 @@ function initListarCuentas() {
                     cargarCuentas(clienteId);
                 } else {
                     listaCuentas.innerHTML = '<p>📋 Seleccione un cliente para ver sus cuentas</p>';
+                    cuentasOriginales = [];
                 }
             };
+        }
+
+        // Evento: botón aplicar filtros
+        if (btnAplicarFiltros) {
+            btnAplicarFiltros.onclick = aplicarFiltros;
+        }
+
+        // Evento: botón limpiar filtros
+        if (btnLimpiarFiltros) {
+            btnLimpiarFiltros.onclick = limpiarFiltros;
+        }
+
+        // Evento: filtros automáticos al escribir (opcional - descomentar si se quiere)
+        if (filtroIban) {
+            filtroIban.addEventListener('input', aplicarFiltros);
+        }
+        if (filtroTipoCuenta) {
+            filtroTipoCuenta.addEventListener('change', aplicarFiltros);
         }
 
         // Botón: crear cuenta
@@ -140,21 +220,10 @@ function initListarCuentas() {
             };
         }
 
-        // Botón: ver cuentas
-        if (btnVerCuentas) {
-            btnVerCuentas.onclick = () => {
-                if (selectCliente?.value) {
-                    cargarCuentas(selectCliente.value);
-                } else {
-                    alert('Seleccione un cliente primero');
-                }
-            };
-        }
-
         // Cargar clientes al abrir
         cargarClientesSelect();
 
-        console.log('✅ listarCuentas inicializado');
+        console.log('✅ listarCuentas inicializado con filtros');
     }, 100);
 }
 
@@ -194,7 +263,6 @@ window.recargarListaCuentas = async function(clienteId) {
                     if (typeof mostrarCuentas === 'function') {
                         mostrarCuentas(cuentas);
                     } else {
-                        // Fallback si mostrarCuentas no está disponible
                         listaCuentas.innerHTML = `
                             <table class="tabla-cuentas">
                                 <thead><tr><th>Número</th><th>Tipo</th><th>Saldo</th></tr></thead>
@@ -202,7 +270,8 @@ window.recargarListaCuentas = async function(clienteId) {
                                     ${cuentas.map(c => `
                                         <tr><td><strong>${c.numeroCuenta}</strong></td>
                                         <td>${c.tipoCuenta}</td>
-                                        <td>${c.saldo?.toFixed(2) || '0.00'} €</td></tr>
+                                        <td>${(c.saldo || 0).toFixed(2)} €</td>
+                                        </tr>
                                     `).join('')}
                                 </tbody>
                             </table>
