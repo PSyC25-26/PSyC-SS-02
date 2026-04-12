@@ -7,6 +7,7 @@ import es.deusto.banca_online.services.ClienteService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class ClienteController {
 
     // CREAR cliente
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ClienteResponse> crearCliente(@RequestBody @Valid ClienteRequest request) {
         //El cliente aún no tiene ID ni fecha_creacion. El servicio lo crea y guarda en BD
         Cliente clienteCreado = clienteService.crearCliente(request);
@@ -45,6 +47,7 @@ public class ClienteController {
 
     // CARGAR clientes
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Cliente>> listarTodos() {
         List<Cliente> clientes = clienteService.listarTodos();
         return ResponseEntity.ok(clientes);
@@ -53,6 +56,7 @@ public class ClienteController {
 
     // BUSCAR cliente por ID
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ClienteResponse> buscarPorId(@PathVariable Long id) {
         try{
             Cliente cliente = clienteService.buscarPorId(id);
@@ -69,6 +73,7 @@ public class ClienteController {
 
     // BUSCAR cliente por email
     @GetMapping("/email/{email}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ClienteResponse> buscarPorEmail(@PathVariable String email) {
         try{
             Cliente cliente = clienteService.buscarPorEmail(email);
@@ -85,6 +90,7 @@ public class ClienteController {
 
     // ACTUALIZAR cliente
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ClienteResponse> actualizarCliente(
             @PathVariable Long id,
             @RequestBody @Valid ClienteRequest request) {
@@ -106,6 +112,7 @@ public class ClienteController {
 
     // ELIMINAR cliente
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminarCliente(@PathVariable Long id) {
         try{
             clienteService.eliminarCliente(id);

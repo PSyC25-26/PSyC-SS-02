@@ -6,6 +6,8 @@ import es.deusto.banca_online.services.TransferService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +28,7 @@ public class CuentaController {
 
     //POST /cuentas
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CuentaResponse> crearCuenta(@RequestBody @Valid CuentaRequest request) {
         try {
             CuentaResponse response = cuentaService.crearCuenta(request);
@@ -47,6 +50,7 @@ public class CuentaController {
 
     //GET /cuentas?clienteId=X
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CuentaResponse>> obtenerCuentas(@RequestParam Long clienteId) {
         try {
             return ResponseEntity.ok(cuentaService.obtenerCuentasPorCliente(clienteId));
@@ -62,9 +66,11 @@ public class CuentaController {
     //GET  /saldo por Id
     @ResponseBody
     @GetMapping("/saldo/{cuentaId}")
-    public ResponseEntity<SaldoResponse> verSaldo(@PathVariable Long cuentaId) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CLIENTE')")
+    public ResponseEntity<SaldoResponse> verSaldo(@PathVariable Long cuentaId,
+                                                   Authentication authentication) {
         try {
-            Double saldo = cuentaService.obtenerSaldo(cuentaId);
+            Double saldo = cuentaService.obtenerSaldo(cuentaId, authentication);
             return ResponseEntity.ok(new SaldoResponse(saldo));
         } catch (RuntimeException e) {
             if (e.getMessage() != null && e.getMessage().contains("Cuenta no encontrada")) {
@@ -81,7 +87,9 @@ public class CuentaController {
     
     //GET /cuentas/{clienteId}
     @GetMapping("/{clienteId}")
-    public ResponseEntity<List<CuentaResponse>> obtenerCuentasPorClienteId(@PathVariable Long clienteId) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CLIENTE')")
+    public ResponseEntity<List<CuentaResponse>> obtenerCuentasPorClienteId(@PathVariable Long clienteId,
+                                                                            Authentication authentication) {
         try {
             return ResponseEntity.ok(cuentaService.obtenerCuentasPorCliente(clienteId));
         } catch (RuntimeException e) {
@@ -94,9 +102,11 @@ public class CuentaController {
 
     //Transferencia de dinero entre cuentas
     @PostMapping("/transferir")
-    public ResponseEntity<TransferenciaDTO> transferirDinero(@RequestBody @Valid TransferenciaDTO transferenciaDTO) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CLIENTE')")
+    public ResponseEntity<TransferenciaDTO> transferirDinero(@RequestBody @Valid TransferenciaDTO transferenciaDTO,
+                                                             Authentication authentication) {
         try {
-            TransferenciaDTO transferencia = transferService.transferirDinero(transferenciaDTO);
+            TransferenciaDTO transferencia = transferService.transferirDinero(transferenciaDTO, authentication);
             return ResponseEntity.ok(transferencia);
         } catch (RuntimeException e) {
             if (e.getMessage() != null && e.getMessage().contains("Cuenta no encontrada")) {
@@ -108,10 +118,11 @@ public class CuentaController {
 
     // POST /cuentas/deposito
     @PostMapping("/depositar")
-    public ResponseEntity<CuentaResponse> depositarDinero(@RequestBody @Valid DepositoRequest request) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CLIENTE')")
+    public ResponseEntity<CuentaResponse> depositarDinero(@RequestBody @Valid DepositoRequest request,
+                                                          Authentication authentication) {
         try {
-            // Usamos los datos que vienen dentro del DTO
-            CuentaResponse response = cuentaService.depositarDinero(request.getCuentaId(), request.getMonto());
+            CuentaResponse response = cuentaService.depositarDinero(request.getCuentaId(), request.getMonto(), authentication);
             return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
@@ -127,10 +138,11 @@ public class CuentaController {
 
     // POST /cuentas/retiro
     @PostMapping("/retirar")
-    public ResponseEntity<CuentaResponse> retirarDinero(@RequestBody @Valid RetiroRequest request) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CLIENTE')")
+    public ResponseEntity<CuentaResponse> retirarDinero(@RequestBody @Valid RetiroRequest request,
+                                                        Authentication authentication) {
         try {
-            // Llamamos al servicio de retiro que creamos en el paso anterior
-            CuentaResponse response = cuentaService.retirarDinero(request.getCuentaId(), request.getMonto());
+            CuentaResponse response = cuentaService.retirarDinero(request.getCuentaId(), request.getMonto(), authentication);
             return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
