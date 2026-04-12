@@ -1,5 +1,14 @@
 USE banca_online;
 
+  CREATE TABLE IF NOT EXISTS usuario (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    rol ENUM('ADMIN','CLIENTE') NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    cliente_id BIGINT NULL
+  );
+
 CREATE TABLE IF NOT EXISTS cliente (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     dni VARCHAR(20) UNIQUE NOT NULL,
@@ -34,5 +43,4 @@ CREATE TABLE IF NOT EXISTS transaccion (
     FOREIGN KEY (cuenta_origen_id) REFERENCES cuenta(id),
     FOREIGN KEY (cuenta_destino_id) REFERENCES cuenta(id)
 );
-
 
