@@ -74,6 +74,7 @@ public class CuentaService {
         response.setSaldo(cuenta.getSaldo());
         response.setTipoCuenta(cuenta.getTipoCuenta().name());
         response.setClienteId(cuenta.getCliente().getId());
+        response.setFechaCreacion(cuenta.getFechaCreacion());
         return response;
     }
 
