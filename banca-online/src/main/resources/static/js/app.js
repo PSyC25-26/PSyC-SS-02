@@ -1,27 +1,41 @@
 // Estado global
 let currentRole = null;
-let currentClienteId = null; // Guardar ID del cliente logueado
+let currentClienteId = null;
 
-// SIMULACIÓN LOGIN (despues habra que conectarlo con backend real)
+// Restaurar sesión si ya hay un token guardado
+window.addEventListener('DOMContentLoaded', () => {
+    if (Auth.estaAutenticado()) {
+        currentRole = Auth.getRol().toLowerCase();
+        currentClienteId = Auth.getClienteId();
+        iniciarSesion();
+    }
+});
+
+// LOGIN conectado al backend
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
 
-    // Aqui habrá que llamar al backend
-    // Por ahora, hacemos mediante simulación:
-    if (email === 'admin@banco.com' && password === 'admin123') {
-        currentRole = 'admin';
-        currentClienteId = null;
-        iniciarSesion();
-    } else if (email === 'cliente@banco.com' && password === 'cliente123') {
-        currentRole = 'cliente';
-        // TODO: Obtener el ID real del cliente desde el backend
-        currentClienteId = 4; // ID del cliente de prueba
-        iniciarSesion();
-    } else {
-        mostrarError('Credenciales inválidas');
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            Auth.guardarSesion(data);
+            currentRole = data.rol.toLowerCase();
+            currentClienteId = data.clienteId ?? null;
+            iniciarSesion();
+        } else {
+            mostrarError('Credenciales inválidas');
+        }
+    } catch (error) {
+        mostrarError('Error de conexión con el servidor');
     }
 });
 
@@ -167,6 +181,7 @@ window.recargarCuentasCliente = function() {
 
 // CERRAR SESION
 document.getElementById('logoutBtn').addEventListener('click', () => {
+    Auth.cerrarSesion();
     currentRole = null;
     currentClienteId = null;
     document.getElementById('mainApp').style.display = 'none';
