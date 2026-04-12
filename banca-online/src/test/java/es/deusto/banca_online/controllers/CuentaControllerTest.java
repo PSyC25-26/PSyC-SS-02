@@ -5,15 +5,19 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.dto.CuentaResponse;
 import es.deusto.banca_online.dto.TransferenciaDTO;
+import es.deusto.banca_online.security.JwtUtils;
+import es.deusto.banca_online.security.UserDetailsServiceImpl;
 import es.deusto.banca_online.services.TransferService;
 import es.deusto.banca_online.entity.ETipoCuenta;
 import es.deusto.banca_online.services.CuentaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import es.deusto.banca_online.dto.DepositoRequest;
 import es.deusto.banca_online.dto.RetiroRequest;
+import org.springframework.security.core.Authentication;
 
 // NUEVA IMPORTACIÓN - Reemplaza a MockBean
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -31,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 //Indicamos que vamos a arrancar la capa web
-@WebMvcTest(CuentaController.class)
+@WebMvcTest(value = CuentaController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 class CuentaControllerTest {
 
     /*---------------
@@ -45,6 +49,12 @@ class CuentaControllerTest {
 
     @MockitoBean
     private TransferService transferService;  // Mock del servicio
+
+    @MockitoBean
+    private JwtUtils jwtUtils;  // Necesario porque JwtAuthFilter es un Filter incluido en el slice
+
+    @MockitoBean
+    private UserDetailsServiceImpl userDetailsService;  // Necesario por JwtAuthFilter
 
     private ObjectMapper objectMapper; // Convierte objetos a JSON
 
@@ -310,7 +320,7 @@ class CuentaControllerTest {
     @Test
     void obtenerCuentasPorClienteId_CuandoHayCuentas_DeberiaRetornarLista() throws Exception {
         // Configuramos el mock para devolver la lista de cuentas simuladas
-        when(cuentaService.obtenerCuentasPorCliente(1L)).thenReturn(cuentasMock);
+        when(cuentaService.obtenerCuentasPorCliente(eq(1L), nullable(Authentication.class))).thenReturn(cuentasMock);
 
         // Llamamos al endpoint con el nuevo formato path variable
         mockMvc.perform(get("/api/cuentas/1")
@@ -329,14 +339,14 @@ class CuentaControllerTest {
                 .andExpect(jsonPath("$[1].saldo").value(500.0));
 
         // Verificamos que se ha llamado al servicio 1 vez
-        verify(cuentaService, times(1)).obtenerCuentasPorCliente(1L);
+        verify(cuentaService, times(1)).obtenerCuentasPorCliente(eq(1L), nullable(Authentication.class));
     }
 
     // DATOS INCORRECTOS - Cliente no existe
     @Test
     void obtenerCuentasPorClienteId_ClienteNoExiste_Retorna404() throws Exception {
         // Cuando se consulta un cliente que no existe, el servicio lanza excepción
-        when(cuentaService.obtenerCuentasPorCliente(999L))
+        when(cuentaService.obtenerCuentasPorCliente(eq(999L), nullable(Authentication.class)))
                 .thenThrow(new RuntimeException("Cliente no encontrado con id: 999"));
 
         // Llamamos al endpoint con un ID de cliente inexistente
@@ -346,14 +356,14 @@ class CuentaControllerTest {
                 .andExpect(status().isNotFound());
 
         // Verificamos que se ha llamado al servicio obtenerCuentasPorCliente 1 vez
-        verify(cuentaService, times(1)).obtenerCuentasPorCliente(999L);
+        verify(cuentaService, times(1)).obtenerCuentasPorCliente(eq(999L), nullable(Authentication.class));
     }
 
     // DATOS CORRECTOS - Cliente sin cuentas
     @Test
     void obtenerCuentasPorClienteId_CuandoNoHayCuentas_DeberiaRetornarListaVacia() throws Exception {
         // Configuramos el mock para devolver una lista vacía
-        when(cuentaService.obtenerCuentasPorCliente(1L)).thenReturn(Arrays.asList());
+        when(cuentaService.obtenerCuentasPorCliente(eq(1L), nullable(Authentication.class))).thenReturn(Arrays.asList());
 
         // Llamamos al endpoint con un cliente que no tiene cuentas
         mockMvc.perform(get("/api/cuentas/1")
@@ -364,7 +374,7 @@ class CuentaControllerTest {
                 .andExpect(jsonPath("$", hasSize(0)));
 
         // Verificamos que se ha llamado al servicio obtenerCuentasPorCliente 1 vez
-        verify(cuentaService, times(1)).obtenerCuentasPorCliente(1L);
+        verify(cuentaService, times(1)).obtenerCuentasPorCliente(eq(1L), nullable(Authentication.class));
     }
 
 
@@ -373,7 +383,7 @@ class CuentaControllerTest {
     @Test
     void verSaldo_CuandoCuentaExiste_RetornaSaldo() throws Exception {
         // Simulamos saldo
-        when(cuentaService.obtenerSaldo(1L)).thenReturn(1000.0);
+        when(cuentaService.obtenerSaldo(eq(1L), nullable(Authentication.class))).thenReturn(1000.0);
 
         // Llamamos al endpoint
         mockMvc.perform(get("/api/cuentas/saldo/1")
@@ -382,14 +392,14 @@ class CuentaControllerTest {
                 .andExpect(jsonPath("$.saldo").value(1000.0));
 
         // Verificamos llamada al servicio
-        verify(cuentaService, times(1)).obtenerSaldo(1L);
+        verify(cuentaService, times(1)).obtenerSaldo(eq(1L), nullable(Authentication.class));
     }
 
     //CUENTA NO ENCONTRADA (404)
     @Test
     void verSaldo_CuentaNoExiste_Retorna404() throws Exception {
         // Simulamos excepción
-        when(cuentaService.obtenerSaldo(999L))
+        when(cuentaService.obtenerSaldo(eq(999L), nullable(Authentication.class)))
                 .thenThrow(new RuntimeException("Cuenta no encontrada con id: 999"));
 
         // Llamamos al endpoint
@@ -398,14 +408,14 @@ class CuentaControllerTest {
                 .andExpect(status().isNotFound());
 
         // Verificamos llamada al servicio
-        verify(cuentaService, times(1)).obtenerSaldo(999L);
+        verify(cuentaService, times(1)).obtenerSaldo(eq(999L), nullable(Authentication.class));
     }
 
     //EXCEPTION NO CONTROLADA
     @Test
     void verSaldo_ErrorInterno_LanzaExcepcion() throws Exception {
         // Simulamos error inesperado
-        when(cuentaService.obtenerSaldo(1L))
+        when(cuentaService.obtenerSaldo(eq(1L), nullable(Authentication.class)))
                 .thenThrow(new RuntimeException("Error de base de datos"));
 
         // Esperamos excepción (diferente a 404)
@@ -425,7 +435,7 @@ class CuentaControllerTest {
         dto.setCuentaDestino("ES876543210987654321");
         dto.setCantidad(100.0);
 
-        when(transferService.transferirDinero(any(TransferenciaDTO.class))).thenReturn(dto);
+        when(transferService.transferirDinero(any(TransferenciaDTO.class), nullable(Authentication.class))).thenReturn(dto);
 
         mockMvc.perform(post("/api/cuentas/transferir")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -435,7 +445,7 @@ class CuentaControllerTest {
                 .andExpect(jsonPath("$.cuentaDestino").value("ES876543210987654321"))
                 .andExpect(jsonPath("$.cantidad").value(100.0));
 
-        verify(transferService, times(1)).transferirDinero(any(TransferenciaDTO.class));
+        verify(transferService, times(1)).transferirDinero(any(TransferenciaDTO.class), nullable(Authentication.class));
     }
 
     @Test
@@ -445,7 +455,7 @@ class CuentaControllerTest {
         dto.setCuentaDestino("ES876543210987654321");
         dto.setCantidad(100.0);
 
-        when(transferService.transferirDinero(any(TransferenciaDTO.class)))
+        when(transferService.transferirDinero(any(TransferenciaDTO.class), nullable(Authentication.class)))
                 .thenThrow(new RuntimeException("Cuenta no encontrada"));
 
         mockMvc.perform(post("/api/cuentas/transferir")
@@ -453,7 +463,7 @@ class CuentaControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isNotFound());
 
-        verify(transferService, times(1)).transferirDinero(any(TransferenciaDTO.class));
+        verify(transferService, times(1)).transferirDinero(any(TransferenciaDTO.class), nullable(Authentication.class));
     }
 
     @Test
@@ -463,7 +473,7 @@ class CuentaControllerTest {
         dto.setCuentaDestino("ES876543210987654321");
         dto.setCantidad(10000.0);
 
-        when(transferService.transferirDinero(any(TransferenciaDTO.class)))
+        when(transferService.transferirDinero(any(TransferenciaDTO.class), nullable(Authentication.class)))
                 .thenThrow(new RuntimeException("Saldo insuficiente en la cuenta de origen"));
 
         org.assertj.core.api.Assertions.assertThatThrownBy(() ->
@@ -473,7 +483,7 @@ class CuentaControllerTest {
         ).hasCauseInstanceOf(RuntimeException.class)
          .hasMessageContaining("Saldo insuficiente");
 
-        verify(transferService, times(1)).transferirDinero(any(TransferenciaDTO.class));
+        verify(transferService, times(1)).transferirDinero(any(TransferenciaDTO.class), nullable(Authentication.class));
     }
 
     // ==========================================
@@ -490,16 +500,16 @@ class CuentaControllerTest {
         // Preparamos el Response esperado
         cuentaResponse.setSaldo(1150.0); // 1000 originales + 150
 
-        when(cuentaService.depositarDinero(1L, 150.0)).thenReturn(cuentaResponse);
+        when(cuentaService.depositarDinero(eq(1L), eq(150.0), nullable(Authentication.class))).thenReturn(cuentaResponse);
 
         // Ejecutamos la petición POST
-        mockMvc.perform(post("/api/cuentas/deposito")
+        mockMvc.perform(post("/api/cuentas/depositar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(depositoRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.saldo").value(1150.0));
 
-        verify(cuentaService, times(1)).depositarDinero(1L, 150.0);
+        verify(cuentaService, times(1)).depositarDinero(eq(1L), eq(150.0), nullable(Authentication.class));
     }
 
     @Test
@@ -508,10 +518,10 @@ class CuentaControllerTest {
         depositoRequest.setCuentaId(999L);
         depositoRequest.setMonto(100.0);
 
-        when(cuentaService.depositarDinero(999L, 100.0))
+        when(cuentaService.depositarDinero(eq(999L), eq(100.0), nullable(Authentication.class)))
                 .thenThrow(new RuntimeException("Cuenta no encontrada"));
 
-        mockMvc.perform(post("/api/cuentas/deposito")
+        mockMvc.perform(post("/api/cuentas/depositar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(depositoRequest)))
                 .andExpect(status().isNotFound());
@@ -525,9 +535,9 @@ class CuentaControllerTest {
 
         cuentaResponse.setSaldo(800.0); // 1000 originales - 200
 
-        when(cuentaService.retirarDinero(1L, 200.0)).thenReturn(cuentaResponse);
+        when(cuentaService.retirarDinero(eq(1L), eq(200.0), nullable(Authentication.class))).thenReturn(cuentaResponse);
 
-        mockMvc.perform(post("/api/cuentas/retiro")
+        mockMvc.perform(post("/api/cuentas/retirar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(retiroRequest)))
                 .andExpect(status().isOk())
@@ -540,10 +550,10 @@ class CuentaControllerTest {
         retiroRequest.setCuentaId(1L);
         retiroRequest.setMonto(5000.0); // Monto gigante para provocar error
 
-        when(cuentaService.retirarDinero(1L, 5000.0))
+        when(cuentaService.retirarDinero(eq(1L), eq(5000.0), nullable(Authentication.class)))
                 .thenThrow(new IllegalArgumentException("Saldo insuficiente"));
 
-        mockMvc.perform(post("/api/cuentas/retiro")
+        mockMvc.perform(post("/api/cuentas/retirar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(retiroRequest)))
                 .andExpect(status().isBadRequest()); // Esperamos error 400

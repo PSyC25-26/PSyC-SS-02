@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,6 +43,9 @@ class CuentaServiceTest {
 
     @Mock
     private ITransaccionRepository transaccionRepository;
+
+    @Mock
+    private Authentication authentication;
 
     private CuentaRequest requestValido;
     private Cliente clienteExistente;
@@ -74,6 +79,11 @@ class CuentaServiceTest {
         cuentaGuardada.setTipoCuenta(ETipoCuenta.CORRIENTE);
         cuentaGuardada.setCliente(clienteExistente);
         // NOTA: No se llama a setFechaCreacion porque no existe setter en la entidad Cuenta
+
+        // Mock de autenticación con rol ADMIN (para que pasen las verificaciones de propietario)
+        // lenient() porque no todos los tests necesitan este mock
+        lenient().when(authentication.getAuthorities()).thenAnswer(inv ->
+                List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
 
         // Segunda cuenta para la lista
         Cuenta cuenta2 = new Cuenta();
@@ -294,7 +304,7 @@ class CuentaServiceTest {
                 .thenReturn(Optional.of(cuenta));
 
         // WHEN
-        Double saldo = cuentaService.obtenerSaldo(cuentaId);
+        Double saldo = cuentaService.obtenerSaldo(cuentaId, authentication);
 
         // THEN
         assertEquals(saldoEsperado, saldo);
@@ -314,7 +324,7 @@ class CuentaServiceTest {
 
         // WHEN + THEN
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            cuentaService.obtenerSaldo(cuentaId);
+            cuentaService.obtenerSaldo(cuentaId, authentication);
         });
 
         assertEquals("Cuenta no encontrada", exception.getMessage());
@@ -344,7 +354,7 @@ class CuentaServiceTest {
         when(cuentaRepository.save(any(Cuenta.class))).thenReturn(cuenta);
 
         // WHEN: Ejecutamos el depósito
-        CuentaResponse response = cuentaService.depositarDinero(cuentaId, montoDeposito);
+        CuentaResponse response = cuentaService.depositarDinero(cuentaId, montoDeposito, authentication);
 
         // THEN: El saldo debe ser 1500€
         assertEquals(1500.0, response.getSaldo());
@@ -360,7 +370,7 @@ class CuentaServiceTest {
     @Test
     void depositarDinero_MontoInvalido_LanzaExcepcion() {
         assertThrows(IllegalArgumentException.class, () -> {
-            cuentaService.depositarDinero(1L, -50.0);
+            cuentaService.depositarDinero(1L, -50.0, authentication);
         });
         verify(cuentaRepository, never()).save(any());
     }
@@ -382,7 +392,7 @@ class CuentaServiceTest {
         when(cuentaRepository.save(any(Cuenta.class))).thenReturn(cuenta);
 
         // WHEN: Ejecutamos el retiro
-        CuentaResponse response = cuentaService.retirarDinero(cuentaId, montoRetiro);
+        CuentaResponse response = cuentaService.retirarDinero(cuentaId, montoRetiro, authentication);
 
         // THEN: El saldo debe ser 800€
         assertEquals(800.0, response.getSaldo());
@@ -403,7 +413,7 @@ class CuentaServiceTest {
 
         // WHEN & THEN: Debe lanzar excepción de argumento ilegal
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            cuentaService.retirarDinero(1L, 1000.0);
+            cuentaService.retirarDinero(1L, 1000.0, authentication);
         });
 
         assertEquals("Saldo insuficiente para realizar el retiro", exception.getMessage());

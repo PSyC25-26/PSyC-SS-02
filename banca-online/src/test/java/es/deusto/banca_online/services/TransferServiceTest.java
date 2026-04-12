@@ -1,6 +1,7 @@
 package es.deusto.banca_online.services;
 
 import es.deusto.banca_online.dto.TransferenciaDTO;
+import es.deusto.banca_online.entity.Cliente;
 import es.deusto.banca_online.entity.Cuenta;
 import es.deusto.banca_online.repository.ICuentaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,10 +10,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -26,6 +31,9 @@ class TransferServiceTest {
     @Mock
     private ICuentaRepository cuentaRepository;
 
+    @Mock
+    private Authentication authentication;
+
     @InjectMocks
     private TransferService transferService;
 
@@ -35,13 +43,21 @@ class TransferServiceTest {
 
     @BeforeEach
     void setUp() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+
         cuentaOrigen = new Cuenta();
         cuentaOrigen.setId(1L);
         cuentaOrigen.setNumeroCuenta("ES111");
+        cuentaOrigen.setCliente(cliente);
 
         cuentaDestino = new Cuenta();
         cuentaDestino.setId(2L);
         cuentaDestino.setNumeroCuenta("ES222");
+
+        // Mock de autenticación con rol ADMIN (lenient porque no todos los tests lo usan)
+        lenient().when(authentication.getAuthorities()).thenAnswer(inv ->
+                List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
 
         transferenciaDTO = new TransferenciaDTO();
         transferenciaDTO.setCuentaOrigen("ES111");
@@ -53,10 +69,10 @@ class TransferServiceTest {
     void transferirDinero_Exito() {
         when(cuentaRepository.findByNumeroCuenta("ES111")).thenReturn(Optional.of(cuentaOrigen));
         when(cuentaRepository.findByNumeroCuenta("ES222")).thenReturn(Optional.of(cuentaDestino));
-        when(cuentaService.obtenerSaldo(1L)).thenReturn(500.0);
-        when(cuentaService.obtenerSaldo(2L)).thenReturn(200.0);
+        when(cuentaService.obtenerSaldo(1L, authentication)).thenReturn(500.0);
+        when(cuentaService.obtenerSaldo(2L, authentication)).thenReturn(200.0);
 
-        TransferenciaDTO resultado = transferService.transferirDinero(transferenciaDTO);
+        TransferenciaDTO resultado = transferService.transferirDinero(transferenciaDTO, authentication);
 
         assertNotNull(resultado);
         assertEquals(100.0, resultado.getCantidad());
@@ -71,12 +87,12 @@ class TransferServiceTest {
         when(cuentaRepository.findByNumeroCuenta("ES111")).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> 
-            transferService.transferirDinero(transferenciaDTO)
+            transferService.transferirDinero(transferenciaDTO, authentication)
         );
 
         assertEquals("Cuenta de origen no encontrada", exception.getMessage());
         verify(cuentaRepository, never()).findByNumeroCuenta("ES222");
-        verify(cuentaService, never()).obtenerSaldo(anyLong());
+        verify(cuentaService, never()).obtenerSaldo(anyLong(), any());
         System.out.println("Test transferirDinero_CuentaOrigenNoExiste pasado");
     }
 
@@ -88,11 +104,11 @@ class TransferServiceTest {
         when(cuentaRepository.findByNumeroCuenta("ES222")).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> 
-            transferService.transferirDinero(transferenciaDTO)
+            transferService.transferirDinero(transferenciaDTO, authentication)
         );
 
         assertEquals("Cuenta de destino no encontrada", exception.getMessage());
-        verify(cuentaService, never()).obtenerSaldo(anyLong());
+        verify(cuentaService, never()).obtenerSaldo(anyLong(), any());
         System.out.println("Test transferirDinero_CuentaDestinoNoExiste pasado");
 
     }
@@ -101,10 +117,10 @@ class TransferServiceTest {
     void transferirDinero_SaldoInsuficiente() {
         when(cuentaRepository.findByNumeroCuenta("ES111")).thenReturn(Optional.of(cuentaOrigen));
         when(cuentaRepository.findByNumeroCuenta("ES222")).thenReturn(Optional.of(cuentaDestino));
-        when(cuentaService.obtenerSaldo(1L)).thenReturn(50.0); // Menor que 100.0
+        when(cuentaService.obtenerSaldo(1L, authentication)).thenReturn(50.0); // Menor que 100.0
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> 
-            transferService.transferirDinero(transferenciaDTO)
+            transferService.transferirDinero(transferenciaDTO, authentication)
         );
 
         assertEquals("Saldo insuficiente en la cuenta de origen", exception.getMessage());

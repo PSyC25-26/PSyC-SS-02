@@ -44,7 +44,7 @@ public class TransferService {
         }
 
         // Verificar que la cuenta de origen tiene suficiente saldo
-        double saldoOrigen = cuentaService.obtenerSaldo(origen.getId());
+        double saldoOrigen = cuentaService.obtenerSaldo(origen.getId(), authentication);
         if (saldoOrigen < transferenciaDTO.getCantidad()) {
             throw new RuntimeException("Saldo insuficiente en la cuenta de origen");
         }
@@ -53,7 +53,7 @@ public class TransferService {
         double nuevoSaldoOrigen = saldoOrigen - transferenciaDTO.getCantidad();
         cuentaService.actualizarSaldo(origen.getId(), nuevoSaldoOrigen);
 
-        double saldoDestino = cuentaService.obtenerSaldo(destino.getId());
+        double saldoDestino = cuentaService.obtenerSaldo(destino.getId(), authentication);
         double nuevoSaldoDestino = saldoDestino + transferenciaDTO.getCantidad();
         cuentaService.actualizarSaldo(destino.getId(), nuevoSaldoDestino);
         return transferenciaDTO;

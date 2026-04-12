@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import es.deusto.banca_online.dto.ClienteRequest;
 import es.deusto.banca_online.entity.Cliente;
+import es.deusto.banca_online.security.JwtUtils;
+import es.deusto.banca_online.security.UserDetailsServiceImpl;
 import es.deusto.banca_online.services.ClienteService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 
 // NUEVA IMPORTACIÓN - Reemplaza a MockBean
@@ -28,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 //Indicamos que vamos a arrancar la capa web
-@WebMvcTest(ClienteController.class)
+@WebMvcTest(value = ClienteController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 class ClienteControllerTest {
 
     /*---------------
@@ -39,6 +42,12 @@ class ClienteControllerTest {
 
     @MockitoBean
     private ClienteService clienteService;  // Mock del servicio
+
+    @MockitoBean
+    private JwtUtils jwtUtils;  // Necesario porque JwtAuthFilter es un Filter incluido en el slice
+
+    @MockitoBean
+    private UserDetailsServiceImpl userDetailsService;  // Necesario por JwtAuthFilter
 
     private ObjectMapper objectMapper; // Convierte objetos a JSON
 
@@ -73,6 +82,7 @@ class ClienteControllerTest {
         clienteRequest.setPrimerApellido("Pérez");
         clienteRequest.setEmail("juan@test.com");
         clienteRequest.setFechaNacimiento(LocalDate.of(1990, 1, 1));
+        clienteRequest.setPassword("test123");
 
         // Preparar Cliente (lo que devuelve el servicio)
         // Lo mismo que lo que envía el usuario pero con ID y fechaCreacion, pues eso lo asigna la BD

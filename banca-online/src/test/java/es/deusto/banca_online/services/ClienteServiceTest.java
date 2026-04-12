@@ -2,13 +2,16 @@ package es.deusto.banca_online.services;
 
 import es.deusto.banca_online.dto.ClienteRequest;
 import es.deusto.banca_online.entity.Cliente;
+import es.deusto.banca_online.entity.Usuario;
 import es.deusto.banca_online.repository.IClienteRepository;
+import es.deusto.banca_online.repository.IUsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,8 +32,13 @@ class ClienteServiceTest {
     @Mock  // Crea un repositorio falso que simula el comportamiento de la base de datos
     private IClienteRepository clienteRepository;
 
-    @InjectMocks  // Inyecta el clienteRepository simulado dentro de ClienteService para usar
-    // la bd falsa
+    @Mock
+    private IUsuarioRepository usuarioRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @InjectMocks  // Inyecta los mocks dentro de ClienteService
     private ClienteService clienteService;
 
     private ClienteRequest requestValido;
@@ -50,6 +58,7 @@ class ClienteServiceTest {
         requestValido.setPrimerApellido("Pérez");
         requestValido.setEmail("juan@test.com");
         requestValido.setFechaNacimiento(LocalDate.of(1990, 1, 1));
+        requestValido.setPassword("test123");
 
         // Preparo el cliente que "devolverá" el repositorio
         clienteGuardado = new Cliente();
@@ -82,6 +91,9 @@ class ClienteServiceTest {
         when(clienteRepository.existsByEmail("juan@test.com")).thenReturn(false);
         // Cuando guardemos cualquier cliente, devolvemos clienteGuardado
         when(clienteRepository.save(any(Cliente.class))).thenReturn(clienteGuardado);
+        // Mock del encoder y del guardado del usuario
+        when(passwordEncoder.encode(any())).thenReturn("$2a$10$hashedpassword");
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(new Usuario());
 
         // Ejecutamos el método a testear
         Cliente resultado = clienteService.crearCliente(requestValido);
