@@ -6,6 +6,9 @@ import es.deusto.banca_online.entity.*;
 import es.deusto.banca_online.repository.ICuentaRepository;
 import es.deusto.banca_online.repository.IClienteRepository;
 import es.deusto.banca_online.repository.ITransaccionRepository;
+import es.deusto.banca_online.entity.Usuario;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -62,10 +65,26 @@ public class CuentaService {
         return response;
     }
 
-    public Double obtenerSaldo(Long cuentaId) {
+    // Verifica que el cliente autenticado es propietario de la cuenta
+    private void verificarPropietario(Cuenta cuenta, Authentication authentication) {
+        Usuario principal = (Usuario) authentication.getPrincipal();
+        // ADMIN puede acceder a cualquier cuenta
+        if (authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return;
+        }
+        // CLIENTE solo puede acceder a sus propias cuentas
+        if (principal.getClienteId() == null ||
+                !principal.getClienteId().equals(cuenta.getCliente().getId())) {
+            throw new AccessDeniedException("No tiene permiso sobre esta cuenta");
+        }
+    }
+
+    public Double obtenerSaldo(Long cuentaId, Authentication authentication) {
         Cuenta cuenta = cuentaRepository.findById(cuentaId)
                 .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
 
+        verificarPropietario(cuenta, authentication);
         return cuenta.getSaldo();
     }
 
@@ -79,13 +98,15 @@ public class CuentaService {
     }
 
     @Transactional
-    public CuentaResponse depositarDinero(Long cuentaId, Double monto) {
+    public CuentaResponse depositarDinero(Long cuentaId, Double monto, Authentication authentication) {
         if (monto == null || monto <= 0) {
             throw new IllegalArgumentException("El monto a depositar debe ser mayor a cero");
         }
 
         Cuenta cuenta = cuentaRepository.findById(cuentaId)
                 .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+
+        verificarPropietario(cuenta, authentication);
 
         // Actualizamos el saldo
         cuenta.setSaldo(cuenta.getSaldo() + monto);
@@ -108,7 +129,7 @@ public class CuentaService {
     }
 
     @Transactional
-    public CuentaResponse retirarDinero(Long cuentaId, Double monto) {
+    public CuentaResponse retirarDinero(Long cuentaId, Double monto, Authentication authentication) {
         if (monto == null || monto <= 0) {
             throw new IllegalArgumentException("El monto a retirar debe ser mayor a cero");
         }
@@ -116,6 +137,8 @@ public class CuentaService {
         // 2. Buscamos la cuenta en la base de datos
         Cuenta cuenta = cuentaRepository.findById(cuentaId)
                 .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+
+        verificarPropietario(cuenta, authentication);
 
         // 3. Verificamos que haya saldo suficiente para el retiro
         if (cuenta.getSaldo() < monto) {
