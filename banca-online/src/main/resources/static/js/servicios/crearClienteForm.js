@@ -65,6 +65,7 @@ function initCrearClienteForm() {
                     segundoApellido: document.getElementById('segundoApellido').value,
                     fechaNacimiento: document.getElementById('fechaNacimiento').value,
                     email: document.getElementById('email').value,
+                    password: document.getElementById('password').value,
                     telefono: document.getElementById('telefono').value,
                     direccion: document.getElementById('direccion').value
                 };

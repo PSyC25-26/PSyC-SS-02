@@ -33,6 +33,9 @@ public class ClienteRequest {
     @Email(message = "Email inválido")
     private String email;
 
+    @NotBlank(message = "La contraseña es obligatoria")
+    private String password;
+
     private String telefono;
     private String direccion;
 

@@ -1,8 +1,12 @@
 package es.deusto.banca_online.services;
 
 import es.deusto.banca_online.entity.Cliente;
+import es.deusto.banca_online.entity.ERol;
+import es.deusto.banca_online.entity.Usuario;
 import es.deusto.banca_online.repository.IClienteRepository;
+import es.deusto.banca_online.repository.IUsuarioRepository;
 import es.deusto.banca_online.dto.ClienteRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -18,6 +22,8 @@ public class ClienteService {
    Utilizamos funciones del repositorio
     ---------------*/
     private final IClienteRepository clienteRepository;
+    private final IUsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
 
@@ -25,8 +31,12 @@ public class ClienteService {
     /*--------------------
         CONSTRUCTOR
     --------------------*/
-    public ClienteService(IClienteRepository clienteRepository) {
+    public ClienteService(IClienteRepository clienteRepository,
+                          IUsuarioRepository usuarioRepository,
+                          PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -88,8 +98,19 @@ public class ClienteService {
         cliente.setDireccion(request.getDireccion());
         cliente.setFechaCreacion(LocalDateTime.now());
 
-        //Guardamos en la BD
-        return clienteRepository.save(cliente);
+        // Guardamos el cliente en la BD
+        Cliente clienteGuardado = clienteRepository.save(cliente);
+
+        // Creamos el Usuario vinculado al cliente
+        Usuario usuario = new Usuario();
+        usuario.setEmail(request.getEmail());
+        usuario.setPassword(passwordEncoder.encode(request.getPassword()));
+        usuario.setRol(ERol.CLIENTE);
+        usuario.setActivo(true);
+        usuario.setClienteId(clienteGuardado.getId());
+        usuarioRepository.save(usuario);
+
+        return clienteGuardado;
     }
 
 

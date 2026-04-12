@@ -38,7 +38,8 @@ function initCrearCuentaForm() {
 
         function recargarListaCuentas() {
             if (window.recargarListaCuentas) {
-                const clienteId = document.getElementById('clienteId').value;
+                const input = document.getElementById('clienteId');
+                const clienteId = input ? input.value : null;
                 window.recargarListaCuentas(clienteId);
             }
         }
