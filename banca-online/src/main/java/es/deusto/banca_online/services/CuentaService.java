@@ -51,6 +51,18 @@ public class CuentaService {
                 .collect(Collectors.toList());
     }
 
+    public List<CuentaResponse> obtenerCuentasPorCliente(Long clienteId, Authentication authentication) {
+        boolean esAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (!esAdmin) {
+            Usuario principal = (Usuario) authentication.getPrincipal();
+            if (principal.getClienteId() == null || !principal.getClienteId().equals(clienteId)) {
+                throw new AccessDeniedException("No tiene permiso para ver estas cuentas");
+            }
+        }
+        return obtenerCuentasPorCliente(clienteId);
+    }
+
     private String generarNumeroCuenta() {
         return "ES" + UUID.randomUUID().toString().replace("-", "").substring(0, 18).toUpperCase();
     }

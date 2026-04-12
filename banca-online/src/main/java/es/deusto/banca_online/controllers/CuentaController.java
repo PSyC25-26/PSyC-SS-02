@@ -91,7 +91,7 @@ public class CuentaController {
     public ResponseEntity<List<CuentaResponse>> obtenerCuentasPorClienteId(@PathVariable Long clienteId,
                                                                             Authentication authentication) {
         try {
-            return ResponseEntity.ok(cuentaService.obtenerCuentasPorCliente(clienteId));
+            return ResponseEntity.ok(cuentaService.obtenerCuentasPorCliente(clienteId, authentication));
         } catch (RuntimeException e) {
             if (e.getMessage() != null && e.getMessage().contains("Cliente no encontrado")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
