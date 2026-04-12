@@ -159,9 +159,8 @@ function initTransferenciaForm() {
                 console.log('   Cantidad:', formData.cantidad);
 
                 try {
-                    const response = await fetch('/api/cuentas/transferir', {
+                    const response = await fetchConAuth('/api/cuentas/transferir', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
                     });
 

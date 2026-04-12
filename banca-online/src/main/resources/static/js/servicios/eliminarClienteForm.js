@@ -50,7 +50,7 @@ function initEliminarClienteForm() {
         // Cargar datos del cliente a eliminar
         async function cargarDatosCliente(id) {
             try {
-                const response = await fetch(`/api/clientes/${id}`);
+                const response = await fetchConAuth(`/api/clientes/${id}`);
                 if (response.ok) {
                     const cliente = await response.json();
                     clienteId = cliente.id;
@@ -79,7 +79,7 @@ function initEliminarClienteForm() {
             }
 
             try {
-                const response = await fetch(`/api/clientes/${clienteId}`, {
+                const response = await fetchConAuth(`/api/clientes/${clienteId}`, {
                     method: 'DELETE'
                 });
 

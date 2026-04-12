@@ -39,7 +39,7 @@ async function consultarSaldo(cuentaId) {
     }
 
     try {
-        const response = await fetch(`/api/cuentas/saldo/${cuentaId}`);
+        const response = await fetchConAuth(`/api/cuentas/saldo/${cuentaId}`);
 
         if (!response.ok) {
             if (response.status === 404) {

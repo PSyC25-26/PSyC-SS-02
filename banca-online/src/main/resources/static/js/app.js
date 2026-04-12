@@ -107,7 +107,7 @@ async function cargarCuentasDelCliente() {
     if (!cuentasContainer) return;
 
     try {
-        const response = await fetch(`/api/cuentas?clienteId=${currentClienteId}`);
+        const response = await fetchConAuth(`/api/cuentas?clienteId=${currentClienteId}`);
 
         if (response.ok) {
             const cuentas = await response.json();

@@ -70,9 +70,8 @@ function initCrearClienteForm() {
                 };
 
                 try {
-                    const response = await fetch('/api/clientes', {
+                    const response = await fetchConAuth('/api/clientes', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
                     });
 

@@ -46,7 +46,7 @@ function initEditarClienteForm() {
         // Cargar datos del cliente seleccionado
         async function cargarDatosCliente(id) {
             try {
-                const response = await fetch(`/api/clientes/${id}`);
+                const response = await fetchConAuth(`/api/clientes/${id}`);
                 if (response.ok) {
                     const cliente = await response.json();
 
@@ -112,9 +112,8 @@ function initEditarClienteForm() {
                 };
 
                 try {
-                    const response = await fetch(`/api/clientes/${id}`, {
+                    const response = await fetchConAuth(`/api/clientes/${id}`, {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(datos)
                     });
 

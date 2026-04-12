@@ -15,7 +15,7 @@ function initListarClientes() {
             listaClientes.innerHTML = '<p>Cargando clientes...</p>';
 
             try {
-                const response = await fetch('/api/clientes');
+                const response = await fetchConAuth('/api/clientes');
                 if (response.ok) {
                     const clientes = await response.json();
                     mostrarClientes(clientes);

@@ -22,7 +22,7 @@ function initListarCuentas() {
             selectCliente.innerHTML = '<option value="">Cargando clientes...</option>';
 
             try {
-                const response = await fetch('/api/clientes');
+                const response = await fetchConAuth('/api/clientes');
                 if (response.ok) {
                     clientes = await response.json();
                     selectCliente.innerHTML = '<option value="">-- Seleccione un cliente --</option>';
@@ -52,7 +52,7 @@ function initListarCuentas() {
             listaCuentas.innerHTML = '<p>🔄 Cargando cuentas...</p>';
 
             try {
-                const response = await fetch(`/api/cuentas?clienteId=${clienteId}`);
+                const response = await fetchConAuth(`/api/cuentas?clienteId=${clienteId}`);
 
                 if (response.status === 500 || response.status === 404) {
                     listaCuentas.innerHTML = `
@@ -238,7 +238,7 @@ window.recargarListaCuentas = async function(clienteId) {
     if (id) {
         listaCuentas.innerHTML = '<p>🔄 Actualizando...</p>';
         try {
-            const response = await fetch(`/api/cuentas?clienteId=${id}`);
+            const response = await fetchConAuth(`/api/cuentas?clienteId=${id}`);
 
             if (response.status === 500 || response.status === 404) {
                 listaCuentas.innerHTML = `

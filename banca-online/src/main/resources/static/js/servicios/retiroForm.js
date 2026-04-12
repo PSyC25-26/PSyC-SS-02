@@ -144,9 +144,8 @@ function initRetiroForm() {
                 console.log('📤 Monto:', formData.monto);
 
                 try {
-                    const response = await fetch('/api/cuentas/retirar', {
+                    const response = await fetchConAuth('/api/cuentas/retirar', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
                     });
 

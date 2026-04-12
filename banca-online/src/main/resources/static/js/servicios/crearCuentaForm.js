@@ -98,9 +98,8 @@ function initCrearCuentaForm() {
                 };
 
                 try {
-                    const response = await fetch('/api/cuentas', {
+                    const response = await fetchConAuth('/api/cuentas', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
                     });
 

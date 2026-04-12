@@ -138,9 +138,8 @@ function initDepositoForm() {
                 console.log('📤 Monto:', formData.monto);
 
                 try {
-                    const response = await fetch('/api/cuentas/depositar', {
+                    const response = await fetchConAuth('/api/cuentas/depositar', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
                     });
 
