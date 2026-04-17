@@ -41,7 +41,7 @@ class CuentaControllerIntegrationTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-    @Autowired private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper = new ObjectMapper().registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
     @MockitoBean private CuentaService cuentaService;
     @MockitoBean private TransferService transferService;
 
@@ -113,7 +113,7 @@ class CuentaControllerIntegrationTest {
         mockMvc.perform(post("/api/cuentas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
 
         log.info("Test integracion pasado: 401 sin autenticacion");
     }

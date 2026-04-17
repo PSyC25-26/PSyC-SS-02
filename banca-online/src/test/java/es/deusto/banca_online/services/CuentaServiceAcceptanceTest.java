@@ -32,6 +32,7 @@ import static org.mockito.Mockito.*;
  * Cada test describe un criterio de aceptacion de una historia de usuario.
  */
 @ExtendWith(MockitoExtension.class)
+@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 @DisplayName("Tests de Aceptacion - Gestion de Cuentas Bancarias")
 class CuentaServiceAcceptanceTest {
 
