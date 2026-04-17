@@ -83,6 +83,10 @@ public class ClienteService {
             throw new RuntimeException("Email inválido");
         }
 
+        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+            throw new RuntimeException("La contraseña es obligatoria");
+        }
+
 
 
 

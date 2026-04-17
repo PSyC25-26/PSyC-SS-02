@@ -131,7 +131,7 @@ window.recargarListaClientes = async function() {
     listaClientes.innerHTML = '<p>Cargando clientes...</p>';
 
     try {
-        const response = await fetch('/api/clientes');
+        const response = await fetchConAuth('/api/clientes');
         if (response.ok) {
             const clientes = await response.json();
             // Usar la función mostrarClientes que ya tienes
