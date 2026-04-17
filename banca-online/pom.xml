@@ -140,6 +140,7 @@
 				</configuration>
 			</plugin>
 
+
 			<!-- JaCoCo: coverage report + minimum 50% check -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
