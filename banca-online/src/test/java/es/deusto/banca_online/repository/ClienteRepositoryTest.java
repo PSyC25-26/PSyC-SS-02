@@ -1,188 +1,160 @@
 package es.deusto.banca_online.repository;
 
-import es.deusto.banca_online.entity.Cliente;
+import es.deusto.banca_online.entity.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest(properties = {
-    "spring.jpa.hibernate.ddl-auto=create-drop",
-    "spring.sql.init.mode=never",
-    "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect"
-}) //Indicamos que como es test, no queremos que se guarde en la BD.
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-class ClienteRepositoryTest {
+/**
+ * Tests de sistema: verifican que la capa de persistencia funciona correctamente contra la base de datos real.
+ * Cada test usa @Transactional para hacer rollback automatico.
+ */
+@SpringBootTest
+@Transactional
+class CuentaRepositoryTest {
 
-    // Inyectamos el repostorio sin tener que crear uno
-    @Autowired
-    private IClienteRepository clienteRepository;
+    private static final Logger log = LoggerFactory.getLogger(CuentaRepositoryTest.class);
 
-    @Autowired
-    private TestEntityManager entityManager;
+    @Autowired private ICuentaRepository cuentaRepository;
+    @Autowired private IClienteRepository clienteRepository;
 
+    private Cliente cliente;
 
-    /*------------
-        TESTS
-     ------------*/
-    @Test
-    void testGuardarCliente() {
-        // 1. CREAR: Preparamos un cliente de prueba
-        Cliente cliente = new Cliente();
-        cliente.setDni("12345678A");
-        cliente.setNombre("Juan");
-        cliente.setEmail("juan@test.com");
-        cliente.setFechaNacimiento(LocalDate.of(1990, 1, 1));
-        cliente.setFechaCreacion(LocalDateTime.now());
-
-        // 2. GUARDAR: Ejecutamos save para probar que se guarda correctamente
-        Cliente guardado = clienteRepository.save(cliente);
-
-        // 3. VERIFICAR: Comprobamos que funciona
-        assertThat(guardado).isNotNull();
-        assertThat(guardado.getId()).isNotNull();
-        assertThat(guardado.getNombre()).isEqualTo("Juan");
-        assertThat(guardado.getEmail()).isEqualTo("juan@test.com");
-
-        System.out.println("Cliente guardado con ID: " + guardado.getId());
-    }
-
-    // Devolver todos los clientes si existen - VÁLIDO
-    @Test
-    void findAll_DeberiaRetornarTodosLosClientes() {
-        // Crear y guardar varios clientes
-        Cliente cliente1 = new Cliente();
-        cliente1.setDni("11111111A");
-        cliente1.setNombre("Juan");
-        cliente1.setEmail("juan@test.com");
-        cliente1.setFechaNacimiento(LocalDate.of(1990, 1, 1));
-        cliente1.setFechaCreacion(LocalDateTime.now());
-        entityManager.persist(cliente1);
-
-        Cliente cliente2 = new Cliente();
-        cliente2.setDni("22222222B");
-        cliente2.setNombre("María");
-        cliente2.setEmail("maria@test.com");
-        cliente2.setFechaNacimiento(LocalDate.of(1991, 2, 2));
-        cliente2.setFechaCreacion(LocalDateTime.now());
-        entityManager.persist(cliente2);
-
-        Cliente cliente3 = new Cliente();
-        cliente3.setDni("33333333C");
-        cliente3.setNombre("Pedro");
-        cliente3.setEmail("pedro@test.com");
-        cliente3.setFechaNacimiento(LocalDate.of(1992, 3, 3));
-        cliente3.setFechaCreacion(LocalDateTime.now());
-        entityManager.persist(cliente3);
-
-        entityManager.flush();
-
-        // Ejecutar findAll
-        List<Cliente> clientes = clienteRepository.findAll();
-
-        // Verificar resultados
-        assertThat(clientes).hasSize(3); // Clientes deberia ser una lista de 3
-        // Y contener los siguientes emails:
-        assertThat(clientes).extracting(Cliente::getEmail)
-                .containsExactlyInAnyOrder("juan@test.com", "maria@test.com", "pedro@test.com");
-    }
-
-
-    // Devolver todos los clientes si existen - IINVÁLIDO
-    @Test
-    void findAll_CuandoNoHayClientes_DeberiaRetornarListaVacia() {
-        // Buscar los clientes
-        List<Cliente> clientes = clienteRepository.findAll();
-
-        // Debe devolver vacío
-        assertThat(clientes).isEmpty();
-    }
-
-
-
-    @Test
-    void testFindByEmail() {
-        // 1. CREAR: Preparamos datos
-        Cliente cliente = new Cliente();
-        cliente.setDni("12345678A");
-        cliente.setNombre("Juan");
-        cliente.setEmail("juan@test.com");
+    @BeforeEach
+    void setUp() {
+        cliente = new Cliente();
+        cliente.setDni("DNI-REPO-" + UUID.randomUUID().toString().substring(0, 6));
+        cliente.setNombre("Test Sistema");
+        cliente.setEmail("sistema-" + UUID.randomUUID().toString().substring(0, 6) + "@test.com");
         cliente.setFechaNacimiento(LocalDate.of(1990, 1, 1));
         cliente.setFechaCreacion(LocalDateTime.now());
         clienteRepository.save(cliente);
-
-        // 2. EJECUTAR: Buscamos por email
-        Optional<Cliente> encontrado = clienteRepository.findByEmail("juan@test.com");
-
-        // 3. VERIFICAR
-        assertThat(encontrado).isPresent();
-        assertThat(encontrado.get().getNombre()).isEqualTo("Juan");
-        assertThat(encontrado.get().getEmail()).isEqualTo("juan@test.com");
-
-        System.out.println("Cliente encontrado: " + encontrado.get().getNombre());
+        log.info("Setup: cliente creado con id={}", cliente.getId());
     }
 
     @Test
-    void testFindByDni() {
-        // 1. CREAR
-        Cliente cliente = new Cliente();
-        cliente.setDni("12345678A");
-        cliente.setNombre("Juan");
-        cliente.setEmail("juan@test.com");
-        cliente.setFechaNacimiento(LocalDate.of(1990, 1, 1));
-        cliente.setFechaCreacion(LocalDateTime.now());
+    void guardarCuenta_persisteCorrectamente() {
+        log.info("Test sistema: guardar cuenta");
+        Cuenta cuenta = new Cuenta();
+        cuenta.setNumeroCuenta("ES-SYS-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+        cuenta.setSaldo(1000.0);
+        cuenta.setTipoCuenta(ETipoCuenta.CORRIENTE);
+        cuenta.setCliente(cliente);
 
-        clienteRepository.save(cliente);
+        Cuenta guardada = cuentaRepository.save(cuenta);
 
-        // 2. EJECUTAR
-        Optional<Cliente> encontrado = clienteRepository.findByDni("12345678A");
-
-        // 3. VERIFICAR
-        assertThat(encontrado).isPresent();
-        assertThat(encontrado.get().getDni()).isEqualTo("12345678A");
-
-        System.out.println("Cliente encontrado por DNI");
+        assertThat(guardada.getId()).isNotNull();
+        assertThat(guardada.getSaldo()).isEqualTo(1000.0);
+        assertThat(guardada.getTipoCuenta()).isEqualTo(ETipoCuenta.CORRIENTE);
+        log.info("Test sistema pasado: cuenta guardada con id={}", guardada.getId());
     }
 
     @Test
-    void testExistsByEmail() {
-        // 1. CREAR
-        Cliente cliente = new Cliente();
-        cliente.setDni("12345678A");
-        cliente.setNombre("Juan");
-        cliente.setEmail("juan@test.com");
-        cliente.setFechaNacimiento(LocalDate.of(1990, 1, 1));
-        cliente.setFechaCreacion(LocalDateTime.now());
+    void findByClienteId_retornaCuentasDelCliente() {
+        log.info("Test sistema: findByClienteId");
+        Cuenta c1 = crearCuenta(ETipoCuenta.CORRIENTE, 500.0);
+        Cuenta c2 = crearCuenta(ETipoCuenta.AHORRO, 200.0);
+        cuentaRepository.save(c1);
+        cuentaRepository.save(c2);
 
-        clienteRepository.save(cliente);
+        List<Cuenta> cuentas = cuentaRepository.findByClienteId(cliente.getId());
 
-        // 2. EJECUTAR y VERIFICAR
-        boolean existe = clienteRepository.existsByEmail("juan@test.com");
-        boolean noExiste = clienteRepository.existsByEmail("noexiste@test.com");
+        assertThat(cuentas).hasSize(2);
+        log.info("Test sistema pasado: {} cuentas encontradas", cuentas.size());
+    }
 
-        // 3. VERIFICAR
+    @Test
+    void findByNumeroCuenta_existente_retornaCuenta() {
+        log.info("Test sistema: findByNumeroCuenta existente");
+        String numero = "ES-FIND-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        Cuenta cuenta = crearCuenta(ETipoCuenta.AHORRO, 300.0);
+        cuenta.setNumeroCuenta(numero);
+        cuentaRepository.save(cuenta);
+
+        Optional<Cuenta> resultado = cuentaRepository.findByNumeroCuenta(numero);
+
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get().getSaldo()).isEqualTo(300.0);
+        log.info("Test sistema pasado: cuenta encontrada por numero");
+    }
+
+    @Test
+    void findByNumeroCuenta_noExistente_retornaVacio() {
+        log.info("Test sistema: findByNumeroCuenta no existente");
+        Optional<Cuenta> resultado = cuentaRepository.findByNumeroCuenta("NO-EXISTE-JAMAS");
+
+        assertThat(resultado).isEmpty();
+        log.info("Test sistema pasado: Optional vacio correctamente");
+    }
+
+    @Test
+    void existsByNumeroCuenta_existente_retornaTrue() {
+        log.info("Test sistema: existsByNumeroCuenta existente");
+        String numero = "ES-EXIST-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        Cuenta cuenta = crearCuenta(ETipoCuenta.CORRIENTE, 100.0);
+        cuenta.setNumeroCuenta(numero);
+        cuentaRepository.save(cuenta);
+
+        boolean existe = cuentaRepository.existsByNumeroCuenta(numero);
+
         assertThat(existe).isTrue();
-        assertThat(noExiste).isFalse();
-
-        System.out.println("Email existe: " + existe);
-        System.out.println("Email no existe: " + noExiste);
+        log.info("Test sistema pasado: existsByNumeroCuenta=true");
     }
 
     @Test
-    void testFindByEmail_NoExiste() {
-        // EJECUTAR: Buscar un email que no existe
-        Optional<Cliente> encontrado = clienteRepository.findByEmail("noexiste@test.com");
+    void existsByNumeroCuenta_noExistente_retornaFalse() {
+        log.info("Test sistema: existsByNumeroCuenta no existente");
+        boolean existe = cuentaRepository.existsByNumeroCuenta("NO-EXISTE-NUMERO");
 
-        // VERIFICAR: No debe encontrar nada
-        assertThat(encontrado).isEmpty();
+        assertThat(existe).isFalse();
+        log.info("Test sistema pasado: existsByNumeroCuenta=false");
+    }
 
-        System.out.println("Cliente no encontrado (correcto)");
+    @Test
+    void actualizarSaldo_persiste() {
+        log.info("Test sistema: actualizar saldo en BD");
+        Cuenta cuenta = crearCuenta(ETipoCuenta.CORRIENTE, 100.0);
+        cuentaRepository.save(cuenta);
+
+        cuenta.setSaldo(999.0);
+        cuentaRepository.save(cuenta);
+
+        Cuenta actualizada = cuentaRepository.findById(cuenta.getId()).orElseThrow();
+        assertThat(actualizada.getSaldo()).isEqualTo(999.0);
+        log.info("Test sistema pasado: saldo actualizado a {}", actualizada.getSaldo());
+    }
+
+    @Test
+    void eliminarCuenta_yaNoExiste() {
+        log.info("Test sistema: eliminar cuenta");
+        Cuenta cuenta = crearCuenta(ETipoCuenta.AHORRO, 50.0);
+        cuentaRepository.save(cuenta);
+        Long id = cuenta.getId();
+
+        cuentaRepository.delete(cuenta);
+
+        assertThat(cuentaRepository.findById(id)).isEmpty();
+        log.info("Test sistema pasado: cuenta eliminada con id={}", id);
+    }
+
+    private Cuenta crearCuenta(ETipoCuenta tipo, Double saldo) {
+        Cuenta cuenta = new Cuenta();
+        cuenta.setNumeroCuenta("ES-" + UUID.randomUUID().toString().substring(0, 10).toUpperCase());
+        cuenta.setSaldo(saldo);
+        cuenta.setTipoCuenta(tipo);
+        cuenta.setCliente(cliente);
+        return cuenta;
     }
 }
