@@ -9,12 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,21 +31,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Test de remoteness.
  */
 @SpringBootTest
-@AutoConfigureMockMvc
 class CuentaControllerIntegrationTest {
 
     private static final Logger log = LoggerFactory.getLogger(CuentaControllerIntegrationTest.class);
 
-    @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
+    private MockMvc mockMvc;
+    private CuentaResponse cuentaResponse;
 
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    @Autowired private ObjectMapper objectMapper;
     @MockitoBean private CuentaService cuentaService;
     @MockitoBean private TransferService transferService;
 
-    private CuentaResponse cuentaResponse;
-
     @BeforeEach
-    void setUp() {
+    void setupMockMvc() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply(org.springframework.security.test.web.servlet
+                        .setup.SecurityMockMvcConfigurers.springSecurity())
+                .build();
+
         cuentaResponse = new CuentaResponse();
         cuentaResponse.setId(1L);
         cuentaResponse.setNumeroCuenta("ES1234567890ABCDEF12");

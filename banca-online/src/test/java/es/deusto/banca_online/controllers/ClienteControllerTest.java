@@ -11,12 +11,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 // NUEVA IMPORTACIÓN - Reemplaza a MockBean
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,13 +34,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 //Indicamos que vamos a arrancar la capa web
-@WebMvcTest(value = ClienteController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@SpringBootTest
+@WithMockUser(roles = "ADMIN")
 class ClienteControllerTest {
 
     /*---------------
         ATRIBUTOS
     ---------------*/
-    @Autowired
     private MockMvc mockMvc;  // Simulamos peticiones HTTP.
 
     @MockitoBean
@@ -65,8 +68,16 @@ class ClienteControllerTest {
 
 
     // Preparacion antes de cada test. Así no repetimos código en cada test.
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
     @BeforeEach
     void setUp() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply(org.springframework.security.test.web.servlet
+                        .setup.SecurityMockMvcConfigurers.springSecurity())
+                .build();
         // Fecha fija para los tests
         fechaFija = LocalDateTime.of(2024, 3, 16, 10, 30);
 

@@ -8,7 +8,6 @@ import es.deusto.banca_online.repository.ITransaccionRepository;
 import org.databene.contiperf.PerfTest;
 import org.databene.contiperf.Required;
 import org.databene.contiperf.junit.ContiPerfRule;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,10 +32,6 @@ import static org.mockito.Mockito.*;
  * Tests de rendimiento con ContiPerf.
  * Medimos: invocaciones, hilos, tiempo medio y maximo.
  *
- * NOTA: ContiPerf usa @Rule de JUnit 4. Para ejecutar estos tests
- * en JUnit 5 usamos @ExtendWith(MockitoExtension.class) para los mocks
- * y la clase hereda de un test JUnit 4 (via @Rule manual).
- *
  * COMO EJECUTAR:
  *   mvnw.cmd test -pl banca-online -Dtest=CuentaServicePerformanceTest
  *
@@ -46,10 +41,6 @@ import static org.mockito.Mockito.*;
 class CuentaServicePerformanceTest {
 
     private static final Logger log = LoggerFactory.getLogger(CuentaServicePerformanceTest.class);
-
-    // ContiPerf Rule (JUnit 4 compatible)
-    @Rule
-    public ContiPerfRule contiPerfRule = new ContiPerfRule();
 
     @Mock private ICuentaRepository cuentaRepository;
     @Mock private IClienteRepository clienteRepository;
