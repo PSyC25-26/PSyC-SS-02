@@ -155,11 +155,9 @@ class CuentaServicePerformanceTest {
     /**
      * Test FALLIDO intencionado:
      * Exige que obtenerSaldo se complete en menos de 1ms de promedio.
-     * Esto es imposible en condiciones normales, demostrando un test de rendimiento fallido.
-     * DESCOMENTA @PerfTest y @Required para activarlo.
+     * descomentar @PerfTest y @Required para activarlo.
      *
      * Nota: dejamos este metodo comentado para no romper el build.
-     * Para la presentacion, descomenta las anotaciones y ejecuta manualmente.
      */
     @Test
     // @PerfTest(invocations = 200, threads = 8)
