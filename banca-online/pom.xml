@@ -116,6 +116,19 @@
 		</dependency>
 		<!-- ContiPerf for performance tests -->
 		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.databene</groupId>
 			<artifactId>contiperf</artifactId>
 			<version>2.3.4</version>
