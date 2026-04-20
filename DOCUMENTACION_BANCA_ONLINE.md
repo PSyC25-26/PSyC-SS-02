@@ -89,20 +89,21 @@ Banca Online es una aplicación Backend desarrollada con **Spring Boot** que pro
 
 ### Stack Tecnológico
 
-| Componente | Tecnología | Versión |
-|-----------|-----------|---------|
-| **Framework** | Spring Boot | 4.0.3 |
-| **Java** | OpenJDK | 25 |
-| **Base de Datos** | MySQL | 8.0 |
-| **ORM** | Hibernate/JPA | Incluido en Spring |
-| **Build Tool** | Maven | 3.9.12 |
-| **Testing** | JUnit 5, Mockito | Latest |
+| Componente              | Tecnología          | Versión |
+|-------------------------|---------------------|---------|
+| **Framework**           | Spring Boot         | 4.0.3 |
+| **Java**                | OpenJDK             | 25 |
+| **Base de Datos**       | MySQL               | 8.0 |
+| **ORM**                 | Hibernate/JPA       | Incluido en Spring |
+| **Build Tool**          | Maven               | 3.9.12 |
+| **Testing**             | JUnit 5, Mockito    | Latest |
 | **Testing Rendimiento** | ContiPerf + JUnit 4 | 2.3.4 |
-| **Cobertura** | JaCoCo | 0.8.13 |
-| **Testing JS** | Jest + node-fetch | — |
-| **Documentación API** | Springdoc OpenAPI | 3.0.2 |
-| **Validación** | Jakarta Validation | Incluido en Spring |
-| **Logging** | SLF4J + Logback | Incluido en Spring |
+| **Cobertura**           | JaCoCo              | 0.8.13 |
+| **Testing JS**          | Jest + node-fetch   | — |
+| **Documentación API**   | Springdoc OpenAPI   | 3.0.2 |
+| **Validación**          | Jakarta Validation  | Incluido en Spring |
+| **Logging**             | SLF4J + Log4J2      | 2.25.3 |
+| **Lombook**             | -                   | 1.18.42|
 
 ### Requisitos del Sistema
 
@@ -533,7 +534,7 @@ Los informes se generan en `docs/reports/contiperf-report/index.html`.
  
 - `CuentaControllerIntegrationTest` — arranca el contexto Spring completo y prueba los endpoints de cuentas con MockMvc, incluyendo autenticación JWT.
 - `ClienteControllerTest` — prueba los endpoints de clientes con MockMvc.
-- `ClienteRepositoryTest` / `CuentaRepositoryTest` — prueban las consultas JPA sobre BD en memoria (H2).
+- `ClienteRepositoryTest` / `CuentaRepositoryTest` — prueban las consultas JPA sobre la base de datos MySQL con transacciones rollback.
 ### Tests de Cliente JavaScript
  
 `src/test/js/client.test.js` realiza tests de integración end-to-end desde Node.js:
@@ -576,7 +577,7 @@ Eneko Barbadillo, Alberto García, Haizea González, Nora Ibarguren e Imanol Uga
 
 ##  Última Actualización
 
-- **Fecha**: 19 de Abril de 2026
+- **Fecha**: 20 de Abril de 2026
 - **Versión**: 2.0.0 (Sprint 2)
 - **Estado**: Funcional
 
