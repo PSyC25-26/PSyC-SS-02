@@ -2,6 +2,8 @@ package es.deusto.banca_online.repository;
 
 import es.deusto.banca_online.entity.Cliente;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @Transactional
 class ClienteRepositoryTest {
+
+    // Logger con log4j2.xml
+    private static final Logger logger = LoggerFactory.getLogger(ClienteRepositoryTest.class);
 
     // Inyectamos el repostorio sin tener que crear uno
     @Autowired
@@ -42,7 +47,7 @@ class ClienteRepositoryTest {
         assertThat(guardado.getNombre()).isEqualTo("Juan");
         assertThat(guardado.getEmail()).isEqualTo("juan@test.com");
 
-        System.out.println("Cliente guardado con ID: " + guardado.getId());
+        logger.info("Cliente guardado con ID: {}", guardado.getId());
     }
 
     // Devolver todos los clientes si existen - VÁLIDO
@@ -114,8 +119,7 @@ class ClienteRepositoryTest {
         assertThat(encontrado.get().getNombre()).isEqualTo("Juan");
         assertThat(encontrado.get().getEmail()).isEqualTo("juan@test.com");
 
-        System.out.println("Cliente encontrado: " + encontrado.get().getNombre());
-    }
+        logger.info("Cliente encontrado por email: {}", encontrado.get().getNombre());    }
 
     @Test
     void testFindByDni() {
@@ -136,7 +140,7 @@ class ClienteRepositoryTest {
         assertThat(encontrado).isPresent();
         assertThat(encontrado.get().getDni()).isEqualTo("12345678A");
 
-        System.out.println("Cliente encontrado por DNI");
+        logger.info("Cliente encontrado por DNI correctamente");
     }
 
     @Test
@@ -159,8 +163,7 @@ class ClienteRepositoryTest {
         assertThat(existe).isTrue();
         assertThat(noExiste).isFalse();
 
-        System.out.println("Email existe: " + existe);
-        System.out.println("Email no existe: " + noExiste);
+        logger.debug("Comprobación de existencia de email finalizada (Existe: {}, No existe: {})", existe, noExiste);
     }
 
     @Test
@@ -171,6 +174,6 @@ class ClienteRepositoryTest {
         // VERIFICAR: No debe encontrar nada
         assertThat(encontrado).isEmpty();
 
-        System.out.println("Cliente no encontrado (correcto)");
+        logger.info("Prueba de búsqueda de email inexistente exitosa");
     }
 }

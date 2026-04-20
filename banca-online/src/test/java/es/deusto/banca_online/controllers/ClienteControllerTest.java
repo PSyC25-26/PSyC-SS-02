@@ -9,6 +9,8 @@ import es.deusto.banca_online.security.UserDetailsServiceImpl;
 import es.deusto.banca_online.services.ClienteService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,6 +39,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @WithMockUser(roles = "ADMIN")
 class ClienteControllerTest {
+
+    private static final Logger log = LoggerFactory.getLogger(ClienteControllerTest.class);
 
     /*---------------
         ATRIBUTOS
@@ -130,6 +134,7 @@ class ClienteControllerTest {
     // DATOS CORRECTOS - CREAR
     @Test
     void crearCliente_DatosValidos_Retorna201() throws Exception {
+        log.info("Test: POST /api/clientes con datos validos debe retornar 201");
         // Cuando se cree un cliente, devolvemos el que crearia la BD
         when(clienteService.crearCliente(any(ClienteRequest.class))).thenReturn(clienteEntity);
 
@@ -146,12 +151,14 @@ class ClienteControllerTest {
 
         // Verificamos que se ha llamado a crearCliente 1 vez
         verify(clienteService, times(1)).crearCliente(any(ClienteRequest.class));
+        log.info("Test pasado: cliente creado correctamente");
     }
 
 
     // DATOS INCORRECTOS - CREAR
     @Test
     void crearCliente_SinNombre_Retorna400() throws Exception {
+        log.info("Test: POST /api/clientes sin nombre debe retornar 400");
         // Request sin nombre
         clienteRequest.setNombre(null);
 
@@ -163,6 +170,7 @@ class ClienteControllerTest {
 
         // Verificar que NO se haya llamado al servicio
         verify(clienteService, never()).crearCliente(any(ClienteRequest.class));
+        log.info("Test pasado: 400 retornado por falta de nombre");
     }
 
 
@@ -171,6 +179,7 @@ class ClienteControllerTest {
     // DATOS CORRECTOS - Obtener todos los clientes
     @Test
     void listarTodos_CuandoHayClientes_DeberiaRetornarLista() throws Exception {
+        log.info("Test: GET /api/clientes con datos debe retornar lista");
         // Cuando se llame al metodo listarTodos, utilizamos el clientesMock
         when(clienteService.listarTodos()).thenReturn(clientesMock);
 
@@ -188,11 +197,13 @@ class ClienteControllerTest {
 
         // Verificamos que se haya llamado al servicio listarTodos 1 vez
         verify(clienteService, times(1)).listarTodos();
+        log.info("Test pasado: lista de clientes retornada correctamente");
     }
 
     // DATOS INCORRECTOS - Obtener todos los clientes
     @Test
     void listarTodos_CuandoNoHayClientes_DeberiaRetornarListaVacia() throws Exception {
+        log.info("Test: GET /api/clientes sin datos debe retornar lista vacia");
         // Cuando se llame al metodo listarTodos, utilizamos un Array vacío
         when(clienteService.listarTodos()).thenReturn(Arrays.asList());
 
@@ -204,6 +215,7 @@ class ClienteControllerTest {
 
         // Verificamos que se haya llamado al servicio listarTodos 1 vez
         verify(clienteService, times(1)).listarTodos();
+        log.info("Test pasado: lista vacia retornada correctamente");
     }
 
 
@@ -211,6 +223,7 @@ class ClienteControllerTest {
     // DATOS CORRECTOS - BUSCAR por ID
     @Test
     void buscarPorId_ClienteExiste_Retorna200() throws Exception {
+        log.info("Test: GET /api/clientes/{id} con id existente debe retornar 200");
         // Preparamos el usuario con id=1
         Long id = 1L;
         when(clienteService.buscarPorId(id)).thenReturn(clienteEntity);
@@ -223,6 +236,7 @@ class ClienteControllerTest {
 
         // Verificamos que se haya llamado al servicio buscarPorId 1 vez
         verify(clienteService, times(1)).buscarPorId(id);
+        log.info("Test pasado: cliente con id={} encontrado", id);
     }
 
 
@@ -230,6 +244,7 @@ class ClienteControllerTest {
     // DATOS INCORRECTOS - BUSCAR por ID
     @Test
     void buscarPorId_ClienteNoExiste_Retorna404() throws Exception {
+        log.info("Test: GET /api/clientes/{id} con id inexistente debe retornar 404");
         // Buscamos usuario con id inexistente
         Long id = 999L;
         when(clienteService.buscarPorId(id)).thenThrow(new RuntimeException("Cliente no encontrado"));
@@ -240,12 +255,14 @@ class ClienteControllerTest {
 
         // Verificamos que se haya llamado al servicio buscarPorId 1 vez
         verify(clienteService, times(1)).buscarPorId(id);
+        log.info("Test pasado: 404 retornado para id={}", id);
     }
 
 
     // DATOS CORRECTOS - BUSCAR por email
     @Test
     void buscarPorEmail_ClienteExiste_Retorna200() throws Exception {
+        log.info("Test: GET /api/clientes/email/{email} con email existente debe retornar 200");
         // Preparamos el email
         String email = "juan@test.com";
         when(clienteService.buscarPorEmail(email)).thenReturn(clienteEntity);
@@ -257,12 +274,14 @@ class ClienteControllerTest {
 
         // Verificamos que se haya llamado al servicio buscarPorEmail 1 vez
         verify(clienteService, times(1)).buscarPorEmail(email);
+        log.info("Test pasado: cliente con email={} encontrado", email);
     }
 
 
     // DATOS INCORRECTOS - BUSCAR por email
     @Test
     void buscarPorEmail_ClienteNoExiste_Retorna404() throws Exception {
+        log.info("Test: GET /api/clientes/email/{email} con email inexistente debe retornar 404");
         // Preparamos el email
         String email = "noexiste@test.com";
         when(clienteService.buscarPorEmail(email)).thenThrow(new RuntimeException("Cliente no encontrado"));
@@ -273,6 +292,7 @@ class ClienteControllerTest {
 
         // Verificamos que se haya llamado al servicio buscarPorEmail 1 vez
         verify(clienteService, times(1)).buscarPorEmail(email);
+        log.info("Test pasado: 404 retornado para email={}", email);
     }
 
 
@@ -283,6 +303,7 @@ class ClienteControllerTest {
     // DATOS CORRECTOS - ACTUALIZAR cliente
     @Test
     void actualizarCliente_DatosValidos_Retorna200() throws Exception {
+        log.info("Test: PUT /api/clientes/{id} con datos validos debe retornar 200");
         // Preparamos el cliente a actualizar
         Long id = 1L;
 
@@ -306,6 +327,7 @@ class ClienteControllerTest {
 
         // Verificamos que se haya llamado al servicio actualizarCliente 1 vez
         verify(clienteService, times(1)).actualizarCliente(eq(id), any(ClienteRequest.class));
+        log.info("Test pasado: cliente con id={} actualizado", id);
     }
 
 
@@ -313,6 +335,7 @@ class ClienteControllerTest {
     // DATOS INCORRECTOS - ACTUALIZAR cliente
     @Test
     void actualizarCliente_ClienteNoExiste_Retorna404() throws Exception {
+        log.info("Test: PUT /api/clientes/{id} con id inexistente debe retornar 404");
         // Preparamos un ID inexistente
         Long id = 999L;
 
@@ -328,6 +351,7 @@ class ClienteControllerTest {
 
         // Verificamos que se haya llamado al servicio actualizarCliente 1 vez
         verify(clienteService, times(1)).actualizarCliente(eq(id), any(ClienteRequest.class));
+        log.info("Test pasado: 404 retornado para id={}", id);
     }
 
 
@@ -338,6 +362,7 @@ class ClienteControllerTest {
     // DATOS CORRECTOS - ELIMINAR cliente
     @Test
     void eliminarCliente_ClienteExiste_Retorna204() throws Exception {
+        log.info("Test: DELETE /api/clientes/{id} con id existente debe retornar 204");
         // Preparamos el id del cliente a eliminar
         Long id = 1L;
 
@@ -350,6 +375,7 @@ class ClienteControllerTest {
 
         // Verificamos que se haya llamado al servicio eliminarCliente 1 vez
         verify(clienteService, times(1)).eliminarCliente(id);
+        log.info("Test pasado: cliente con id={} eliminado", id);
     }
 
 
@@ -358,6 +384,7 @@ class ClienteControllerTest {
     // DATOS INCORRECTOS - ELIMINAR cliente
     @Test
     void eliminarCliente_ClienteNoExiste_Retorna404() throws Exception {
+        log.info("Test: DELETE /api/clientes/{id} con id inexistente debe retornar 404");
         // Preparamos un id inexistente
         Long id = 999L;
 
@@ -370,5 +397,6 @@ class ClienteControllerTest {
 
         // Verificamos que se haya llamado al servicio eliminarCliente 1 vez
         verify(clienteService, times(1)).eliminarCliente(id);
+        log.info("Test pasado: 404 retornado para id={}", id);
     }
 }

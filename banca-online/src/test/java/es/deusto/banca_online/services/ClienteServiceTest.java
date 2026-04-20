@@ -11,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
@@ -28,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)  // Habilita Mockito
 class ClienteServiceTest {
+
+    private static final Logger log = LoggerFactory.getLogger(ClienteServiceTest.class);
 
     @Mock  // Crea un repositorio falso que simula el comportamiento de la base de datos
     private IClienteRepository clienteRepository;
@@ -108,7 +112,7 @@ class ClienteServiceTest {
         verify(clienteRepository, times(1)).existsByEmail("juan@test.com");
         verify(clienteRepository, times(1)).save(any(Cliente.class));
 
-        System.out.println("Test crearCliente_DatosValidos pasado");
+        log.info("Test crearCliente_DatosValidos pasado");
     }
 
     @Test
@@ -126,7 +130,7 @@ class ClienteServiceTest {
         // Verificamos que NUNCA se haya llamado a save
         verify(clienteRepository, never()).save(any(Cliente.class));
 
-        System.out.println("Test crearCliente_EmailDuplicado pasado");
+        log.info("Test crearCliente_EmailDuplicado pasado");
     }
 
     @Test
@@ -144,7 +148,7 @@ class ClienteServiceTest {
         // Verificamos que NUNCA se haya llamado a save
         verify(clienteRepository, never()).save(any(Cliente.class));
 
-        System.out.println("Test crearCliente_DniDuplicado pasado");
+        log.info("Test crearCliente_DniDuplicado pasado");
     }
 
 
@@ -165,7 +169,7 @@ class ClienteServiceTest {
         // Verificamos que NUNCA se haya llamado a save
         verify(clienteRepository, never()).save(any(Cliente.class));
 
-        System.out.println("Test crearCliente_SinNombre pasado");
+        log.info("Test crearCliente_SinNombre pasado");
     }
 
     @Test
@@ -183,7 +187,7 @@ class ClienteServiceTest {
         // Verificamos que NUNCA se haya llamado a save
         verify(clienteRepository, never()).save(any(Cliente.class));
 
-        System.out.println("Test crearCliente_SinEmail pasado");
+        log.info("Test crearCliente_SinEmail pasado");
     }
 
     @Test
@@ -201,7 +205,7 @@ class ClienteServiceTest {
         // Verificamos que NUNCA se haya llamado a save
         verify(clienteRepository, never()).save(any(Cliente.class));
 
-        System.out.println("Test crearCliente_SinDni pasado");
+        log.info("Test crearCliente_SinDni pasado");
     }
 
     @Test
@@ -219,7 +223,7 @@ class ClienteServiceTest {
         // Verificamos que NUNCA se haya llamado a save
         verify(clienteRepository, never()).save(any(Cliente.class));
 
-        System.out.println("Test crearCliente_SinNacimiento pasado");
+        log.info("Test crearCliente_SinNacimiento pasado");
     }
 
     @Test
@@ -237,7 +241,7 @@ class ClienteServiceTest {
         // Verificamos que NUNCA se haya llamado a save
         verify(clienteRepository, never()).save(any(Cliente.class));
 
-        System.out.println("Test crearCliente_EmailInvalido pasado");
+        log.info("Test crearCliente_EmailInvalido pasado");
     }
 
 
@@ -292,7 +296,7 @@ class ClienteServiceTest {
         // Verificamos que se haya llamado a findById 1 vez
         verify(clienteRepository, times(1)).findById(id);
 
-        System.out.println("Test buscarPorId_ClienteExiste pasado");
+        log.info("Test buscarPorId_ClienteExiste pasado");
     }
 
 
@@ -314,7 +318,7 @@ class ClienteServiceTest {
         // Verificamos que se ha consultado el metodo findById 1 vez
         verify(clienteRepository, times(1)).findById(id);
 
-        System.out.println("Test buscarPorId_ClienteNoExiste pasado");
+        log.info("Test buscarPorId_ClienteNoExiste pasado");
     }
 
 
@@ -333,7 +337,7 @@ class ClienteServiceTest {
         // Verificamos que se haya llamado a findById 1 vez
         verify(clienteRepository, times(1)).findByEmail(email);
 
-        System.out.println("Test buscarPorId_ClienteExiste pasado");
+        log.info("Test buscarPorId_ClienteExiste pasado");
     }
 
 
@@ -354,7 +358,7 @@ class ClienteServiceTest {
         // Verificamos que se ha consultado el metodo findById 1 vez
         verify(clienteRepository, times(1)).findByEmail(email);
 
-        System.out.println("Test buscarPorEmail_ClienteNoExiste pasado");
+        log.info("Test buscarPorEmail_ClienteNoExiste pasado");
     }
 
 
@@ -374,7 +378,7 @@ class ClienteServiceTest {
         // Verificamos que se haya llamado a findById 1 vez
         verify(clienteRepository, times(1)).findByDni(dni);
 
-        System.out.println("Test buscarPorDni_ClienteExiste pasado");
+        log.info("Test buscarPorDni_ClienteExiste pasado");
     }
 
 
@@ -395,7 +399,7 @@ class ClienteServiceTest {
         // Verificamos que se ha consultado el metodo findById 1 vez
         verify(clienteRepository, times(1)).findByDni(dni);
 
-        System.out.println("Test buscarPorDni_ClienteNoExiste pasado");
+        log.info("Test buscarPorDni_ClienteNoExiste pasado");
     }
 
 
@@ -440,7 +444,7 @@ class ClienteServiceTest {
         verify(clienteRepository, times(1)).existsByDni("87654321B");
         verify(clienteRepository, times(1)).save(any(Cliente.class));
 
-        System.out.println("Test actualizarCliente_DatosValidos_ClienteActualizadoCorrectamente pasado");
+        log.info("Test actualizarCliente_DatosValidos_ClienteActualizadoCorrectamente pasado");
     }
 
 
@@ -464,7 +468,7 @@ class ClienteServiceTest {
         assertEquals("Ya existe un cliente con ese email", exception.getMessage());
         verify(clienteRepository, never()).save(any(Cliente.class));
 
-        System.out.println("Test actualizarCliente_EmailDuplicado_LanzaExcepcion pasado");
+        log.info("Test actualizarCliente_EmailDuplicado_LanzaExcepcion pasado");
 
     }
 
@@ -489,7 +493,7 @@ class ClienteServiceTest {
         assertEquals("Ya existe un cliente con ese DNI", exception.getMessage());
         verify(clienteRepository, never()).save(any(Cliente.class));
 
-        System.out.println("Test actualizarCliente_DniDuplicado_LanzaExcepcion pasado");
+        log.info("Test actualizarCliente_DniDuplicado_LanzaExcepcion pasado");
 
     }
 
@@ -509,7 +513,7 @@ class ClienteServiceTest {
         verify(clienteRepository, times(1)).findById(id);
         verify(clienteRepository, times(1)).delete(clienteGuardado);
 
-        System.out.println("Test eliminarCliente_ClienteExiste_EliminadoCorrectamente pasado");
+        log.info("Test eliminarCliente_ClienteExiste_EliminadoCorrectamente pasado");
     }
 
     //Cliente que no existe
