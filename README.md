@@ -40,7 +40,10 @@
 El proyecto está diseñado con una arquitectura de capas clara, incluye tests exhaustivos de múltiples tipos y cuenta con un frontend, y está listo para producción.
 
 ---
+##  Requisitos
+Para poder ejecutar los test del lado cliente de manera correcta es necesario tener instalado [Node.js](https://nodejs.org/es/download). 
 
+---
 ##  Características
 
 ### Backend
@@ -78,6 +81,7 @@ El proyecto está diseñado con una arquitectura de capas clara, incluye tests e
 ---
 
 ##  Instalación Rápida Con Docker
+
 
 1.  **Clonar el repositorio**
 ```bash
