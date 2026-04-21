@@ -229,6 +229,9 @@ npm test
 # Ejecutar app springboot
 docker-compose down -v
 
+# Test lado servidor
+mvn test
+
 # Tests JavaScript (requiere servidor levantado en localhost:8080)
 cd src/test/js
 npm install
