@@ -524,11 +524,15 @@ Prueban la lógica de negocio aislada mediante mocks de repositorios:
 `CuentaServiceAcceptanceTest` verifica criterios de aceptación desde perspectiva de negocio, con escenarios descritos con `@DisplayName` legibles.
  
 ### Tests de Rendimiento
- 
-`CuentaServicePerformanceTest` usa **ContiPerf** con anotaciones:
+`CuentaServicePerformanceTest` y `ClienteServicePerformanceTest`  usa **ContiPerf** con anotaciones:
 - `@PerfTest(invocations = N, threads = T)` — número de ejecuciones y hilos concurrentes
 - `@Required(max = X)` — tiempo máximo permitido en milisegundos
 Los informes se generan en `docs/reports/contiperf-report/index.html`.
+
+Para facilitar la revisión de las métricas obtenidas, se han organizado los archivos de la siguiente manera:
+- **Reportes de Rendimiento**: Los informes detallados generados por ContiPerf (con las métricas de latencia y throughput) se encuentran en la ruta `target/contiperf-report`.
+- **Snapshot de Profiling**: Se incluye el archivo ´Saturacion_ClienteService_xthreads.nps´. Estos archivos permiten realizar una inspección profunda en VisualVM de la sesión de carga con sus respectivos hilos, donde se han verificado los tiempos de ejecución de CPU para cada método interno.
+- **Capturas de Monitorización**: Se adjuntan las capturas de pantalla correspondientes a los escenarios de 20, 40 y 80 hilos. En ellas se puede observar visualmente la evolución de la carga, el comportamiento de los hilos (Threads) y la gestión de memoria del Garbage Collector durante los picos de saturación del método `crearCliente`.
  
 ### Tests de Integración
  
