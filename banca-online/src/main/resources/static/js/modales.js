@@ -72,7 +72,7 @@ const GestorModales = {
             // CUENTAS
             crearCuentaForm: '🏦 Crear Nueva Cuenta',
             detalleCuenta: '💳 Detalle de Cuenta',
-            deposito: '💵 Depositar Dinero',
+            depositoForm: '💵 Depositar Dinero',
             retiroForm: '💸 Retirar Dinero',
             transferenciaForm: '🔄 Transferir Dinero',
         };
@@ -104,3 +104,5 @@ const GestorModales = {
         });
     }
 };
+
+

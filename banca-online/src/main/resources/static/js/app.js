@@ -206,3 +206,4 @@ document.getElementById('loginForm').addEventListener('input', () => {
     const errorDiv = document.getElementById('loginError');
     if (errorDiv) errorDiv.style.display = 'none';
 });
+
