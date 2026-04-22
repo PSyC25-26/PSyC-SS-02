@@ -37,11 +37,11 @@ function initRetiroForm() {
             cuentaSaldoSpan.textContent = cuenta.saldo?.toFixed(2) || '0.00';
         }
 
-        const form = document.getElementById('formRetiroForm');
-        const btnCerrar = document.getElementById('btnCerrarRetiroForm');
-        const btnCancelar = document.getElementById('btnCancelarRetiroForm');
-        const mensajeExito = document.getElementById('mensajeExitoRetiroForm');
-        const mensajeError = document.getElementById('mensajeErrorRetiroForm');
+        const form = document.getElementById('formRetiro');
+        const btnCerrar = document.getElementById('btnCerrarRetiro');
+        const btnCancelar = document.getElementById('btnCancelarRetiro');
+        const mensajeExito = document.getElementById('mensajeExitoRetiro');
+        const mensajeError = document.getElementById('mensajeErrorRetiro');
 
         let timeoutId = null;
         let isRequestCompleted = false;
