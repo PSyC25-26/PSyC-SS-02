@@ -215,11 +215,16 @@ El proyecto incluye cinco tipos de tests:
 # Tests Java
 ./mvnw test
 
+# Para ejecutar los tests referentes al rendimiento y evitar saturaciones, es necesario ejecutarlos por separado. Por ejemplo:
+mvn test -Dtest=CuentaServicePerformanceTest#rendimiento_crearCuenta_100invocaciones_4hilos
+
+
 # Tests JavaScript (requiere servidor levantado en localhost:8080)
 cd src/test/js
 npm install
 npm test
 ```
+
 
 **Cobertura:** JaCoCo genera el informe en `docs/reports/site/jacoco/`. El mínimo exigido es del **50 % de instrucciones**.
 

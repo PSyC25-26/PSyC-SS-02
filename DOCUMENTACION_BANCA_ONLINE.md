@@ -516,17 +516,17 @@ El frontend usa `fetch` con la cabecera `Authorization: Bearer <token>` en todas
  
 Prueban la lógica de negocio aislada mediante mocks de repositorios:
  
-- `ClienteServiceTest` — creación, actualización, búsqueda, eliminación
-- `CuentaServiceTest` — creación de cuentas, depósito, retiro, saldo, control de propietario
-- `TransferServiceTest` — transferencias válidas, saldo insuficiente, acceso denegado
+- `ClienteServiceTest` : Creación, actualización, búsqueda, eliminación
+- `CuentaServiceTest` : Creación de cuentas, depósito, retiro, saldo, control de propietario
+- `TransferServiceTest` : Transferencias válidas, saldo insuficiente, acceso denegado
 ### Tests de Aceptación
  
 `CuentaServiceAcceptanceTest` verifica criterios de aceptación desde perspectiva de negocio, con escenarios descritos con `@DisplayName` legibles.
  
 ### Tests de Rendimiento
 `CuentaServicePerformanceTest` y `ClienteServicePerformanceTest`  usa **ContiPerf** con anotaciones:
-- `@PerfTest(invocations = N, threads = T)` — número de ejecuciones y hilos concurrentes
-- `@Required(max = X)` — tiempo máximo permitido en milisegundos
+- `@PerfTest(invocations = N, threads = T)` : Número de ejecuciones y hilos concurrentes
+- `@Required(max = X)` : Tiempo máximo permitido en milisegundos
 Los informes se generan en `docs/reports/contiperf-report/index.html`.
 
 Para facilitar la revisión de las métricas obtenidas, se han organizado los archivos de la siguiente manera:
@@ -536,9 +536,20 @@ Para facilitar la revisión de las métricas obtenidas, se han organizado los ar
  
 ### Tests de Integración
  
-- `CuentaControllerIntegrationTest` — arranca el contexto Spring completo y prueba los endpoints de cuentas con MockMvc, incluyendo autenticación JWT.
-- `ClienteControllerTest` — prueba los endpoints de clientes con MockMvc.
-- `ClienteRepositoryTest` / `CuentaRepositoryTest` — prueban las consultas JPA sobre la base de datos MySQL con transacciones rollback.
+- `CuentaControllerIntegrationTest` : Arranca el contexto Spring completo y prueba los endpoints de cuentas con MockMvc, incluyendo autenticación JWT.
+- `ClienteControllerTest` : Prueba los endpoints de clientes con MockMvc.
+- `ClienteRepositoryTest` / `CuentaRepositoryTest` : Prueban las consultas JPA sobre la base de datos MySQL con transacciones rollback.
+
+**Ejecución:**
+```bash
+# Tests Java
+./mvnw test
+
+# Para ejecutar los tests referentes al rendimiento y evitar saturaciones, es necesario ejecutarlos por separado. Por ejemplo:
+mvn test -Dtest=CuentaServicePerformanceTest#rendimiento_crearCuenta_100invocaciones_4hilos
+```
+
+
 ### Tests de Cliente JavaScript
  
 `src/test/js/client.test.js` realiza tests de integración end-to-end desde Node.js:
