@@ -21,6 +21,7 @@
 - [Requisitos](#requisitos)
 - [Instalación Rápida Con Docker](#instalación-rápida-con-docker)
 - [Autenticación y Seguridad](#autenticación-y-seguridad)
+- [Estructura](#estructura)
 - [Endpoints API](#endpoints-api)
 - [Tests](#tests)
 ---
@@ -139,6 +140,52 @@ La aplicación usa **Spring Security + JWT** con política de sesión stateless.
 - `GET /swagger-ui/**`, `/v3/api-docs/**`
 
 ---
+## Estructura
+ 
+```
+static/
+├── index.html                  # Página principal
+├── css/
+│   ├── base.css
+│   ├── estilo.css
+│   ├── admin.css
+│   ├── cliente.css
+│   ├── componentes.css
+│   └── modales.css
+├── js/
+│   ├── app.js                  # Lógica principal y navegación
+│   ├── auth.js                 # Login y gestión del JWT
+│   ├── modales.js              # Carga de modales
+│   └── servicios/
+│       ├── listarClientes.js
+│       ├── crearClienteForm.js
+│       ├── editarClienteForm.js
+│       ├── eliminarClienteForm.js
+│       ├── listarCuentas.js
+│       ├── crearCuentaForm.js
+│       ├── detalleCuenta.js
+│       ├── consultarSaldo.js
+│       ├── depositoForm.js
+│       ├── retiroForm.js
+│       ├── transferenciaForm.js
+│       └── utils.js
+└── modales/
+    ├── listarClientes.html
+    ├── crearClienteForm.html
+    ├── editarClienteForm.html
+    ├── eliminarClienteForm.html
+    ├── listarCuentas.html
+    ├── crearCuentaForm.html
+    ├── detalleCuenta.html
+    ├── consultarSaldo.html
+    ├── depositoForm.html
+    ├── retiroForm.html
+    └── transferenciaForm.html
+```
+---
+
+
+
 
 ##  Endpoints API
 
