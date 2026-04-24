@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDate;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import org.junit.Ignore;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClienteServicePerformanceTest {
@@ -58,6 +59,7 @@ public class ClienteServicePerformanceTest {
 
     // EL BASELINE
     @Test
+    @Ignore("Test de rendimiento para ejecución manual")
     @PerfTest(invocations = 1, threads = 1)
     public void baseline_crearCliente() {
         clienteService.crearCliente(requestValido);
@@ -65,6 +67,7 @@ public class ClienteServicePerformanceTest {
 
     // saturacion 1
     @Test
+    @Ignore("Test de rendimiento para ejecución manual")
     @PerfTest(duration = 60000, threads = 20) // 60 segundos para que te dé tiempo a ver VisualVM
     public void saturar_crearCliente_20threads() {
         try {
@@ -76,6 +79,7 @@ public class ClienteServicePerformanceTest {
     }
 
     @Test
+    @Ignore("Test de rendimiento para ejecución manual")
     @PerfTest(duration = 60000, threads = 40)
     public void saturar_crearCliente_40threads() {
         try {
@@ -87,6 +91,7 @@ public class ClienteServicePerformanceTest {
     }
 
     @Test
+    @Ignore("Test de rendimiento para ejecución manual")
     @PerfTest(duration = 60000, threads = 80)
     public void saturar_crearCliente_80threads() {
         try {
