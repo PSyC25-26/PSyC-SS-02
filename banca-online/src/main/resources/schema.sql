@@ -1,5 +1,10 @@
 USE banca_online;
 
+#     drop table if exists transaccion;
+#     drop table if exists cuenta;
+#     drop table if exists cliente;
+#     drop table if exists usuario;
+
   CREATE TABLE IF NOT EXISTS usuario (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -28,6 +33,7 @@ CREATE TABLE IF NOT EXISTS cuenta (
     numero_cuenta VARCHAR(30) UNIQUE NOT NULL,
     tipo_cuenta ENUM('CORRIENTE','AHORRO') NOT NULL,
     saldo DOUBLE NOT NULL DEFAULT 0,
+    activa BOOLEAN NOT NULL DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (cliente_id) REFERENCES cliente(id)
 );
