@@ -9,7 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import es.deusto.banca_online.dto.ClienteUpdateDTO;
+import org.springframework.security.core.Authentication;
 import java.util.List;
 
 
@@ -127,6 +128,17 @@ public class ClienteController {
 
     }
 
+
+    @PutMapping("/perfil")
+    @PreAuthorize("hasRole('CLIENTE')") // Solo usuarios con rol CLIENTE
+    public ResponseEntity<ClienteResponse> actualizarMiPerfil(Authentication authentication, @RequestBody ClienteUpdateDTO request) {
+        // authentication.getName() nos da el email del usuario que ha hecho login
+        String emailActual = authentication.getName();
+
+        Cliente actualizado = clienteService.actualizarPerfilPropio(emailActual, request);
+
+        return ResponseEntity.ok(mapToDto(actualizado));
+    }
 
 
 
