@@ -158,4 +158,20 @@ public class CuentaController {
             throw e;
         }
     }
+
+    // HU2.3: Eliminar cuenta inactiva
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> eliminarCuentaInactiva(@PathVariable Long id) {
+        try {
+            cuentaService.eliminarCuentaInactiva(id);
+            return ResponseEntity.noContent().build(); // 204 OK
+        } catch (IllegalArgumentException e) {
+            // Saldo > 0, enviamos 400 Bad Request, restriccion
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (RuntimeException e) {
+            // No existe, enviamos 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 }
