@@ -194,14 +194,18 @@ public class ClienteService {
 
     @Transactional
     public Cliente actualizarPerfilPropio(String emailActual, ClienteUpdateDTO request) {
-        // 1. Buscamos al cliente que tiene ese email de sesión
         Cliente cliente = buscarPorEmail(emailActual);
 
-        // 2. Solo permitimos cambiar datos de contacto (no críticos)
-        cliente.setTelefono(request.getTelefono());
-        cliente.setDireccion(request.getDireccion());
+        // Si el campo del request no es nulo ni está vacío, actualizamos.
+        // De lo contrario, mantenemos el valor actual de la entidad.
+        if (request.getTelefono() != null && !request.getTelefono().isBlank()) {
+            cliente.setTelefono(request.getTelefono());
+        }
 
-        // 3. Guardamos
+        if (request.getDireccion() != null && !request.getDireccion().isBlank()) {
+            cliente.setDireccion(request.getDireccion());
+        }
+
         return clienteRepository.save(cliente);
     }
 }

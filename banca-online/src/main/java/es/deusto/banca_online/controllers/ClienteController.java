@@ -74,19 +74,26 @@ public class ClienteController {
 
     // BUSCAR cliente por email
     @GetMapping("/email/{email}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ClienteResponse> buscarPorEmail(@PathVariable String email) {
-        try{
-            Cliente cliente = clienteService.buscarPorEmail(email);
-            return ResponseEntity.ok(mapToDto(cliente));
-        }catch (RuntimeException e){
-            if(e.getMessage().equals("Cliente no encontrado")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Si no se ha encontrado el cliente,
-                // mandamos un 404. Lo hacemos porque si no se lanza un NullPointerException (cliente=null).
-            }
-            throw e; // Otras excepciones se lanzan normalmente
-        }
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')") //
+    public ResponseEntity<ClienteResponse> buscarPorEmail(@PathVariable String email, Authentication authentication) {
+        try {
+            // Validación de seguridad: un CLIENTE solo puede ver su propio perfil
+            String emailLogueado = authentication.getName();
+            boolean esAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
+            if (!esAdmin && !emailLogueado.equals(email)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); //[cite: 4]
+            }
+
+            Cliente cliente = clienteService.buscarPorEmail(email);
+            return ResponseEntity.ok(mapToDto(cliente)); //[cite: 4]
+        } catch (RuntimeException e) {
+            if ("Cliente no encontrado".equals(e.getMessage())) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); //[cite: 4, 5]
+            }
+            throw e;
+        }
     }
 
     // ACTUALIZAR cliente
