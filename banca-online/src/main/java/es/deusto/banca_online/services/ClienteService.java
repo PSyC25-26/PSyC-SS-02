@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import es.deusto.banca_online.dto.ClienteUpdateDTO;
+
 import java.util.List;
 
 
@@ -187,5 +189,19 @@ public class ClienteService {
     public Cliente buscarPorDni(String email) {
         return clienteRepository.findByDni(email)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+    }
+
+
+    @Transactional
+    public Cliente actualizarPerfilPropio(String emailActual, ClienteUpdateDTO request) {
+        // 1. Buscamos al cliente que tiene ese email de sesión
+        Cliente cliente = buscarPorEmail(emailActual);
+
+        // 2. Solo permitimos cambiar datos de contacto (no críticos)
+        cliente.setTelefono(request.getTelefono());
+        cliente.setDireccion(request.getDireccion());
+
+        // 3. Guardamos
+        return clienteRepository.save(cliente);
     }
 }
