@@ -75,6 +75,58 @@
     color: #e74c3c;
 }
 
+
+/* ESTILO UNIFICADO MÁS PEQUEÑO */
+.btn-menu {
+    display: flex;
+    flex-direction: row; /* Cambiado a fila para que sea menos alto */
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Espacio entre icono y texto */
+
+    background-color: #ffffff;
+    color: #2c3e50;
+    border: 1px solid #dcdde1;
+    border-radius: 6px; /* Más acorde al resto de tus botones */
+
+    padding: 8px 15px;  /* Padding reducido */
+    min-width: 120px;   /* Un poco más ancho pero menos alto */
+    height: 45px;       /* ALTURA REDUCIDA (Antes 80px) */
+
+    font-size: 0.85rem; /* Fuente un poco más pequeña */
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-menu:hover {
+    background-color: #f8f9fa;
+    border-color: #3498db;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+/* Iconos más pequeños para que no estiren el botón */
+.btn-menu i, .btn-menu span.icon {
+    font-size: 1.1rem; /* Antes 1.5rem */
+    margin-bottom: 0;   /* Quitamos el margen inferior */
+}
+
+/* El botón de perfil superior igual de pequeñito */
+.btn-perfil-top {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px; /* Un punto menos */
+    margin-right: 10px;
+    height: 35px;    /* Altura compacta */
+    transition: all 0.2s;
+}
+
 /* ---------- FORMULARIOS ---------- */
 .form-group {
     margin-bottom: 15px;
