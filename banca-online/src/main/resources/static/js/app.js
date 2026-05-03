@@ -45,14 +45,23 @@ function iniciarSesion() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
 
+    // NUEVO: Capturar el botón de perfil superior del index.html
+    const btnPerfilSuperior = document.getElementById('btnMiPerfilSuperior');
+
     // Mostramos rol
     document.getElementById('userRole').innerHTML =
         `<strong>Rol:</strong> ${currentRole === 'admin' ? '👑 Administrador' : '👤 Cliente'}`;
 
     // Si es admin, generar menú normal
     if (currentRole === 'admin') {
+        if(btnPerfilSuperior) btnPerfilSuperior.style.display = 'none'; // Ocultar si es admin
         generarMenuAdmin();
     } else {
+        // NUEVO: Mostrar y configurar el botón de perfil para el cliente
+        if(btnPerfilSuperior) {
+            btnPerfilSuperior.style.display = 'inline-block';
+            btnPerfilSuperior.onclick = () => GestorModales.abrir('editarPerfil', 'editarPerfil.html');
+        }
         // Si es cliente, cargar directamente sus cuentas
         cargarCuentasCliente();
     }
@@ -71,7 +80,7 @@ function generarMenuAdmin() {
     opciones.forEach(op => {
         const btn = document.createElement('button');
         btn.textContent = op.nombre;
-        btn.className = 'btn-menu'; // Mantiene el estilo de los otros botones
+        btn.className = 'btn-menu';
         btn.onclick = () => GestorModales.abrir(op.modal, op.archivo);
         menuDiv.appendChild(btn);
     });
@@ -206,4 +215,3 @@ document.getElementById('loginForm').addEventListener('input', () => {
     const errorDiv = document.getElementById('loginError');
     if (errorDiv) errorDiv.style.display = 'none';
 });
-

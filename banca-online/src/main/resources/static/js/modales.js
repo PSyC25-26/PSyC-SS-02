@@ -68,6 +68,7 @@ const GestorModales = {
             crearClienteForm: '👤 Crear nuevo cliente',
             editarClienteForm: '✏️ Editar Cliente',
             eliminarClienteForm: '🗑 Eliminar Cliente',
+            editarPerfil: '👤 Mis Datos Personales',
 
             // CUENTAS
             crearCuentaForm: '🏦 Crear Nueva Cuenta',
