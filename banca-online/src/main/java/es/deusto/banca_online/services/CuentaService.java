@@ -180,4 +180,24 @@ public class CuentaService {
         // 6. Retornamos los datos actualizados
         return toResponse(cuentaActualizada);
     }
+
+
+    // Añade este método en CuentaService.java
+    @Transactional
+    public void eliminarCuentaInactiva(Long id) {
+        // 1. Buscamos la cuenta (incluso si está desactivada para dar un error coherente)
+        Cuenta cuenta = cuentaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+
+        // 2. REQUISITO HU: Validar que el saldo sea 0
+        if (cuenta.getSaldo() > 0) {
+            throw new IllegalArgumentException("No se puede eliminar una cuenta con saldo positivo (" + cuenta.getSaldo() + "€)");
+        }
+
+        // 3. BORRADO LÓGICO: Mantenemos los datos pero la desactivamos para poder hacer trazabilidad
+        cuenta.setActiva(false);
+        cuentaRepository.save(cuenta);
+
+        // Al no usar .delete(), las transacciones en la tabla 'transaccion'
+    }
 }
