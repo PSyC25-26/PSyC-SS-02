@@ -23,6 +23,10 @@ public class Cuenta {
     @Column(nullable = false)
     private Double saldo;
 
+    // Para eliminar cuentas inactivas
+    @Column(nullable = false)
+    private Boolean activa = true;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_cuenta", nullable = false)
     private ETipoCuenta tipoCuenta;
@@ -42,6 +46,7 @@ public class Cuenta {
         this.saldo = saldo;
         this.tipoCuenta = tipoCuenta;
         this.cliente = cliente;
+        this.activa = true;
     }
 
     @PrePersist
