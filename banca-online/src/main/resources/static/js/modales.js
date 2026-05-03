@@ -75,6 +75,7 @@ const GestorModales = {
             depositoForm: '💵 Depositar Dinero',
             retiroForm: '💸 Retirar Dinero',
             transferenciaForm: '🔄 Transferir Dinero',
+            eliminarCuenta: '🗑 Desactivar Cuenta Bancaria',
         };
         return titulos[modalNombre] || 'Formulario';
     },
