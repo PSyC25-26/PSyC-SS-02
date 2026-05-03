@@ -12,4 +12,10 @@ public interface ICuentaRepository extends JpaRepository<Cuenta, Long> {
     Optional<Cuenta> findByNumeroCuenta(String numeroCuenta);
     List<Cuenta> findByClienteId(Long clienteId);
     boolean existsByNumeroCuenta(String numeroCuenta);
+
+    // Filtro para buscar por cliente y coger sus cuentas activas
+    List<Cuenta> findByClienteIdAndActivaTrue(Long clienteId);
+
+    //Buscar por cuentas activas
+    Optional<Cuenta> findByIdAndActivaTrue(Long id);
 }
