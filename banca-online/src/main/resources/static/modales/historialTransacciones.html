@@ -1,0 +1,20 @@
+<div id="infoCuentaHistorial" style="margin-bottom: 20px; padding: 15px; background: #f0f4f8; border-radius: 8px;">
+    <p><strong>Historial de la cuenta:</strong> <span id="historialCuentaNumero"></span></p>
+</div>
+
+<div class="lista-transacciones">
+    <div class="lista-header" style="display: grid; grid-template-columns: 2fr 1fr 1fr; font-weight: bold; padding: 10px; border-bottom: 2px solid #ddd; background: #fff; position: sticky; top: 0; z-index: 1;">
+        <span>Descripción</span>
+        <span>Monto</span>
+        <span>Fecha</span>
+    </div>
+
+    <div id="contenedorMovimientos" class="lista-items"
+         style="max-height: 400px; overflow-y: auto; border-bottom: 1px solid #ddd;">
+        <p style="padding: 20px; text-align: center;">🔄 Cargando movimientos...</p>
+    </div>
+</div>
+
+<div class="form-footer" style="margin-top: 20px;">
+    <button type="button" class="btn-primario" onclick="GestorModales.cerrar('historialTransacciones')">Cerrar</button>
+</div>
