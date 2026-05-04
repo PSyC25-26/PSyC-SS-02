@@ -11,6 +11,8 @@ function initDetalleCuenta() {
             document.getElementById('detalleTipoCuenta').textContent = window.cuentaSeleccionada.tipoCuenta === 'CORRIENTE' ? '💳 Corriente' : '🏦 Ahorro';
             document.getElementById('detalleSaldoCuenta').innerHTML = `<strong>${window.cuentaSeleccionada.saldo?.toFixed(2) || '0.00'} €</strong>`;
             document.getElementById('detalleFechaCreacion').textContent = window.cuentaSeleccionada.fechaCreacion || 'No disponible';
+
+
         }
 
         const btnCerrar = document.getElementById('btnCerrarDetalleCuenta');
@@ -19,6 +21,7 @@ function initDetalleCuenta() {
         const btnTransferir = document.getElementById('btnTransferirDetalle');
         const mensajeExito = document.getElementById('mensajeExitoDetalle');
         const mensajeError = document.getElementById('mensajeErrorDetalle');
+        const btnHistorial = document.getElementById('btnHistorialDetalle');
 
         function ocultarMensajes() {
             if (mensajeExito) mensajeExito.style.display = 'none';
@@ -96,6 +99,25 @@ function initDetalleCuenta() {
                 console.log('💾 Cuenta guardada para transferencia:', cuentaParaGuardar);
                 cerrarModal();
                 GestorModales.abrir('transferenciaForm', 'transferenciaForm.html');
+            };
+        }
+
+        if (btnHistorial) {
+            btnHistorial.onclick = () => {
+                // Guardamos la cuenta en localStorage por si acaso, igual que los otros
+                const cuentaParaGuardar = {
+                    id: window.cuentaSeleccionada.id,
+                    numeroCuenta: window.cuentaSeleccionada.numeroCuenta,
+                    saldo: window.cuentaSeleccionada.saldo,
+                    tipoCuenta: window.cuentaSeleccionada.tipoCuenta
+                };
+                localStorage.setItem('cuentaSeleccionada', JSON.stringify(cuentaParaGuardar));
+
+                console.log('📜 Abriendo historial para la cuenta:', cuentaParaGuardar.numeroCuenta);
+
+                // Cerramos el detalle y abrimos el historial
+                cerrarModal();
+                GestorModales.abrir('historialTransacciones', 'historialTransacciones.html');
             };
         }
 
