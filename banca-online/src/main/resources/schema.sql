@@ -38,6 +38,12 @@ CREATE TABLE IF NOT EXISTS cuenta (
     FOREIGN KEY (cliente_id) REFERENCES cliente(id)
 );
 
+-- Migración ligera: bases de datos creadas antes de la columna `activa`
+-- mantienen la tabla `cuenta` sin actualizarse (`CREATE IF NOT EXISTS` no altera el esquema).
+-- Nota: en MySQL 5.7 no existe `ADD COLUMN IF NOT EXISTS`; el proyecto usa
+-- `spring.sql.init.continue-on-error=true` para tolerar el error si la columna ya existe.
+ALTER TABLE cuenta ADD COLUMN activa BOOLEAN NOT NULL DEFAULT TRUE;
+
 CREATE TABLE IF NOT EXISTS transaccion (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     tipo ENUM('DEPOSITO','RETIRO','TRANSFERENCIA') NOT NULL,

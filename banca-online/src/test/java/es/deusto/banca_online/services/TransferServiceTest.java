@@ -3,6 +3,7 @@ package es.deusto.banca_online.services;
 import es.deusto.banca_online.dto.TransferenciaDTO;
 import es.deusto.banca_online.entity.*;
 import es.deusto.banca_online.repository.ICuentaRepository;
+import es.deusto.banca_online.repository.ITransaccionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +32,7 @@ class TransferServiceTest {
 
     @Mock private CuentaService cuentaService;
     @Mock private ICuentaRepository cuentaRepository;
+    @Mock private ITransaccionRepository transaccionRepository;
     @Mock private Authentication authentication;
 
     @InjectMocks
@@ -74,6 +76,11 @@ class TransferServiceTest {
         cuentaDestino.setTipoCuenta(ETipoCuenta.AHORRO);
         cuentaDestino.setCliente(clienteDestino);
         cuentaDestino.setFechaCreacion(LocalDateTime.now());
+
+        lenient().when(transaccionRepository.save(any(Transaccion.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(cuentaRepository.save(any(Cuenta.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
     }
 
     // ===================== transferirDinero - ADMIN =====================
@@ -85,7 +92,6 @@ class TransferServiceTest {
         when(cuentaRepository.findByNumeroCuenta("ES-ORIGEN-001")).thenReturn(Optional.of(cuentaOrigen));
         when(cuentaRepository.findByNumeroCuenta("ES-DESTINO-002")).thenReturn(Optional.of(cuentaDestino));
         when(cuentaService.obtenerSaldo(eq(1L), any())).thenReturn(1000.0);
-        when(cuentaService.obtenerSaldo(eq(2L), any())).thenReturn(200.0);
         doNothing().when(cuentaService).actualizarSaldo(anyLong(), anyDouble());
 
         TransferenciaDTO dto = new TransferenciaDTO();
@@ -98,7 +104,9 @@ class TransferServiceTest {
         assertNotNull(result);
         assertEquals(300.0, result.getCantidad());
         verify(cuentaService).actualizarSaldo(eq(1L), eq(700.0));
-        verify(cuentaService).actualizarSaldo(eq(2L), eq(500.0));
+        verify(cuentaRepository).save(argThat(c ->
+                c.getId().equals(2L) && c.getSaldo() == 500.0));
+        verify(transaccionRepository).save(any(Transaccion.class));
         log.info("Test pasado: transferencia de {} realizada", result.getCantidad());
     }
 
@@ -163,7 +171,6 @@ class TransferServiceTest {
         when(cuentaRepository.findByNumeroCuenta("ES-ORIGEN-001")).thenReturn(Optional.of(cuentaOrigen));
         when(cuentaRepository.findByNumeroCuenta("ES-DESTINO-002")).thenReturn(Optional.of(cuentaDestino));
         when(cuentaService.obtenerSaldo(eq(1L), any())).thenReturn(1000.0);
-        when(cuentaService.obtenerSaldo(eq(2L), any())).thenReturn(200.0);
         doNothing().when(cuentaService).actualizarSaldo(anyLong(), anyDouble());
 
         TransferenciaDTO dto = new TransferenciaDTO();
@@ -172,6 +179,10 @@ class TransferServiceTest {
         dto.setCantidad(100.0);
 
         assertDoesNotThrow(() -> transferService.transferirDinero(dto, authentication));
+        verify(cuentaService).actualizarSaldo(eq(1L), eq(900.0));
+        verify(cuentaRepository).save(argThat(c ->
+                c.getId().equals(2L) && c.getSaldo() == 300.0));
+        verify(transaccionRepository).save(any(Transaccion.class));
         log.info("Test pasado: cliente propietario puede transferir");
     }
 
