@@ -31,9 +31,14 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private Boolean activo = true;
 
-    // Sin @OneToOne — solo guardamos el ID para meterlo en el JWT
+    // FK persistida vía este campo (compatibilidad con código existente).
     @Column(name = "cliente_id")
     private Long clienteId; // null si es ADMIN
+
+    /** Perfil de cliente enlazado; solo lectura en JPA (la FK la escribe {@link #clienteId}). */
+    @OneToOne(fetch = FetchType.EAGER, optional = true)
+    @JoinColumn(name = "cliente_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Cliente cliente;
 
     @Override
     public String getUsername() {
