@@ -69,7 +69,7 @@ public class TransferService {
         // Guardamos transacciones para HU4.2: Historial de transacciones
         Transaccion t = new Transaccion();
         t.setTipo(ETipoTransaccion.TRANSFERENCIA);
-        .setDescripcion("Transferencia enviada a " + destino.getNumeroCuenta());
+        t.setDescripcion("Transferencia enviada a " + destino.getNumeroCuenta());
         t.setTotal(transferenciaDTO.getCantidad());
         t.setCuentaOrigen(origen);
         t.setCuentaDestino(destino);
