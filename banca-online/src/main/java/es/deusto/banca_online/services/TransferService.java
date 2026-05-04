@@ -35,45 +35,44 @@ public class TransferService {
         Cuenta destino = cuentaRepository.findByNumeroCuenta(transferenciaDTO.getCuentaDestino())
                 .orElseThrow(() -> new RuntimeException("Cuenta de destino no encontrada"));
 
+        // Solo validamos que el ORIGEN sea del usuario ---
         boolean esAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
         if (!esAdmin) {
             Usuario principal = (Usuario) authentication.getPrincipal();
-
-            // 1. Verificamos nulos
             if (principal.getClienteId() == null || origen.getCliente() == null) {
                 throw new AccessDeniedException("No se pudo verificar la propiedad de la cuenta");
             }
 
-            // 2. COMPARACIÓN SEGURA: Convertimos ambos a long primitivo
             long idUsuario = principal.getClienteId().longValue();
             long idPropietario = origen.getCliente().getId().longValue();
 
             if (idUsuario != idPropietario) {
-                throw new AccessDeniedException("No tiene permiso. Usuario: " + idUsuario + ", Propietario: " + idPropietario);
+                throw new AccessDeniedException("No tiene permiso sobre la cuenta de origen");
             }
         }
 
+        // --- OPERACIÓN CUENTA ORIGEN (Usando el servicio con seguridad) ---
         double saldoOrigen = cuentaService.obtenerSaldo(origen.getId(), authentication);
         if (saldoOrigen < transferenciaDTO.getCantidad()) {
             throw new RuntimeException("Saldo insuficiente en la cuenta de origen");
         }
+        cuentaService.actualizarSaldo(origen.getId(), saldoOrigen - transferenciaDTO.getCantidad());
 
-        double nuevoSaldoOrigen = saldoOrigen - transferenciaDTO.getCantidad();
-        cuentaService.actualizarSaldo(origen.getId(), nuevoSaldoOrigen);
+        // --- OPERACIÓN CUENTA DESTINO (Usando Repositorio para evitar el 403) ---
+        // No usamos cuentaService.obtenerSaldo porque daría 403 al no ser nuestra cuenta
+        double nuevoSaldoDestino = destino.getSaldo() + transferenciaDTO.getCantidad();
+        destino.setSaldo(nuevoSaldoDestino);
+        cuentaRepository.save(destino); // Guardamos directamente en BD
 
-        double saldoDestino = cuentaService.obtenerSaldo(destino.getId(), authentication);
-        double nuevoSaldoDestino = saldoDestino + transferenciaDTO.getCantidad();
-        cuentaService.actualizarSaldo(destino.getId(), nuevoSaldoDestino);
-
-        // Guardamos transacciones para HU4.2: Historial de transacciones
+        // --- 4. REGISTRO EN EL HISTORIAL (HU 4.2) ---
         Transaccion t = new Transaccion();
         t.setTipo(ETipoTransaccion.TRANSFERENCIA);
         t.setDescripcion("Transferencia enviada a " + destino.getNumeroCuenta());
         t.setTotal(transferenciaDTO.getCantidad());
         t.setCuentaOrigen(origen);
         t.setCuentaDestino(destino);
-
         transaccionRepository.save(t);
 
         return transferenciaDTO;
