@@ -411,7 +411,11 @@ class ClienteServiceTest {
 
         // Simulamos que el cliente ya existe
         when(clienteRepository.findById(id)).thenReturn(Optional.of(clienteGuardado));
-        when(clienteRepository.existsByEmail("nuevo@test.com")).thenReturn(false);
+        // Simular que el usuario actual tiene email "juan@test.com" (del clienteGuardado)
+        Usuario usuarioActual = new Usuario();
+        usuarioActual.setEmail("juan@test.com");
+        when(usuarioRepository.findByClienteId(id)).thenReturn(Optional.of(usuarioActual));
+        when(usuarioRepository.existsByEmail("nuevo@test.com")).thenReturn(false);
         when(clienteRepository.existsByDni("87654321B")).thenReturn(false);
 
         // Request con datos actualizados
@@ -440,7 +444,7 @@ class ClienteServiceTest {
         assertEquals("87654321B", resultado.getDni());
 
         verify(clienteRepository, times(1)).findById(id);
-        verify(clienteRepository, times(1)).existsByEmail("nuevo@test.com");
+        verify(usuarioRepository, times(1)).existsByEmail("nuevo@test.com");
         verify(clienteRepository, times(1)).existsByDni("87654321B");
         verify(clienteRepository, times(1)).save(any(Cliente.class));
 
@@ -453,7 +457,11 @@ class ClienteServiceTest {
     void actualizarCliente_EmailDuplicado_LanzaExcepcion() {
         Long id = 1L;
         when(clienteRepository.findById(id)).thenReturn(Optional.of(clienteGuardado));
-        when(clienteRepository.existsByEmail("email@duplicado.com")).thenReturn(true);
+        // Simular usuario actual con email diferente al nuevo
+        Usuario usuarioActual = new Usuario();
+        usuarioActual.setEmail("juan@test.com");
+        when(usuarioRepository.findByClienteId(id)).thenReturn(Optional.of(usuarioActual));
+        when(usuarioRepository.existsByEmail("email@duplicado.com")).thenReturn(true);
 
         ClienteRequest request = new ClienteRequest();
         request.setEmail("email@duplicado.com");
@@ -465,7 +473,7 @@ class ClienteServiceTest {
             clienteService.actualizarCliente(id, request);
         });
 
-        assertEquals("Ya existe un cliente con ese email", exception.getMessage());
+        assertEquals("Ya existe un usuario con ese email", exception.getMessage());
         verify(clienteRepository, never()).save(any(Cliente.class));
 
         log.info("Test actualizarCliente_EmailDuplicado_LanzaExcepcion pasado");

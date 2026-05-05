@@ -34,7 +34,8 @@ public class Cliente {
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
 
-    @Column(length = 100, nullable = false, unique = true)
+    /** Email del cliente - derivado de {@link Usuario#email}, se mantiene para compatibilidad BD. */
+    @Column(nullable = true, length = 100)
     private String email;
 
     @Column(length = 20)

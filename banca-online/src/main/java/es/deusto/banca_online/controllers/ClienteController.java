@@ -3,6 +3,7 @@ package es.deusto.banca_online.controllers;
 import es.deusto.banca_online.dto.ClienteRequest;
 import es.deusto.banca_online.dto.ClienteResponse;
 import es.deusto.banca_online.entity.Cliente;
+import es.deusto.banca_online.repository.IUsuarioRepository;
 import es.deusto.banca_online.security.AuthChecks;
 import es.deusto.banca_online.services.ClienteService;
 import jakarta.validation.Valid;
@@ -23,13 +24,16 @@ public class ClienteController {
     ---------------*/
     private final ClienteService clienteService;
     private final AuthChecks authChecks;
+    private final IUsuarioRepository usuarioRepository;
 
     /*--------------------
         CONSTRUCTORES
     --------------------*/
-    public ClienteController(ClienteService clienteService, AuthChecks authChecks) {
+    public ClienteController(ClienteService clienteService, AuthChecks authChecks,
+                             IUsuarioRepository usuarioRepository) {
         this.clienteService = clienteService;
         this.authChecks = authChecks;
+        this.usuarioRepository = usuarioRepository;
     }
 
 
@@ -151,6 +155,10 @@ public class ClienteController {
 
     // MAPEO de entidad a DTO (Response)
     private ClienteResponse mapToDto(Cliente cliente) {
+        // Obtener email desde Usuario (fuente de verdad)
+        String email = usuarioRepository.findByClienteId(cliente.getId())
+                .map(u -> u.getEmail())
+                .orElse(null);
         return new ClienteResponse(
                 cliente.getId(),
                 cliente.getDni(),
@@ -158,7 +166,7 @@ public class ClienteController {
                 cliente.getPrimerApellido(),
                 cliente.getSegundoApellido(),
                 cliente.getFechaNacimiento(),
-                cliente.getEmail(),
+                email, // desde Usuario
                 cliente.getTelefono(),
                 cliente.getDireccion(),
                 cliente.getFechaCreacion()

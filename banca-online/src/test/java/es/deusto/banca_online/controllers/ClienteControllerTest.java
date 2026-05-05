@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import es.deusto.banca_online.dto.ClienteRequest;
 import es.deusto.banca_online.entity.Cliente;
+import es.deusto.banca_online.entity.Usuario;
+import es.deusto.banca_online.repository.IUsuarioRepository;
 import es.deusto.banca_online.security.JwtUtils;
 import es.deusto.banca_online.security.UserDetailsServiceImpl;
 import es.deusto.banca_online.services.ClienteService;
@@ -49,6 +51,9 @@ class ClienteControllerTest {
 
     @MockitoBean
     private ClienteService clienteService;  // Mock del servicio
+
+    @MockitoBean
+    private IUsuarioRepository usuarioRepository;  // Mock del repositorio de usuarios
 
     @MockitoBean
     private JwtUtils jwtUtils;  // Necesario porque JwtAuthFilter es un Filter incluido en el slice
@@ -137,6 +142,10 @@ class ClienteControllerTest {
         log.info("Test: POST /api/clientes con datos validos debe retornar 201");
         // Cuando se cree un cliente, devolvemos el que crearia la BD
         when(clienteService.crearCliente(any(ClienteRequest.class))).thenReturn(clienteEntity);
+        // Simular que existe un usuario asociado con el email
+        Usuario usuarioMock = new Usuario();
+        usuarioMock.setEmail("juan@test.com");
+        when(usuarioRepository.findByClienteId(1L)).thenReturn(java.util.Optional.of(usuarioMock));
 
         // Simulamos la peticion a /api/clientes
         mockMvc.perform(post("/api/clientes")
@@ -255,7 +264,7 @@ class ClienteControllerTest {
 
         // Verificamos que se haya llamado al servicio buscarPorId 1 vez
         verify(clienteService, times(1)).buscarPorId(id);
-        log.info("Test pasado: 404 retornado para id={}", id);
+        log.info("Test pasado: cliente con id={} no encontrado", id);
     }
 
 
@@ -263,18 +272,22 @@ class ClienteControllerTest {
     @Test
     void buscarPorEmail_ClienteExiste_Retorna200() throws Exception {
         log.info("Test: GET /api/clientes/email/{email} con email existente debe retornar 200");
-        // Preparamos el email
-        String email = "juan@test.com";
-        when(clienteService.buscarPorEmail(email)).thenReturn(clienteEntity);
+
+        // Simular que el servicio encuentra el cliente
+        when(clienteService.buscarPorEmail("juan@test.com")).thenReturn(clienteEntity);
+        // Simular que existe un usuario asociado con el email
+        Usuario usuarioMock = new Usuario();
+        usuarioMock.setEmail("juan@test.com");
+        when(usuarioRepository.findByClienteId(1L)).thenReturn(java.util.Optional.of(usuarioMock));
 
         // Llamamos al endpoint
-        mockMvc.perform(get("/api/clientes/email/{email}", email))
+        mockMvc.perform(get("/api/clientes/email/{email}", "juan@test.com"))
                 .andExpect(status().isOk()) // Esperamos un OK
-                .andExpect(jsonPath("$.email").value(email)); // Verificamos el email
+                .andExpect(jsonPath("$.email").value("juan@test.com")); // Verificamos el email
 
         // Verificamos que se haya llamado al servicio buscarPorEmail 1 vez
-        verify(clienteService, times(1)).buscarPorEmail(email);
-        log.info("Test pasado: cliente con email={} encontrado", email);
+        verify(clienteService, times(1)).buscarPorEmail("juan@test.com");
+        log.info("Test pasado: cliente con email={} encontrado", "juan@test.com");
     }
 
 

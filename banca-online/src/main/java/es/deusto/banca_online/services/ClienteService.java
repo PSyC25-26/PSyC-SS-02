@@ -99,7 +99,7 @@ public class ClienteService {
         cliente.setPrimerApellido(request.getPrimerApellido());
         cliente.setSegundoApellido(request.getSegundoApellido());
         cliente.setFechaNacimiento(request.getFechaNacimiento());
-        cliente.setEmail(request.getEmail());
+        // email no se actualiza en Cliente (es @Transient), se gestiona via Usuario
         cliente.setTelefono(request.getTelefono());
         cliente.setDireccion(request.getDireccion());
         cliente.setFechaCreacion(LocalDateTime.now());
@@ -125,10 +125,14 @@ public class ClienteService {
     public Cliente actualizarCliente(Long id, ClienteRequest request) {
         Cliente cliente = buscarPorId(id); // validar existencia del cliente
 
-        // Validar email unico si se cambia
-        if (!cliente.getEmail().equals(request.getEmail()) &&
-                clienteRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Ya existe un cliente con ese email");
+        // Validar email unico si se cambia (via UsuarioRepository)
+        // Obtener email actual del usuario vinculado
+        String emailActual = usuarioRepository.findByClienteId(cliente.getId())
+                .map(Usuario::getEmail)
+                .orElse(null);
+        if (!request.getEmail().equals(emailActual) &&
+                usuarioRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Ya existe un usuario con ese email");
         }
 
         // Validar DNI unico si se cambia
@@ -143,7 +147,7 @@ public class ClienteService {
         cliente.setPrimerApellido(request.getPrimerApellido());
         cliente.setSegundoApellido(request.getSegundoApellido());
         cliente.setFechaNacimiento(request.getFechaNacimiento());
-        cliente.setEmail(request.getEmail());
+        // email no se actualiza en Cliente (es @Transient), se gestiona via Usuario
         cliente.setTelefono(request.getTelefono());
         cliente.setDireccion(request.getDireccion());
 

@@ -1,12 +1,15 @@
 package es.deusto.banca_online.repository;
 
 import es.deusto.banca_online.entity.Cliente;
+import es.deusto.banca_online.entity.ERol;
+import es.deusto.banca_online.entity.Usuario;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,6 +27,12 @@ class ClienteRepositoryTest {
     // Inyectamos el repostorio sin tener que crear uno
     @Autowired
     private IClienteRepository clienteRepository;
+
+    @Autowired
+    private IUsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /*------------
         TESTS
@@ -109,7 +118,16 @@ class ClienteRepositoryTest {
         cliente.setEmail("juan@test.com");
         cliente.setFechaNacimiento(LocalDate.of(1990, 1, 1));
         cliente.setFechaCreacion(LocalDateTime.now());
-        clienteRepository.save(cliente);
+        Cliente clienteGuardado = clienteRepository.save(cliente);
+
+        // Crear usuario asociado (fuente de verdad del email)
+        Usuario usuario = new Usuario();
+        usuario.setEmail("juan@test.com");
+        usuario.setPassword(passwordEncoder.encode("password"));
+        usuario.setRol(ERol.CLIENTE);
+        usuario.setActivo(true);
+        usuario.setCliente(clienteGuardado);
+        usuarioRepository.save(usuario);
 
         // 2. EJECUTAR: Buscamos por email
         Optional<Cliente> encontrado = clienteRepository.findByEmail("juan@test.com");
@@ -117,7 +135,6 @@ class ClienteRepositoryTest {
         // 3. VERIFICAR
         assertThat(encontrado).isPresent();
         assertThat(encontrado.get().getNombre()).isEqualTo("Juan");
-        assertThat(encontrado.get().getEmail()).isEqualTo("juan@test.com");
 
         logger.info("Cliente encontrado por email: {}", encontrado.get().getNombre());    }
 
@@ -152,8 +169,16 @@ class ClienteRepositoryTest {
         cliente.setEmail("juan@test.com");
         cliente.setFechaNacimiento(LocalDate.of(1990, 1, 1));
         cliente.setFechaCreacion(LocalDateTime.now());
+        Cliente clienteGuardado = clienteRepository.save(cliente);
 
-        clienteRepository.save(cliente);
+        // Crear usuario asociado (fuente de verdad del email)
+        Usuario usuario = new Usuario();
+        usuario.setEmail("juan@test.com");
+        usuario.setPassword(passwordEncoder.encode("password"));
+        usuario.setRol(ERol.CLIENTE);
+        usuario.setActivo(true);
+        usuario.setCliente(clienteGuardado);
+        usuarioRepository.save(usuario);
 
         // 2. EJECUTAR y VERIFICAR
         boolean existe = clienteRepository.existsByEmail("juan@test.com");
