@@ -3,6 +3,7 @@ package es.deusto.banca_online.repository;
 import es.deusto.banca_online.entity.Cliente;
 import es.deusto.banca_online.entity.ERol;
 import es.deusto.banca_online.entity.Usuario;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,22 @@ class ClienteRepositoryTest {
     private IUsuarioRepository usuarioRepository;
 
     @Autowired
+    private ICuentaRepository cuentaRepository;
+
+    @Autowired
+    private ITransaccionRepository transaccionRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @BeforeEach
+    void limpiarBD() {
+        // Eliminar en orden: transacciones (FK) -> cuentas (FK) -> usuarios (FK) -> clientes
+        transaccionRepository.deleteAll();
+        cuentaRepository.deleteAll();
+        usuarioRepository.deleteAll();
+        clienteRepository.deleteAll();
+    }
 
     /*------------
         TESTS
