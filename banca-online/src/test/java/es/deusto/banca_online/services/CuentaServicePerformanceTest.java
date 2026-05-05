@@ -5,6 +5,7 @@ import es.deusto.banca_online.entity.*;
 import es.deusto.banca_online.repository.IClienteRepository;
 import es.deusto.banca_online.repository.ICuentaRepository;
 import es.deusto.banca_online.repository.ITransaccionRepository;
+import es.deusto.banca_online.security.AuthChecks;
 import org.databene.contiperf.PerfTest;
 import org.databene.contiperf.Required;
 import org.databene.contiperf.junit.ContiPerfRule;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 /**
  * Tests de rendimiento con ContiPerf.
@@ -50,6 +52,7 @@ public class CuentaServicePerformanceTest {
     @Mock private ICuentaRepository cuentaRepository;
     @Mock private IClienteRepository clienteRepository;
     @Mock private ITransaccionRepository transaccionRepository;
+    @Mock private AuthChecks authChecks;
     @Mock private Authentication authentication;
 
     @InjectMocks private CuentaService cuentaService;
@@ -77,7 +80,8 @@ public class CuentaServicePerformanceTest {
 
         // Authentication como ADMIN
         var auth = new SimpleGrantedAuthority("ROLE_ADMIN");
-        doReturn(List.of(auth)).when(authentication).getAuthorities();
+        lenient().doReturn(List.of(auth)).when(authentication).getAuthorities();
+        lenient().when(authChecks.isAdmin(authentication)).thenReturn(true);
 
         // TODOS los stubs aqui — una sola vez, antes de que ContiPerf lance los hilos
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));

@@ -6,6 +6,7 @@ import es.deusto.banca_online.entity.*;
 import es.deusto.banca_online.repository.IClienteRepository;
 import es.deusto.banca_online.repository.ICuentaRepository;
 import es.deusto.banca_online.repository.ITransaccionRepository;
+import es.deusto.banca_online.security.AuthChecks;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +26,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class CuentaServiceTest {
@@ -34,6 +36,7 @@ class CuentaServiceTest {
     @Mock private ICuentaRepository cuentaRepository;
     @Mock private IClienteRepository clienteRepository;
     @Mock private ITransaccionRepository transaccionRepository;
+    @Mock private AuthChecks authChecks;
     @Mock private Authentication authentication;
 
     @InjectMocks
@@ -189,6 +192,7 @@ class CuentaServiceTest {
         mockCliente(2L); // cliente con id 2, pero la cuenta pertenece al cliente 1
 
         when(cuentaRepository.findById(1L)).thenReturn(Optional.of(cuenta));
+        doThrow(new AccessDeniedException("No tiene permiso")).when(authChecks).assertOwnsCuenta(authentication, cuenta);
 
         assertThrows(AccessDeniedException.class,
                 () -> cuentaService.obtenerSaldo(1L, authentication));
@@ -301,14 +305,19 @@ class CuentaServiceTest {
 
     private void mockAdmin() {
         var authority = new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN");
-        doReturn(List.of(authority)).when(authentication).getAuthorities();
+        lenient().doReturn(List.of(authority)).when(authentication).getAuthorities();
+        lenient().when(authChecks.isAdmin(authentication)).thenReturn(true);
     }
 
     private void mockCliente(Long clienteId) {
         var authority = new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_CLIENTE");
-        doReturn(List.of(authority)).when(authentication).getAuthorities();
+        lenient().doReturn(List.of(authority)).when(authentication).getAuthorities();
+        Cliente cliente = new Cliente();
+        cliente.setId(clienteId);
         Usuario usuario = new Usuario();
-        usuario.setClienteId(clienteId);
-        when(authentication.getPrincipal()).thenReturn(usuario);
+        usuario.setCliente(cliente);
+        lenient().when(authentication.getPrincipal()).thenReturn(usuario);
+        lenient().when(authChecks.isAdmin(authentication)).thenReturn(false);
+        lenient().when(authChecks.clienteIdOrNull(authentication)).thenReturn(clienteId);
     }
 }

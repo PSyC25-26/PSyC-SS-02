@@ -6,6 +6,7 @@ import es.deusto.banca_online.entity.*;
 import es.deusto.banca_online.repository.IClienteRepository;
 import es.deusto.banca_online.repository.ICuentaRepository;
 import es.deusto.banca_online.repository.ITransaccionRepository;
+import es.deusto.banca_online.security.AuthChecks;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 /**
  * Tests de aceptacion: verifican que el sistema cumple los requisitos funcionales desde el punto de vista del usuario/negocio.
@@ -41,6 +43,7 @@ class CuentaServiceAcceptanceTest {
     @Mock private ICuentaRepository cuentaRepository;
     @Mock private IClienteRepository clienteRepository;
     @Mock private ITransaccionRepository transaccionRepository;
+    @Mock private AuthChecks authChecks;
     @Mock private Authentication authentication;
 
     @InjectMocks private CuentaService cuentaService;
@@ -158,6 +161,8 @@ class CuentaServiceAcceptanceTest {
         log.info("Aceptacion HU2.2-AC2: cliente intenta ver cuenta ajena");
         mockCliente(99L); // cliente 99 intenta ver cuenta del cliente 1
         when(cuentaRepository.findById(10L)).thenReturn(Optional.of(cuenta));
+        doThrow(new org.springframework.security.access.AccessDeniedException("No tiene permiso"))
+                .when(authChecks).assertOwnsCuenta(authentication, cuenta);
 
         assertThrows(org.springframework.security.access.AccessDeniedException.class,
                 () -> cuentaService.obtenerSaldo(10L, authentication));
@@ -270,14 +275,19 @@ class CuentaServiceAcceptanceTest {
 
     private void mockAdmin() {
         var auth = new SimpleGrantedAuthority("ROLE_ADMIN");
-        doReturn(List.of(auth)).when(authentication).getAuthorities();
+        lenient().doReturn(List.of(auth)).when(authentication).getAuthorities();
+        lenient().when(authChecks.isAdmin(authentication)).thenReturn(true);
     }
 
     private void mockCliente(Long clienteId) {
         var auth = new SimpleGrantedAuthority("ROLE_CLIENTE");
-        doReturn(List.of(auth)).when(authentication).getAuthorities();
+        lenient().doReturn(List.of(auth)).when(authentication).getAuthorities();
+        Cliente cliente = new Cliente();
+        cliente.setId(clienteId);
         Usuario usuario = new Usuario();
-        usuario.setClienteId(clienteId);
-        when(authentication.getPrincipal()).thenReturn(usuario);
+        usuario.setCliente(cliente);
+        lenient().when(authentication.getPrincipal()).thenReturn(usuario);
+        lenient().when(authChecks.isAdmin(authentication)).thenReturn(false);
+        lenient().when(authChecks.clienteIdOrNull(authentication)).thenReturn(clienteId);
     }
 }
