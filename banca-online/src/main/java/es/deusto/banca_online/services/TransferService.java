@@ -6,7 +6,7 @@ import es.deusto.banca_online.entity.Transaccion;
 import es.deusto.banca_online.entity.ETipoTransaccion;
 import es.deusto.banca_online.repository.ICuentaRepository;
 import es.deusto.banca_online.repository.ITransaccionRepository;
-import es.deusto.banca_online.entity.Usuario;
+import es.deusto.banca_online.security.AuthChecks;
 import jakarta.transaction.Transactional;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -18,13 +18,16 @@ public class TransferService {
     private final CuentaService cuentaService;
     private final ICuentaRepository cuentaRepository;
     private final ITransaccionRepository transaccionRepository;
+    private final AuthChecks authChecks;
 
     public TransferService(CuentaService cuentaService,
                            ICuentaRepository cuentaRepository,
-                           ITransaccionRepository transaccionRepository) {
+                           ITransaccionRepository transaccionRepository,
+                           AuthChecks authChecks) {
         this.cuentaService = cuentaService;
         this.cuentaRepository = cuentaRepository;
         this.transaccionRepository = transaccionRepository;
+        this.authChecks = authChecks;
     }
 
     @Transactional
@@ -36,19 +39,15 @@ public class TransferService {
                 .orElseThrow(() -> new RuntimeException("Cuenta de destino no encontrada"));
 
         // Solo validamos que el ORIGEN sea del usuario ---
-        boolean esAdmin = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-        if (!esAdmin) {
-            Usuario principal = (Usuario) authentication.getPrincipal();
-            if (principal.getClienteId() == null || origen.getCliente() == null) {
+        Long clienteIdAutenticado = authChecks.clienteIdOrNull(authentication);
+        if (!authChecks.isAdmin(authentication)) {
+            if (clienteIdAutenticado == null || origen.getCliente() == null) {
                 throw new AccessDeniedException("No se pudo verificar la propiedad de la cuenta");
             }
 
-            long idUsuario = principal.getClienteId().longValue();
             long idPropietario = origen.getCliente().getId().longValue();
 
-            if (idUsuario != idPropietario) {
+            if (clienteIdAutenticado.longValue() != idPropietario) {
                 throw new AccessDeniedException("No tiene permiso sobre la cuenta de origen");
             }
         }

@@ -6,8 +6,7 @@ import es.deusto.banca_online.entity.*;
 import es.deusto.banca_online.repository.ICuentaRepository;
 import es.deusto.banca_online.repository.IClienteRepository;
 import es.deusto.banca_online.repository.ITransaccionRepository;
-import es.deusto.banca_online.entity.Usuario;
-import org.springframework.security.access.AccessDeniedException;
+import es.deusto.banca_online.security.AuthChecks;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +21,14 @@ public class CuentaService {
     private final ICuentaRepository cuentaRepository;
     private final IClienteRepository clienteRepository;
     private final ITransaccionRepository transaccionRepository;
+    private final AuthChecks authChecks;
 
-    public CuentaService(ICuentaRepository cuentaRepository, IClienteRepository clienteRepository, ITransaccionRepository transaccionRepository) {
+    public CuentaService(ICuentaRepository cuentaRepository, IClienteRepository clienteRepository,
+                         ITransaccionRepository transaccionRepository, AuthChecks authChecks) {
         this.cuentaRepository = cuentaRepository;
         this.clienteRepository = clienteRepository;
         this.transaccionRepository = transaccionRepository;
+        this.authChecks = authChecks;
     }
 
     @Transactional
@@ -52,14 +54,7 @@ public class CuentaService {
     }
 
     public List<CuentaResponse> obtenerCuentasPorCliente(Long clienteId, Authentication authentication) {
-        boolean esAdmin = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        if (!esAdmin) {
-            Usuario principal = (Usuario) authentication.getPrincipal();
-            if (principal.getClienteId() == null || !principal.getClienteId().equals(clienteId)) {
-                throw new AccessDeniedException("No tiene permiso para ver estas cuentas");
-            }
-        }
+        authChecks.assertOwnsCliente(authentication, clienteId);
         return obtenerCuentasPorCliente(clienteId);
     }
 
@@ -81,17 +76,7 @@ public class CuentaService {
 
     // Verifica que el cliente autenticado es propietario de la cuenta
     private void verificarPropietario(Cuenta cuenta, Authentication authentication) {
-        Usuario principal = (Usuario) authentication.getPrincipal();
-        // ADMIN puede acceder a cualquier cuenta
-        if (authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            return;
-        }
-        // CLIENTE solo puede acceder a sus propias cuentas
-        if (principal.getClienteId() == null ||
-                !principal.getClienteId().equals(cuenta.getCliente().getId())) {
-            throw new AccessDeniedException("No tiene permiso sobre esta cuenta");
-        }
+        authChecks.assertOwnsCuenta(authentication, cuenta);
     }
 
     public Double obtenerSaldo(Long cuentaId, Authentication authentication) {

@@ -3,6 +3,7 @@ package es.deusto.banca_online.controllers;
 import es.deusto.banca_online.dto.ClienteRequest;
 import es.deusto.banca_online.dto.ClienteResponse;
 import es.deusto.banca_online.entity.Cliente;
+import es.deusto.banca_online.security.AuthChecks;
 import es.deusto.banca_online.services.ClienteService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,12 +22,14 @@ public class ClienteController {
         ATRIBUTOS
     ---------------*/
     private final ClienteService clienteService;
+    private final AuthChecks authChecks;
 
     /*--------------------
         CONSTRUCTORES
     --------------------*/
-    public ClienteController(ClienteService clienteService) {
+    public ClienteController(ClienteService clienteService, AuthChecks authChecks) {
         this.clienteService = clienteService;
+        this.authChecks = authChecks;
     }
 
 
@@ -79,18 +82,15 @@ public class ClienteController {
         try {
             // Validación de seguridad: un CLIENTE solo puede ver su propio perfil
             String emailLogueado = authentication.getName();
-            boolean esAdmin = authentication.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-            if (!esAdmin && !emailLogueado.equals(email)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); //[cite: 4]
+            if (!authChecks.isAdmin(authentication) && !emailLogueado.equals(email)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
             Cliente cliente = clienteService.buscarPorEmail(email);
-            return ResponseEntity.ok(mapToDto(cliente)); //[cite: 4]
+            return ResponseEntity.ok(mapToDto(cliente));
         } catch (RuntimeException e) {
             if ("Cliente no encontrado".equals(e.getMessage())) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); //[cite: 4, 5]
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
             throw e;
         }
