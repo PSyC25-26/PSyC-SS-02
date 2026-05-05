@@ -99,7 +99,9 @@ public class ClienteService {
         cliente.setPrimerApellido(request.getPrimerApellido());
         cliente.setSegundoApellido(request.getSegundoApellido());
         cliente.setFechaNacimiento(request.getFechaNacimiento());
-        // email no se actualiza en Cliente (es @Transient), se gestiona via Usuario
+        // Email en Cliente para compatibilidad con BD (columna aún es NOT NULL)
+        // La fuente de verdad es Usuario.email
+        cliente.setEmail(request.getEmail());
         cliente.setTelefono(request.getTelefono());
         cliente.setDireccion(request.getDireccion());
         cliente.setFechaCreacion(LocalDateTime.now());
