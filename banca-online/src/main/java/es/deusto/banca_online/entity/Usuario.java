@@ -31,13 +31,9 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private Boolean activo = true;
 
-    // FK persistida vía este campo (compatibilidad con código existente).
-    @Column(name = "cliente_id")
-    private Long clienteId; // null si es ADMIN
-
-    /** Perfil de cliente enlazado; solo lectura en JPA (la FK la escribe {@link #clienteId}). */
+    /** Perfil de cliente enlazado; la FK se gestiona via esta relación JPA. */
     @OneToOne(fetch = FetchType.EAGER, optional = true)
-    @JoinColumn(name = "cliente_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "cliente_id", referencedColumnName = "id")
     private Cliente cliente;
 
     @Override

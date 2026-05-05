@@ -113,8 +113,7 @@ public class ClienteService {
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         usuario.setRol(ERol.CLIENTE);
         usuario.setActivo(true);
-        usuario.setClienteId(clienteGuardado.getId());
-        usuario.setCliente(clienteGuardado); // mantiene la relación JPA coherente en memoria
+        usuario.setCliente(clienteGuardado); // la relación JPA gestiona la FK
         usuarioRepository.save(usuario);
 
         return clienteGuardado;
