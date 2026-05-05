@@ -24,7 +24,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .subject(usuario.getEmail())
                 .claim("rol", usuario.getRol().name())
-                .claim("clienteId", usuario.getClienteId()) // null si es ADMIN
+                .claim("clienteId", usuario.getCliente() != null ? usuario.getCliente().getId() : null)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey())

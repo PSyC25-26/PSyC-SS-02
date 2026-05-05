@@ -46,10 +46,11 @@ public class AuthController {
             // Generar el token con rol y clienteId como claims
             String token = jwtUtils.generarToken(usuario);
 
+            Long clienteId = usuario.getCliente() != null ? usuario.getCliente().getId() : null;
             return ResponseEntity.ok(new LoginResponse(
                     token,
                     usuario.getRol().name(),
-                    usuario.getClienteId(),
+                    clienteId,
                     usuario.getEmail()
             ));
 

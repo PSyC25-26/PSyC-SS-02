@@ -114,6 +114,7 @@ public class ClienteService {
         usuario.setRol(ERol.CLIENTE);
         usuario.setActivo(true);
         usuario.setClienteId(clienteGuardado.getId());
+        usuario.setCliente(clienteGuardado); // mantiene la relación JPA coherente en memoria
         usuarioRepository.save(usuario);
 
         return clienteGuardado;
