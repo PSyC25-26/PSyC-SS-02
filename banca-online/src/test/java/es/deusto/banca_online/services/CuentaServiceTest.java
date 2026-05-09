@@ -26,25 +26,56 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class CuentaServiceTest {
 
     private static final Logger log = LoggerFactory.getLogger(CuentaServiceTest.class);
 
+    /**
+     * Repositorio de cuentas (Mock).
+     * Simula la persistencia de productos financieros para validar la lógica del servicio.
+     */
     @Mock private ICuentaRepository cuentaRepository;
+
+    /**
+     * Repositorio de clientes (Mock).
+     * Utilizado para verificar la existencia del titular antes de crear una cuenta.
+     */
     @Mock private IClienteRepository clienteRepository;
+
+    /**
+     * Repositorio de transacciones (Mock).
+     * Simula el registro histórico de movimientos (depósitos/retiros).
+     */
     @Mock private ITransaccionRepository transaccionRepository;
+
+    /**
+     * Componente de verificación de seguridad (Mock).
+     * Valida permisos de propiedad y roles de usuario sobre las cuentas.
+     */
     @Mock private AuthChecks authChecks;
+
+    /**
+     * Contexto de autenticación de Spring Security (Mock).
+     * Representa al usuario que intenta realizar operaciones bancarias.
+     */
     @Mock private Authentication authentication;
 
+    /**
+     * Servicio de cuentas bajo prueba.
+     * Integra los mocks para validar la lógica de negocio de gestión de saldos.
+     */
     @InjectMocks
     private CuentaService cuentaService;
 
     private Cliente cliente;
     private Cuenta cuenta;
 
+    /**
+     * Configuración previa a cada test.
+     * Inicializa una entidad Cliente y una Cuenta base para evitar redundancia en los escenarios.
+     */
     @BeforeEach
     void setUp() {
         cliente = new Cliente();
@@ -66,6 +97,11 @@ class CuentaServiceTest {
 
     // ===================== crearCuenta =====================
 
+    /**
+     * Test de creación exitosa.
+     * Valida que el servicio asigne correctamente el titular, el tipo de cuenta 
+     * y el saldo inicial solicitado.
+     */
     @Test
     void crearCuenta_clienteExiste_creaCorrectamente() {
         log.info("Test: crearCuenta con cliente existente");
@@ -91,6 +127,10 @@ class CuentaServiceTest {
         log.info("Test pasado: cuenta creada con tipo={}", response.getTipoCuenta());
     }
 
+    /**
+     * Test de validación de negocio: Saldo por defecto.
+     * Verifica que si no se indica saldo inicial, el sistema inicialice la cuenta con 0.0.
+     */
     @Test
     void crearCuenta_saldoInicialNulo_usaCero() {
         log.info("Test: crearCuenta con saldo inicial nulo");
@@ -112,6 +152,10 @@ class CuentaServiceTest {
         log.info("Test pasado: saldo por defecto es 0.0");
     }
 
+    /**
+     * Test de error: Cliente inexistente.
+     * Asegura que el sistema no permita abrir cuentas para identificadores de cliente no registrados.
+     */
     @Test
     void crearCuenta_clienteNoExiste_lanzaExcepcion() {
         log.info("Test: crearCuenta con cliente inexistente");
@@ -127,6 +171,12 @@ class CuentaServiceTest {
         log.info("Test pasado: excepcion lanzada correctamente");
     }
 
+    /**
+     * Test de validación: Tipo de cuenta inválido.
+     * Verifica que el sistema lance una excepción cuando se intenta crear una cuenta
+     * con un tipo que no coincide con el enumerado ETipoCuenta (ej. "TIPO_INVALIDO").
+     * Esto asegura la integridad de los datos en la base de datos.
+     */
     @Test
     void crearCuenta_tipoInvalido_lanzaExcepcion() {
         log.info("Test: crearCuenta con tipo de cuenta invalido");
@@ -142,6 +192,11 @@ class CuentaServiceTest {
 
     // ===================== obtenerCuentasPorCliente =====================
 
+    /**
+     * Test de recuperación de cuentas.
+     * Valida que, dado un ID de cliente válido, el servicio retorne una lista 
+     * con todas las cuentas asociadas correctamente mapeadas a objetos CuentaResponse.
+     */
     @Test
     void obtenerCuentasPorCliente_retornaLista() {
         log.info("Test: obtenerCuentasPorCliente");
@@ -154,6 +209,11 @@ class CuentaServiceTest {
         log.info("Test pasado: {} cuentas encontradas", lista.size());
     }
 
+    /**
+     * Test de recuperación sin resultados.
+     * Asegura que el servicio no devuelva null ni lance excepciones si el cliente
+     * no tiene cuentas abiertas, sino una lista vacía, cumpliendo con el contrato del API.
+     */
     @Test
     void obtenerCuentasPorCliente_sinCuentas_retornaListaVacia() {
         log.info("Test: obtenerCuentasPorCliente sin cuentas");
@@ -166,6 +226,10 @@ class CuentaServiceTest {
 
     // ===================== obtenerSaldo =====================
 
+    /**
+     * Test de permisos: Rol Administrador.
+     * Valida que un administrador pueda consultar el saldo de cualquier cuenta sin restricciones.
+     */
     @Test
     void obtenerSaldo_admin_retornaSaldo() {
         log.info("Test: obtenerSaldo como ADMIN");
@@ -177,6 +241,12 @@ class CuentaServiceTest {
         log.info("Test pasado: saldo={}", saldo);
     }
 
+    /**
+     * Test de error en consulta de saldo.
+     * Verifica que el sistema gestione correctamente el intento de consultar
+     * el saldo de una cuenta que no existe en el repositorio (ID 99), 
+     * lanzando una RuntimeException controlada.
+     */
     @Test
     void obtenerSaldo_cuentaNoExiste_lanzaExcepcion() {
         log.info("Test: obtenerSaldo cuenta inexistente");
@@ -186,6 +256,11 @@ class CuentaServiceTest {
         log.info("Test pasado: excepcion lanzada");
     }
 
+    /**
+     * Test de seguridad: Acceso denegado.
+     * Verifica que un cliente no pueda consultar el saldo de una cuenta que no le pertenece,
+     * lanzando una AccessDeniedException.
+     */
     @Test
     void obtenerSaldo_clienteSinPermiso_lanzaAccessDenied() {
         log.info("Test: obtenerSaldo sin permiso");
@@ -201,6 +276,10 @@ class CuentaServiceTest {
 
     // ===================== depositarDinero =====================
 
+    /**
+     * Test funcional: Depósito.
+     * Comprueba que los depósitos válidos incrementen el saldo y generen un registro de transacción.
+     */
     @Test
     void depositarDinero_montoValido_incrementaSaldo() {
         log.info("Test: depositar dinero valido");
@@ -215,6 +294,11 @@ class CuentaServiceTest {
         log.info("Test pasado: nuevo saldo={}", response.getSaldo());
     }
 
+    /**
+     * Test de robustez: Depósito con valores nulos o vacíos.
+     * Verifica que el sistema impida transacciones donde el monto sea nulo o exactamente cero,
+     * lanzando una IllegalArgumentException para proteger la integridad del libro contable.
+     */
     @Test
     void depositarDinero_montoNulo_lanzaExcepcion() {
         log.info("Test: depositar monto nulo");
@@ -223,6 +307,11 @@ class CuentaServiceTest {
         log.info("Test pasado: excepcion por monto nulo");
     }
 
+    /**
+     * Test de validación: Depósito de valor cero.
+     * Asegura que no se procesen transacciones de depósito sin valor económico real,
+     * manteniendo la limpieza de los registros históricos.
+     */
     @Test
     void depositarDinero_montoCero_lanzaExcepcion() {
         log.info("Test: depositar monto cero");
@@ -231,6 +320,10 @@ class CuentaServiceTest {
         log.info("Test pasado: excepcion por monto cero");
     }
 
+    /**
+     * Test de validación de integridad: Monto no válido.
+     * Asegura que el sistema rechace depósitos de cuantía cero o negativa.
+     */
     @Test
     void depositarDinero_montoNegativo_lanzaExcepcion() {
         log.info("Test: depositar monto negativo");
@@ -241,6 +334,10 @@ class CuentaServiceTest {
 
     // ===================== retirarDinero =====================
 
+    /**
+     * Test funcional: Retiro.
+     * Valida que un retiro disminuya el saldo disponible correctamente.
+     */
     @Test
     void retirarDinero_saldoSuficiente_decrementaSaldo() {
         log.info("Test: retirar dinero con saldo suficiente");
@@ -255,6 +352,10 @@ class CuentaServiceTest {
         log.info("Test pasado: nuevo saldo={}", response.getSaldo());
     }
 
+    /**
+     * Test de validación de integridad: Saldo insuficiente.
+     * Verifica la regla de oro bancaria: no se puede retirar más dinero del disponible.
+     */
     @Test
     void retirarDinero_saldoInsuficiente_lanzaExcepcion() {
         log.info("Test: retirar mas de lo disponible");
@@ -267,6 +368,11 @@ class CuentaServiceTest {
         log.info("Test pasado: excepcion saldo insuficiente");
     }
 
+    /**
+     * Test de validación: Retiro de valor nulo.
+     * Comprueba que el sistema gestione correctamente la ausencia de un monto en la solicitud
+     * de retiro mediante el lanzamiento de una excepción controlada.
+     */
     @Test
     void retirarDinero_montoNulo_lanzaExcepcion() {
         log.info("Test: retirar monto nulo");
@@ -274,6 +380,11 @@ class CuentaServiceTest {
                 () -> cuentaService.retirarDinero(1L, null, authentication));
     }
 
+    /**
+     * Test de validación: Retiro de valor negativo.
+     * Verifica que no se puedan realizar retiros con importes negativos, lo cual
+     * podría ser explotado para incrementar el saldo de forma fraudulenta.
+     */
     @Test
     void retirarDinero_montoNegativo_lanzaExcepcion() {
         log.info("Test: retirar monto negativo");
@@ -283,6 +394,11 @@ class CuentaServiceTest {
 
     // ===================== actualizarSaldo =====================
 
+    /**
+     * Test funcional: Actualización directa de saldo.
+     * Valida que el servicio sea capaz de modificar el balance de una cuenta existente
+     * y persistir el cambio correctamente en el repositorio.
+     */
     @Test
     void actualizarSaldo_cuentaExiste_actualizaCorrectamente() {
         log.info("Test: actualizarSaldo");
@@ -293,6 +409,11 @@ class CuentaServiceTest {
         log.info("Test pasado: saldo actualizado");
     }
 
+    /**
+     * Test de error: Actualización de saldo en cuenta inexistente.
+     * Asegura que el intento de modificar el saldo de una cuenta que no figura en la base de datos
+     * sea detectado y notificado mediante una excepción.
+     */
     @Test
     void actualizarSaldo_cuentaNoExiste_lanzaExcepcion() {
         log.info("Test: actualizarSaldo cuenta inexistente");
@@ -303,12 +424,19 @@ class CuentaServiceTest {
 
     // ===================== helpers =====================
 
+    /**
+     * Configura el mock de autenticación para actuar como un usuario con rol ADMIN.
+     */
     private void mockAdmin() {
         var authority = new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN");
         lenient().doReturn(List.of(authority)).when(authentication).getAuthorities();
         lenient().when(authChecks.isAdmin(authentication)).thenReturn(true);
     }
 
+    /**
+     * Configura el mock de autenticación para actuar como un usuario con rol CLIENTE.
+     * @param clienteId Identificador del cliente que será dueño de la sesión simulada.
+     */
     private void mockCliente(Long clienteId) {
         var authority = new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_CLIENTE");
         lenient().doReturn(List.of(authority)).when(authentication).getAuthorities();

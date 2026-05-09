@@ -27,7 +27,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.lenient;
 
 /**
  * Tests de aceptacion: verifican que el sistema cumple los requisitos funcionales desde el punto de vista del usuario/negocio.
@@ -40,17 +39,27 @@ class CuentaServiceAcceptanceTest {
 
     private static final Logger log = LoggerFactory.getLogger(CuentaServiceAcceptanceTest.class);
 
+    /**
+     * Mocks de dependencias necesarios para simular el ecosistema de la cuenta.
+     */
     @Mock private ICuentaRepository cuentaRepository;
     @Mock private IClienteRepository clienteRepository;
     @Mock private ITransaccionRepository transaccionRepository;
     @Mock private AuthChecks authChecks;
     @Mock private Authentication authentication;
 
+    /**
+     * Servicio que integra la lógica de negocio a validar frente a los criterios de aceptación.
+     */
     @InjectMocks private CuentaService cuentaService;
 
     private Cliente cliente;
     private Cuenta cuenta;
 
+    /**
+     * Preparación del escenario de prueba (Given).
+     * Se crea un cliente y una cuenta base para las validaciones de las HU.
+     */
     @BeforeEach
     void setUp() {
         cliente = new Cliente();
@@ -74,6 +83,11 @@ class CuentaServiceAcceptanceTest {
 
     // ===================== HU2.1: Crear Cuenta =====================
 
+    /**
+     * HU2.1 - AC1: Validación de creación de cuenta CORRIENTE.
+     * Verifica que un administrador pueda asignar una nueva cuenta con IBAN español (ES)
+     * a un cliente existente.
+     */
     @Test
     @DisplayName("HU2.1 - AC1: Como administrador, puedo crear una cuenta CORRIENTE para un cliente existente")
     void aceptacion_crearCuentaCorriente_paraClienteExistente() {
@@ -100,6 +114,10 @@ class CuentaServiceAcceptanceTest {
         log.info("Aceptacion HU2.1-AC1 PASADO: cuenta {} creada", response.getNumeroCuenta());
     }
 
+    /**
+     * HU2.1 - AC2: Validación de creación de cuenta AHORRO.
+     * Asegura que el sistema asigne un saldo inicial de 0.0€ si no se especifica uno.
+     */
     @Test
     @DisplayName("HU2.1 - AC2: Como administrador, puedo crear una cuenta AHORRO con saldo inicial cero")
     void aceptacion_crearCuentaAhorro_sinSaldoInicial() {
@@ -124,6 +142,10 @@ class CuentaServiceAcceptanceTest {
         log.info("Aceptacion HU2.1-AC2 PASADO");
     }
 
+    /**
+     * HU2.1 - AC3: Validación de creación de cuenta para un cliente que no existe.
+     * Asegura que el sistema no deje crear una cuenta para un cliente que no existe.
+     */
     @Test
     @DisplayName("HU2.1 - AC3: No se puede crear una cuenta para un cliente que no existe")
     void aceptacion_crearCuenta_clienteInexistente_falla() {
@@ -142,6 +164,10 @@ class CuentaServiceAcceptanceTest {
 
     // ===================== HU2.2: Consultar Saldo =====================
 
+    /**
+     * HU2.2 - AC1: Criterio de Privacidad del Propietario.
+     * Valida que un cliente autenticado tenga acceso legítimo a ver su propio saldo.
+     */
     @Test
     @DisplayName("HU2.2 - AC1: Un cliente puede consultar el saldo de su propia cuenta")
     void aceptacion_consultarSaldo_propietario_permitido() {
@@ -155,6 +181,11 @@ class CuentaServiceAcceptanceTest {
         log.info("Aceptacion HU2.2-AC1 PASADO: saldo={}", saldo);
     }
 
+    /**
+     * HU2.2 - AC2: Criterio de Seguridad de Acceso.
+     * Verifica que el sistema bloquee intentos de consulta de saldo sobre cuentas
+     * que no pertenecen al usuario autenticado.
+     */
     @Test
     @DisplayName("HU2.2 - AC2: Un cliente NO puede consultar el saldo de la cuenta de otro cliente")
     void aceptacion_consultarSaldo_otroPropietario_bloqueado() {
@@ -171,6 +202,10 @@ class CuentaServiceAcceptanceTest {
 
     // ===================== HU2.3: Depositar Dinero =====================
 
+    /**
+     * HU2.3 - AC1: Integridad del Depósito.
+     * Valida que los depósitos incrementen el saldo.
+     */
     @Test
     @DisplayName("HU2.3 - AC1: Un deposito valido incrementa el saldo correctamente")
     void aceptacion_depositar_incrementaSaldo() {
@@ -186,6 +221,10 @@ class CuentaServiceAcceptanceTest {
         log.info("Aceptacion HU2.3-AC1 PASADO: nuevo saldo={}", response.getSaldo());
     }
 
+    /**
+     * HU2.3 - AC2: Integridad del Depósito.
+     * Valida que se rechacen montos no positivos (cero).
+     */
     @Test
     @DisplayName("HU2.3 - AC2: No se puede depositar un monto de cero euros")
     void aceptacion_depositar_montoCero_rechazado() {
@@ -195,6 +234,10 @@ class CuentaServiceAcceptanceTest {
         log.info("Aceptacion HU2.3-AC2 PASADO");
     }
 
+    /**
+     * HU2.3 - AC3: Integridad del Depósito.
+     * Valida que se rechacen montos no positivos (negativo).
+     */
     @Test
     @DisplayName("HU2.3 - AC3: No se puede depositar un monto negativo")
     void aceptacion_depositar_montoNegativo_rechazado() {
@@ -206,6 +249,10 @@ class CuentaServiceAcceptanceTest {
 
     // ===================== HU2.4: Retirar Dinero =====================
 
+    /**
+     * HU2.4 - AC1: Validación de Retiro Correcto.
+     * Asegura que el sistema decremente correctamente el saldo al hacer un retiro.
+     */
     @Test
     @DisplayName("HU2.4 - AC1: Un retiro valido decrementa el saldo correctamente")
     void aceptacion_retirar_decrementaSaldo() {
@@ -221,6 +268,11 @@ class CuentaServiceAcceptanceTest {
         log.info("Aceptacion HU2.4-AC1 PASADO: nuevo saldo={}", response.getSaldo());
     }
 
+    /**
+     * HU2.4 - AC2: Validación de Saldo Insuficiente.
+     * Asegura que el sistema impida retiros que superen el saldo disponible,
+     * manteniendo la salud financiera de la cuenta.
+     */
     @Test
     @DisplayName("HU2.4 - AC2: No se puede retirar mas dinero del disponible en la cuenta")
     void aceptacion_retirar_saldoInsuficiente_rechazado() {
@@ -234,6 +286,13 @@ class CuentaServiceAcceptanceTest {
         log.info("Aceptacion HU2.4-AC2 PASADO: saldo insuficiente rechazado");
     }
 
+    /**
+     * HU2.4 - AC3: Retiro del saldo total disponible.
+     * Este test de aceptación valida que el sistema permite realizar un retiro
+     * por el importe exacto del saldo actual (1500.0), resultando en un saldo 
+     * final de cero sin disparar excepciones de saldo insuficiente.
+     * * Criterio: La cuenta puede quedar a 0.0 pero nunca en negativo.
+     */
     @Test
     @DisplayName("HU2.4 - AC3: No se puede retirar exactamente el saldo disponible y quedar a cero")
     void aceptacion_retirar_todoElSaldo_permitido() {
@@ -251,6 +310,13 @@ class CuentaServiceAcceptanceTest {
 
     // ===================== HU2.5: Listar Cuentas =====================
 
+    /**
+     * HU2.5 - AC1: Consulta global de cuentas por parte de un Administrador.
+     * Valida el requisito funcional donde un perfil administrativo puede 
+     * solicitar la relación completa de cuentas asociadas a un ID de cliente.
+     * * Verifica que el mapeo de Entidad (Cuenta) a DTO (CuentaResponse) 
+     * se realice correctamente para todos los elementos de la lista.
+     */
     @Test
     @DisplayName("HU2.5 - AC1: El administrador puede listar todas las cuentas de un cliente")
     void aceptacion_listarCuentas_admin_obtieneLista() {
@@ -273,12 +339,19 @@ class CuentaServiceAcceptanceTest {
 
     // ===================== helpers =====================
 
+    /**
+     * Simula un contexto de seguridad con privilegios de ADMINISTRADOR.
+     */
     private void mockAdmin() {
         var auth = new SimpleGrantedAuthority("ROLE_ADMIN");
         lenient().doReturn(List.of(auth)).when(authentication).getAuthorities();
         lenient().when(authChecks.isAdmin(authentication)).thenReturn(true);
     }
 
+    /**
+     * Simula un contexto de seguridad de CLIENTE con un ID específico.
+     * @param clienteId El ID del cliente que "inicia sesión" para el test.
+     */
     private void mockCliente(Long clienteId) {
         var auth = new SimpleGrantedAuthority("ROLE_CLIENTE");
         lenient().doReturn(List.of(auth)).when(authentication).getAuthorities();

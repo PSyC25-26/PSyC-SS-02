@@ -8,14 +8,34 @@ import java.util.List;
 import java.util.stream.Collectors;
 import es.deusto.banca_online.entity.ETipoTransaccion;
 
+/**
+ * Servicio para la consulta del historial de movimientos.
+ * Transforma las entidades de transacción en respuestas legibles para el usuario,
+ * incluyendo descripciones dinámicas según el tipo de movimiento.
+ */
 @Service
 public class TransaccionService {
+    /**
+     * Atributo que proporciona acceso a las operaciones de persistencia 
+     * en la base de datos para las transacciones.
+     */
     private final ITransaccionRepository transaccionRepository;
 
+    /**
+     * Constructor para la inyección de dependencias de TransaccionService.
+     * Inicializa el repositorio necesario para gestionar las consultas del historial
+     * de movimientos bancarios.
+     * * @param transaccionRepository Repositorio encargado de la persistencia de transacciones.
+     */
     public TransaccionService(ITransaccionRepository transaccionRepository) {
         this.transaccionRepository = transaccionRepository;
     }
 
+    /**
+     * Obtiene todos los movimientos (entrantes y salientes) de una cuenta específica.
+     * @param cuentaId ID de la cuenta a consultar.
+     * @return Lista de TransaccionResponse ordenadas por fecha descendente.
+     */
     public List<TransaccionResponse> obtenerHistorial(Long cuentaId) {
         List<Transaccion> transacciones = transaccionRepository.findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(cuentaId, cuentaId);
 

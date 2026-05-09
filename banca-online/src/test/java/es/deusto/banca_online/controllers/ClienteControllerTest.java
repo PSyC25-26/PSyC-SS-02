@@ -38,6 +38,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 //Indicamos que vamos a arrancar la capa web
+/**
+ * Pruebas unitarias para ClienteController.
+ * Utiliza MockMvc para simular peticiones HTTP y Mockito para aislar
+ * la lógica del controlador de la capa de servicio.
+ */
 @SpringBootTest
 @WithMockUser(roles = "ADMIN")
 class ClienteControllerTest {
@@ -47,25 +52,63 @@ class ClienteControllerTest {
     /*---------------
         ATRIBUTOS
     ---------------*/
+    /**
+     * Objeto para simular peticiones HTTP y verificar respuestas del controlador.
+     */
     private MockMvc mockMvc;  // Simulamos peticiones HTTP.
 
+    /**
+     * Simulación (Mock) de la capa de servicio de clientes.
+     * Se utiliza para definir comportamientos predecibles (stubbing) y 
+     * verificar que el controlador interactúa correctamente con la lógica de negocio.
+     */
     @MockitoBean
     private ClienteService clienteService;  // Mock del servicio
 
+    /**
+     * Simulación del repositorio de usuarios.
+     * Necesario para validar la existencia de correos electrónicos y credenciales
+     * sin realizar consultas a la base de datos física.
+     */
     @MockitoBean
     private IUsuarioRepository usuarioRepository;  // Mock del repositorio de usuarios
 
+    /**
+     * Componente simulado para la gestión de tokens JWT.
+     * Debido a que el filtro de seguridad (JwtAuthFilter) está activo durante el test,
+     * este mock permite procesar peticiones sin requerir una firma de token real.
+     */
     @MockitoBean
     private JwtUtils jwtUtils;  // Necesario porque JwtAuthFilter es un Filter incluido en el slice
 
+    /**
+     * Simulación del servicio de detalles de usuario de Spring Security.
+     * Permite cargar perfiles de usuario ficticios (Mocks) para validar 
+     * el control de acceso y los roles (ADMIN/CLIENTE) en los endpoints.
+     */
     @MockitoBean
     private UserDetailsServiceImpl userDetailsService;  // Necesario por JwtAuthFilter
 
+    /**
+     * Mapper para convertir objetos Java a formato JSON y viceversa.
+     */
     private ObjectMapper objectMapper; // Convierte objetos a JSON
 
+    /**
+     * DTO que simula la entrada de datos enviada por un usuario.
+     */
     private ClienteRequest clienteRequest;
+    /**
+     * Entidad que simula un cliente persistido devuelto por la capa de servicio.
+     */
     private Cliente clienteEntity;
+    /**
+     * Fecha de referencia fija para asegurar la repetibilidad de los tests.
+     */
     private LocalDateTime fechaFija;
+    /**
+     * Lista de clientes simulados para probar endpoints de consulta masiva.
+     */
     private List<Cliente> clientesMock;
 
 
@@ -77,9 +120,19 @@ class ClienteControllerTest {
 
 
     // Preparacion antes de cada test. Así no repetimos código en cada test.
+    /**
+     * Contexto de la aplicación web utilizado para configurar MockMvc.
+     */
     @Autowired
     private WebApplicationContext webApplicationContext;
 
+    /**
+     * Configuración previa a la ejecución de cada test.
+     * Realiza las siguientes acciones:
+     * 1. Inicializa MockMvc con soporte para Spring Security.
+     * 2. Configura el ObjectMapper para el manejo correcto de tipos Java 8 Date/Time (JSR-310).
+     * 3. Prepara los datos de prueba (Mocks) para evitar dependencias con la base de datos real.
+     */
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
@@ -137,6 +190,13 @@ class ClienteControllerTest {
     ---------------*/
 
     // DATOS CORRECTOS - CREAR
+    /**
+     * Test de éxito: Creación de un cliente con datos válidos.
+     * Verifica que el endpoint POST /api/clientes:
+     * 1. Retorne un estado HTTP 201 (Created).
+     * 2. Devuelva el JSON correcto con los datos del cliente y su ID asignado.
+     * 3. Invoque exactamente una vez al servicio de creación.
+     */
     @Test
     void crearCliente_DatosValidos_Retorna201() throws Exception {
         log.info("Test: POST /api/clientes con datos validos debe retornar 201");
@@ -165,6 +225,11 @@ class ClienteControllerTest {
 
 
     // DATOS INCORRECTOS - CREAR
+    /**
+     * Test de error: Intento de creación sin el campo obligatorio 'nombre'.
+     * Verifica que la validación de entrada funcione y retorne un estado HTTP 400 (Bad Request),
+     * asegurando que el flujo se detenga antes de llamar a la capa de servicio.
+     */
     @Test
     void crearCliente_SinNombre_Retorna400() throws Exception {
         log.info("Test: POST /api/clientes sin nombre debe retornar 400");
@@ -186,6 +251,11 @@ class ClienteControllerTest {
 
 
     // DATOS CORRECTOS - Obtener todos los clientes
+    /**
+     * Test de éxito: Recuperación de la lista completa de clientes.
+     * Verifica que el endpoint GET /api/clientes retorne un estado 200 (OK)
+     * y un array JSON con el tamaño y contenido esperado según los mocks preconfigurados.
+     */
     @Test
     void listarTodos_CuandoHayClientes_DeberiaRetornarLista() throws Exception {
         log.info("Test: GET /api/clientes con datos debe retornar lista");
@@ -210,6 +280,10 @@ class ClienteControllerTest {
     }
 
     // DATOS INCORRECTOS - Obtener todos los clientes
+    /**
+     * Test de éxito (caso borde): Recuperación de lista cuando no existen registros.
+     * Verifica que el sistema responda con 200 (OK) y un array vacío en lugar de un error o null.
+     */
     @Test
     void listarTodos_CuandoNoHayClientes_DeberiaRetornarListaVacia() throws Exception {
         log.info("Test: GET /api/clientes sin datos debe retornar lista vacia");
@@ -230,6 +304,10 @@ class ClienteControllerTest {
 
 
     // DATOS CORRECTOS - BUSCAR por ID
+    /**
+     * Test de éxito: Búsqueda de cliente por su identificador único.
+     * Verifica que al solicitar un ID existente, se retorne el objeto correspondiente con estado 200.
+     */
     @Test
     void buscarPorId_ClienteExiste_Retorna200() throws Exception {
         log.info("Test: GET /api/clientes/{id} con id existente debe retornar 200");
@@ -251,6 +329,10 @@ class ClienteControllerTest {
 
 
     // DATOS INCORRECTOS - BUSCAR por ID
+    /**
+     * Test de error: Búsqueda de un identificador que no existe en el sistema.
+     * Verifica que el controlador capture la excepción del servicio y la transforme en un 404 (Not Found).
+     */
     @Test
     void buscarPorId_ClienteNoExiste_Retorna404() throws Exception {
         log.info("Test: GET /api/clientes/{id} con id inexistente debe retornar 404");
@@ -269,6 +351,10 @@ class ClienteControllerTest {
 
 
     // DATOS CORRECTOS - BUSCAR por email
+    /**
+     * Test de éxito: Búsqueda de cliente a través de su dirección de correo electrónico.
+     * Valida la integración con la lógica de búsqueda por email y el retorno correcto de datos.
+     */
     @Test
     void buscarPorEmail_ClienteExiste_Retorna200() throws Exception {
         log.info("Test: GET /api/clientes/email/{email} con email existente debe retornar 200");
@@ -292,6 +378,10 @@ class ClienteControllerTest {
 
 
     // DATOS INCORRECTOS - BUSCAR por email
+    /**
+     * Test de error: Búsqueda por email inexistente.
+     * Asegura que el sistema responda con 404 cuando no se encuentra ninguna coincidencia.
+     */
     @Test
     void buscarPorEmail_ClienteNoExiste_Retorna404() throws Exception {
         log.info("Test: GET /api/clientes/email/{email} con email inexistente debe retornar 404");
@@ -314,6 +404,11 @@ class ClienteControllerTest {
 
 
     // DATOS CORRECTOS - ACTUALIZAR cliente
+    /**
+     * Test de éxito: Actualización de datos de un cliente existente.
+     * Verifica que el endpoint PUT /api/clientes/{id} procese los cambios correctamente,
+     * devuelva el objeto actualizado y retorne un estado 200 (OK).
+     */
     @Test
     void actualizarCliente_DatosValidos_Retorna200() throws Exception {
         log.info("Test: PUT /api/clientes/{id} con datos validos debe retornar 200");
@@ -346,6 +441,10 @@ class ClienteControllerTest {
 
 
     // DATOS INCORRECTOS - ACTUALIZAR cliente
+    /**
+     * Test de error: Intento de actualización sobre un cliente inexistente.
+     * Verifica que se retorne un 404 si el ID proporcionado en la URL no tiene correspondencia en BD.
+     */
     @Test
     void actualizarCliente_ClienteNoExiste_Retorna404() throws Exception {
         log.info("Test: PUT /api/clientes/{id} con id inexistente debe retornar 404");
@@ -373,6 +472,11 @@ class ClienteControllerTest {
 
 
     // DATOS CORRECTOS - ELIMINAR cliente
+    /**
+     * Test de éxito: Eliminación física de un cliente.
+     * Verifica que el endpoint DELETE retorne un estado 204 (No Content) tras una operación exitosa,
+     * siguiendo las convenciones REST.
+     */
     @Test
     void eliminarCliente_ClienteExiste_Retorna204() throws Exception {
         log.info("Test: DELETE /api/clientes/{id} con id existente debe retornar 204");
@@ -395,6 +499,10 @@ class ClienteControllerTest {
 
 
     // DATOS INCORRECTOS - ELIMINAR cliente
+    /**
+     * Test de error: Intento de eliminación de un ID no registrado.
+     * Valida que el sistema informe con un 404 que el recurso a eliminar no fue encontrado.
+     */
     @Test
     void eliminarCliente_ClienteNoExiste_Retorna404() throws Exception {
         log.info("Test: DELETE /api/clientes/{id} con id inexistente debe retornar 404");

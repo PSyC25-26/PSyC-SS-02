@@ -15,6 +15,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import jakarta.transaction.Transactional;
 
+/**
+ * Servicio para la administración de Cuentas Bancarias.
+ * Gestiona el ciclo de vida de las cuentas, el control de saldos y 
+ * la validación de propiedad de los recursos financieros.
+ */
 @Service
 public class CuentaService {
 
@@ -23,6 +28,13 @@ public class CuentaService {
     private final ITransaccionRepository transaccionRepository;
     private final AuthChecks authChecks;
 
+    /**
+     * Constructor para la inyección de dependencias de CuentaService.
+     * @param cuentaRepository Repositorio para la gestión de persistencia de cuentas.
+     * @param clienteRepository Repositorio para validar la existencia de clientes.
+     * @param transaccionRepository Repositorio para el registro de movimientos.
+     * @param authChecks Componente de validaciones de seguridad personalizadas.
+     */
     public CuentaService(ICuentaRepository cuentaRepository, IClienteRepository clienteRepository,
                          ITransaccionRepository transaccionRepository, AuthChecks authChecks) {
         this.cuentaRepository = cuentaRepository;
@@ -31,6 +43,13 @@ public class CuentaService {
         this.authChecks = authChecks;
     }
 
+    /**
+     * Crea una nueva cuenta bancaria para un cliente específico.
+     * Genera automáticamente un número de cuenta único (IBAN ficticio) y 
+     * establece el saldo inicial y tipo de cuenta indicados.
+     * @param request DTO con el ID del cliente, saldo inicial y tipo de cuenta.
+     * @return Respuesta con los datos de la cuenta creada.
+     */
     @Transactional
     public CuentaResponse crearCuenta(CuentaRequest request) {
         Cliente cliente = clienteRepository.findById(request.getClienteId())
@@ -46,6 +65,12 @@ public class CuentaService {
         return toResponse(guardada);
     }
 
+    /**
+     * Obtiene el listado de cuentas pertenecientes a un cliente sin realizar chequeos de seguridad.
+     * Útil para llamadas internas del sistema o procesos administrativos.
+     * @param clienteId ID del cliente cuyas cuentas se desean listar.
+     * @return Lista de DTOs CuentaResponse con la información de las cuentas.
+     */
     public List<CuentaResponse> obtenerCuentasPorCliente(Long clienteId) {
         return cuentaRepository.findByClienteId(clienteId)
                 .stream()
@@ -53,15 +78,32 @@ public class CuentaService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Obtiene el listado de cuentas de un cliente validando que el usuario autenticado
+     * sea el propietario o tenga permisos de acceso.
+     * @param clienteId ID del cliente a consultar.
+     * @param authentication Datos del contexto de seguridad del usuario actual.
+     * @return Lista de DTOs CuentaResponse filtrada.
+     */
     public List<CuentaResponse> obtenerCuentasPorCliente(Long clienteId, Authentication authentication) {
         authChecks.assertOwnsCliente(authentication, clienteId);
         return obtenerCuentasPorCliente(clienteId);
     }
 
+    /**
+     * Genera un número de cuenta único siguiendo un formato ficticio (ES + UUID).
+     * @return Una cadena de texto que representa el número de cuenta bancaria.
+     */
     private String generarNumeroCuenta() {
         return "ES" + UUID.randomUUID().toString().replace("-", "").substring(0, 18).toUpperCase();
     }
 
+    /**
+     * Convierte una entidad de base de datos Cuenta a su representación DTO CuentaResponse.
+     * Este mapeo asegura que solo se expongan los datos necesarios a la API.
+     * @param cuenta La entidad persistida.
+     * @return El objeto de respuesta (DTO) listo para ser enviado al cliente.
+     */
     private CuentaResponse toResponse(Cuenta cuenta) {
         CuentaResponse response = new CuentaResponse();
         response.setId(cuenta.getId());
@@ -75,10 +117,22 @@ public class CuentaService {
     }
 
     // Verifica que el cliente autenticado es propietario de la cuenta
+    /**
+     * Helper privado que delega la validación de propiedad de una cuenta al componente AuthChecks.
+     * @param cuenta Entidad de la cuenta a verificar.
+     * @param authentication Usuario autenticado que intenta realizar la acción.
+     */
     private void verificarPropietario(Cuenta cuenta, Authentication authentication) {
         authChecks.assertOwnsCuenta(authentication, cuenta);
     }
 
+    /**
+     * Recupera el saldo actual de una cuenta, validando previamente que 
+     * el usuario autenticado sea el propietario o administrador.
+     * @param cuentaId ID único de la cuenta.
+     * @param authentication Datos del usuario que realiza la consulta.
+     * @return El saldo disponible en formato Double.
+     */
     public Double obtenerSaldo(Long cuentaId, Authentication authentication) {
         Cuenta cuenta = cuentaRepository.findById(cuentaId)
                 .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
@@ -87,6 +141,13 @@ public class CuentaService {
         return cuenta.getSaldo();
     }
 
+    /**
+     * Actualiza el saldo de una cuenta de forma directa en la base de datos.
+     * Este método se utiliza internamente durante procesos transaccionales como transferencias.
+     * @param cuentaId ID de la cuenta a modificar.
+     * @param nuevoSaldo El nuevo valor numérico del saldo.
+     * @throws RuntimeException Si la cuenta no existe.
+     */
     @Transactional
     public void actualizarSaldo(Long cuentaId, Double nuevoSaldo) {
         Cuenta cuenta = cuentaRepository.findById(cuentaId)
@@ -96,6 +157,14 @@ public class CuentaService {
         cuentaRepository.save(cuenta);
     }
 
+    /**
+     * Procesa un depósito de efectivo en una cuenta.
+     * Incrementa el saldo y registra el movimiento como una transacción de tipo DEPOSITO.
+     * @param cuentaId ID de la cuenta receptora.
+     * @param monto Cantidad a depositar (debe ser > 0).
+     * @param authentication Usuario que autoriza la operación.
+     * @return Datos de la cuenta tras el depósito.
+     */
     @Transactional
     public CuentaResponse depositarDinero(Long cuentaId, Double monto, Authentication authentication) {
         if (monto == null || monto <= 0) {
@@ -127,6 +196,16 @@ public class CuentaService {
         return toResponse(cuentaActualizada);
     }
 
+    /**
+     * Procesa un retiro de efectivo de una cuenta.
+     * Valida que el usuario sea dueño de la cuenta y que exista saldo suficiente.
+     * Registra el movimiento como una transacción de tipo RETIRO.
+     * @param cuentaId ID de la cuenta de origen.
+     * @param monto Cantidad a retirar (debe ser > 0).
+     * @param authentication Usuario que realiza el retiro.
+     * @return Datos de la cuenta tras la extracción.
+     * @throws IllegalArgumentException Si el saldo es insuficiente.
+     */
     @Transactional
     public CuentaResponse retirarDinero(Long cuentaId, Double monto, Authentication authentication) {
         if (monto == null || monto <= 0) {
@@ -169,6 +248,13 @@ public class CuentaService {
 
 
     // Añade este método en CuentaService.java
+    /**
+     * Realiza un borrado lógico de una cuenta bancaria.
+     * La cuenta no se elimina de la base de datos para mantener la trazabilidad,
+     * pero se marca como inactiva. Solo se permite si el saldo es exactamente cero.
+     * @param id ID de la cuenta a desactivar.
+     * @throws IllegalArgumentException Si la cuenta tiene saldo pendiente.
+     */
     @Transactional
     public void eliminarCuentaInactiva(Long id) {
         // 1. Buscamos la cuenta (incluso si está desactivada para dar un error coherente)

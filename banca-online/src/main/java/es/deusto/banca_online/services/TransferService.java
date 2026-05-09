@@ -12,6 +12,11 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+/**
+ * Servicio especializado en la gestión de transferencias bancarias.
+ * Coordina la lógica de negocio para mover fondos entre cuentas, asegurando
+ * la integridad de los saldos y el registro histórico de la operación.
+ */
 @Service
 public class TransferService {
 
@@ -20,6 +25,13 @@ public class TransferService {
     private final ITransaccionRepository transaccionRepository;
     private final AuthChecks authChecks;
 
+    /**
+     * Constructor para la inyección de dependencias de TransferService.
+     * @param cuentaService Servicio de cuentas para validación de saldos y propiedad.
+     * @param cuentaRepository Repositorio de cuentas para acceso directo a datos.
+     * @param transaccionRepository Repositorio para persistir el historial de movimientos.
+     * @param authChecks Componente de validaciones de seguridad y permisos.
+     */
     public TransferService(CuentaService cuentaService,
                            ICuentaRepository cuentaRepository,
                            ITransaccionRepository transaccionRepository,
@@ -30,6 +42,20 @@ public class TransferService {
         this.authChecks = authChecks;
     }
 
+    /**
+     * Ejecuta una transferencia de dinero entre dos cuentas.
+     * El proceso incluye:
+     * 1. Validación de existencia de ambas cuentas.
+     * 2. Verificación de que el usuario autenticado es el dueño de la cuenta de origen.
+     * 3. Comprobación de saldo suficiente.
+     * 4. Actualización atómica de ambos saldos.
+     * 5. Registro de la transacción en el historial.
+     * * @param transferenciaDTO Objeto con los números de cuenta (origen/destino) y el monto.
+     * @param authentication Objeto con las credenciales del usuario que ordena la transferencia.
+     * @return El DTO de la transferencia realizada con éxito.
+     * @throws RuntimeException Si las cuentas no existen o el saldo es insuficiente en origen.
+     * @throws AccessDeniedException Si el usuario intenta transferir desde una cuenta que no le pertenece.
+     */
     @Transactional
     public TransferenciaDTO transferirDinero(TransferenciaDTO transferenciaDTO, Authentication authentication) {
 

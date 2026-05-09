@@ -17,6 +17,11 @@ import java.util.List;
 
 // Marcamos que es la clase que va a contener la logica de negocio y por tanto,
 // se encarga de agrupar las funciones mas importantes que se usaran en los controllers
+/**
+ * Servicio encargado de la gestión de la lógica de negocio de Clientes.
+ * Centraliza operaciones como el registro de nuevos clientes, la actualización 
+ * de perfiles y la búsqueda de información personal bajo criterios de seguridad.
+ */
 @Service
 public class ClienteService {
     /*---------------
@@ -33,6 +38,12 @@ public class ClienteService {
     /*--------------------
         CONSTRUCTOR
     --------------------*/
+    /**
+     * Constructor para la inyección de dependencias de ClienteService.
+     * @param clienteRepository Repositorio para la gestión de datos de clientes.
+     * @param usuarioRepository Repositorio para la gestión de credenciales y perfiles de usuario.
+     * @param passwordEncoder Componente para el cifrado de contraseñas.
+     */
     public ClienteService(IClienteRepository clienteRepository,
                           IUsuarioRepository usuarioRepository,
                           PasswordEncoder passwordEncoder) {
@@ -50,6 +61,13 @@ public class ClienteService {
     --------------------*/
 
     //CREAR/CREATE cliente
+    /**
+     * Registra un nuevo cliente en el sistema y crea su usuario correspondiente.
+     * Cifra la contraseña antes de almacenarla y asigna el rol 'CLIENTE' por defecto.
+     * @param request Datos del cliente y credenciales de acceso.
+     * @return El objeto Cliente persistido en la base de datos.
+     * @throws RuntimeException Si el DNI o el Email ya se encuentran registrados.
+     */
     @Transactional
     public Cliente crearCliente(ClienteRequest request) {
         // Validaciones extra
@@ -123,6 +141,15 @@ public class ClienteService {
 
 
     // ACTUALIZAR/UPDATE cliente
+    /**
+     * Actualiza la información integral de un cliente existente.
+     * Realiza validaciones de seguridad para asegurar que el nuevo DNI o Email 
+     * no estén siendo utilizados por otros usuarios en el sistema.
+     * @param id Identificador del cliente a modificar.
+     * @param request DTO con los nuevos datos (DNI, nombre, contacto, etc.).
+     * @return El objeto Cliente actualizado y persistido.
+     * @throws RuntimeException Si el cliente no existe, o si el DNI/Email ya están en uso.
+     */
     @Transactional
     public Cliente actualizarCliente(Long id, ClienteRequest request) {
         Cliente cliente = buscarPorId(id); // validar existencia del cliente
@@ -160,6 +187,11 @@ public class ClienteService {
 
 
     // ELIMINAR/DELETE cliente
+    /**
+     * Elimina de forma definitiva un cliente de la base de datos.
+     * @param id Identificador del cliente a eliminar.
+     * @throws RuntimeException Si el identificador no corresponde a ningún cliente.
+     */
     @Transactional
     public void eliminarCliente(Long id) {
         Cliente cliente = buscarPorId(id); // validar existencia del cliente
@@ -170,20 +202,35 @@ public class ClienteService {
 
     // BUSCAR/READ
     // todos los clientes
+    /**
+     * Recupera el listado completo de clientes registrados en el sistema.
+     * @return Lista con todas las entidades Cliente.
+     */
     public List<Cliente> listarTodos() {
         return clienteRepository.findAll();
     }
 
 
     // por id. No esta en el repositorio porque JPA la da
-    @Transactional(readOnly = true) //Indicamos que solo vamos a leer la BD y por tanto
-    //el metodo no tiene permisos para modificarla.
+    /**
+     * Busca un cliente específico por su identificador único.
+     * @param id ID del cliente.
+     * @return La entidad Cliente encontrada.
+     * @throws RuntimeException Si el cliente no existe (404 conceptual).
+     */
+    @Transactional(readOnly = true) //Indicamos que solo vamos a leer la BD y por tanto, el metodo no tiene permisos para modificarla.
     public Cliente buscarPorId(Long id) {
         return clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
     }
 
     // por email
+    /**
+     * Localiza un cliente a partir de su dirección de correo electrónico.
+     * @param email Email asociado a la cuenta del cliente.
+     * @return La entidad Cliente correspondiente.
+     * @throws RuntimeException Si no se encuentra el perfil asociado a ese email.
+     */
     @Transactional(readOnly = true)
     public Cliente buscarPorEmail(String email) {
         return clienteRepository.findByEmail(email)
@@ -191,13 +238,24 @@ public class ClienteService {
     }
 
     // por dni
+    /**
+     * Localiza un cliente a partir de su número de DNI.
+     * @param dni Documento Nacional de Identidad del cliente.
+     * @return La entidad Cliente encontrada.
+     * @throws RuntimeException Si el DNI no consta en la base de datos.
+     */
     @Transactional(readOnly = true)
     public Cliente buscarPorDni(String email) {
         return clienteRepository.findByDni(email)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
     }
 
-
+    /**
+     * Actualiza los datos de contacto del propio perfil del cliente autenticado.
+     * @param emailActual Email del usuario que realiza la petición.
+     * @param request DTO con los campos teléfono y dirección a actualizar.
+     * @return El cliente con los datos actualizados.
+     */
     @Transactional
     public Cliente actualizarPerfilPropio(String emailActual, ClienteUpdateDTO request) {
         Cliente cliente = buscarPorEmail(emailActual);

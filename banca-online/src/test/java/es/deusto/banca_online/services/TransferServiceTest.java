@@ -25,7 +25,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class TransferServiceTest {
@@ -46,6 +45,13 @@ class TransferServiceTest {
     private Cuenta cuentaOrigen;
     private Cuenta cuentaDestino;
 
+    /**
+     * Configuración inicial antes de cada prueba.
+     * <p>
+     * Inicializa los objetos de prueba (Clientes y Cuentas) con datos consistentes y 
+     * configura los comportamientos básicos (lenient) para los repositorios de 
+     * transacciones y cuentas, asegurando que devuelvan la entidad guardada.
+     */
     @BeforeEach
     void setUp() {
         clienteOrigen = new Cliente();
@@ -88,6 +94,12 @@ class TransferServiceTest {
 
     // ===================== transferirDinero - ADMIN =====================
 
+    /**
+     * Verifica que un administrador puede realizar una transferencia entre dos cuentas cualesquiera
+     * siempre que la cuenta de origen disponga de saldo suficiente.
+     * <p>
+     * El test valida la actualización de saldos en ambas cuentas y el registro de la transacción.
+     */
     @Test
     void transferir_adminConSaldoSuficiente_realizaTransferencia() {
         log.info("Test: transferencia correcta como ADMIN");
@@ -114,6 +126,12 @@ class TransferServiceTest {
         log.info("Test pasado: transferencia de {} realizada", result.getCantidad());
     }
 
+    /**
+     * Valida que el sistema impide una transferencia si la cuenta de origen no tiene
+     * fondos suficientes para cubrir la cantidad solicitada.
+     * <p>
+     * Se espera una excepción de tipo RuntimeException con el mensaje "Saldo insuficiente".
+     */
     @Test
     void transferir_saldoInsuficiente_lanzaExcepcion() {
         log.info("Test: transferencia con saldo insuficiente");
@@ -133,6 +151,10 @@ class TransferServiceTest {
         log.info("Test pasado: excepcion por saldo insuficiente");
     }
 
+    /**
+     * Verifica el comportamiento del sistema cuando se intenta realizar una transferencia
+     * utilizando un número de cuenta de origen que no existe en la base de datos.
+     */
     @Test
     void transferir_cuentaOrigenNoExiste_lanzaExcepcion() {
         log.info("Test: cuenta origen no existe");
@@ -149,6 +171,10 @@ class TransferServiceTest {
         log.info("Test pasado: excepcion cuenta origen no encontrada");
     }
 
+    /**
+     * Verifica que el sistema lanza una excepción si la cuenta de destino no puede
+     * ser localizada mediante su número de cuenta.
+     */
     @Test
     void transferir_cuentaDestinoNoExiste_lanzaExcepcion() {
         log.info("Test: cuenta destino no existe");
@@ -168,6 +194,12 @@ class TransferServiceTest {
 
     // ===================== transferirDinero - CLIENTE =====================
 
+    /**
+     * Prueba que un usuario con rol de CLIENTE puede realizar transferencias desde
+     * una cuenta de la cual es propietario legal.
+     * <p>
+     * Valida la correcta integración con los chequeos de seguridad de la aplicación.
+     */
     @Test
     void transferir_clientePropietario_realizaTransferencia() {
         log.info("Test: transferencia valida como CLIENTE propietario");
@@ -191,6 +223,12 @@ class TransferServiceTest {
         log.info("Test pasado: cliente propietario puede transferir");
     }
 
+    /**
+     * Caso de prueba de seguridad: Verifica que un cliente NO puede transferir dinero
+     * desde una cuenta que no le pertenece.
+     * <p>
+     * Se espera que el servicio lance una {@link AccessDeniedException}.
+     */
     @Test
     void transferir_clienteNoPropietario_lanzaAccessDenied() {
         log.info("Test: cliente sin permiso sobre cuenta origen");
@@ -214,12 +252,26 @@ class TransferServiceTest {
 
     // ===================== helpers =====================
 
+    /**
+     * Configura el contexto de seguridad simulando un usuario con privilegios de ADMINISTRADOR.
+     * <p>
+     * Establece el rol {@code ROLE_ADMIN} y configura los cheques de autorización 
+     * para que devuelvan {@code true} ante verificaciones de administración.
+     */
     private void mockAdmin() {
         var auth = new SimpleGrantedAuthority("ROLE_ADMIN");
         lenient().doReturn(List.of(auth)).when(authentication).getAuthorities();
         lenient().when(authChecks.isAdmin(authentication)).thenReturn(true);
     }
 
+    /**
+     * Configura el contexto de seguridad simulando un usuario con rol de CLIENTE.
+     * <p>
+     * Este método vincula un objeto {@link Usuario} a la autenticación y configura 
+     * los servicios de seguridad para que reconozcan el ID del cliente proporcionado,
+     * permitiendo probar la propiedad de las cuentas.
+     * * @param clienteId El identificador del cliente que se desea simular.
+     */
     private void mockCliente(Long clienteId) {
         var auth = new SimpleGrantedAuthority("ROLE_CLIENTE");
         lenient().doReturn(List.of(auth)).when(authentication).getAuthorities();

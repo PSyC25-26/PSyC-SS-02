@@ -33,15 +33,31 @@ class ClienteServiceTest {
 
     private static final Logger log = LoggerFactory.getLogger(ClienteServiceTest.class);
 
+    /**
+     * Repositorio de clientes (Mock).
+     * Simula el acceso a datos para aislar la lógica de negocio del servicio.
+     */
     @Mock  // Crea un repositorio falso que simula el comportamiento de la base de datos
     private IClienteRepository clienteRepository;
 
+    /**
+     * Repositorio de usuarios (Mock).
+     * Se utiliza para simular la gestión de credenciales vinculadas al cliente.
+     */
     @Mock
     private IUsuarioRepository usuarioRepository;
 
+    /**
+     * Codificador de contraseñas (Mock).
+     * Simula el cifrado de claves durante la creación o actualización de usuarios.
+     */
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Servicio de clientes bajo prueba.
+     * Los mocks definidos anteriormente se inyectan automáticamente en esta instancia.
+     */
     @InjectMocks  // Inyecta los mocks dentro de ClienteService
     private ClienteService clienteService;
 
@@ -53,6 +69,11 @@ class ClienteServiceTest {
 
 
     // Preparacion antes de cada test. Así no repetimos código en cada test.
+    /**
+     * Configuración inicial antes de cada método de prueba.
+     * Prepara objetos de petición (Request) y entidades pre-configuradas para 
+     * estandarizar el entorno de cada test unitario.
+     */
     @BeforeEach  // Se ejecuta antes de cada test
     void setUp() {
         // Preparo un request válido
@@ -88,6 +109,11 @@ class ClienteServiceTest {
     }
 
     // DATOS INVALDOS - CREAR
+    /**
+     * Test de creación exitosa.
+     * Valida que, ante datos correctos y sin duplicados, el servicio procese
+     * el registro, cifre la contraseña y persista tanto al cliente como al usuario.
+     */
     @Test
     void crearCliente_DatosValidos_ClienteGuardadoCorrectamente() {
         // Configuro el comportamiento del mock
@@ -115,6 +141,11 @@ class ClienteServiceTest {
         log.info("Test crearCliente_DatosValidos pasado");
     }
 
+    /**
+     * Test de validación: Email duplicado.
+     * Verifica que el sistema impida el registro si el correo electrónico 
+     * ya existe en el sistema, lanzando la excepción correspondiente.
+     */
     @Test
     void crearCliente_EmailDuplicado_LanzaExcepcion() {
         // Simulamos que el email YA EXISTE
@@ -133,6 +164,10 @@ class ClienteServiceTest {
         log.info("Test crearCliente_EmailDuplicado pasado");
     }
 
+    /**
+     * Test de validación: DNI duplicado.
+     * Asegura que no se puedan registrar dos clientes con el mismo identificador legal.
+     */
     @Test
     void crearCliente_DniDuplicado_LanzaExcepcion() {
         // Simulamos que el DNI YA EXISTE
@@ -154,6 +189,10 @@ class ClienteServiceTest {
 
 
     // SIN ATRIBUTOS OBLIGATORIOS
+    /**
+     * Test de validación: Campos obligatorios (Nombre).
+     * Comprueba que la lógica de negocio rechace peticiones donde falte el nombre.
+     */
     @Test
     void crearCliente_SinNombre_LanzaExcepcion() {
         // Request sin nombre
@@ -172,6 +211,10 @@ class ClienteServiceTest {
         log.info("Test crearCliente_SinNombre pasado");
     }
 
+    /**
+     * Prueba la validación de integridad al crear un cliente, asegurando que 
+     * el email sea un campo obligatorio.
+     */
     @Test
     void crearCliente_SinEmail_LanzaExcepcion() {
         // Request sin email
@@ -190,6 +233,10 @@ class ClienteServiceTest {
         log.info("Test crearCliente_SinEmail pasado");
     }
 
+    /**
+     * Prueba la validación de integridad al crear un cliente, asegurando que 
+     * el DNI sea un campo obligatorio.
+     */
     @Test
     void crearCliente_SinDni_LanzaExcepcion() {
         // Request sin email
@@ -208,6 +255,10 @@ class ClienteServiceTest {
         log.info("Test crearCliente_SinDni pasado");
     }
 
+    /**
+     * Prueba la validación de integridad al crear un cliente, asegurando que 
+     * la fecha de nacimiento sea un campo obligatorio.
+     */
     @Test
     void crearCliente_SinNacimiento_LanzaExcepcion() {
         // Request sin email
@@ -226,6 +277,10 @@ class ClienteServiceTest {
         log.info("Test crearCliente_SinNacimiento pasado");
     }
 
+    /**
+     * Test de validación: Formato de Email.
+     * Verifica que el servicio valide sintácticamente el correo antes de procesar el alta.
+     */
     @Test
     void crearCliente_EmailInvalido_LanzaExcepcion() {
         // Email sin @
@@ -247,6 +302,11 @@ class ClienteServiceTest {
 
 
     // BÚSQUEDAS
+    /**
+     * Test de consulta masiva.
+     * Valida que el servicio transforme correctamente la respuesta del repositorio 
+     * al listar todos los clientes registrados.
+     */
     @Test
     void listarTodos_DeberiaRetornarTodosLosClientes() {
         // Cuando se ejecute el findAll, devolver el mock de clientes
@@ -264,7 +324,10 @@ class ClienteServiceTest {
         verify(clienteRepository, times(1)).findAll();
     }
 
-
+    /**
+     * Verifica que el servicio retorne una lista vacía (no nula) cuando 
+     * no existen registros de clientes en el repositorio.
+     */
     @Test
     void listarTodos_CuandoNoHayClientes_DeberiaRetornarListaVacia() {
         // Cuando se ejecute el findAll, devolver un Array vacío
@@ -281,6 +344,10 @@ class ClienteServiceTest {
     }
 
 
+    /**
+     * Test de consulta por ID.
+     * Verifica la recuperación exitosa de un cliente específico cuando el identificador existe.
+     */
     @Test
     void buscarPorId_ClienteExiste_DevuelveCliente() {
         Long id = 1L;
@@ -300,7 +367,10 @@ class ClienteServiceTest {
     }
 
 
-
+    /**
+     * Test de error en consulta: ID inexistente.
+     * Valida que el servicio gestione la ausencia de datos mediante una excepción controlada.
+     */
     @Test
     void buscarPorId_ClienteNoExiste_LanzaExcepcion() {
         // Hacemos que si alguien llama al id = 999L le devuelva algo nulo
@@ -322,6 +392,10 @@ class ClienteServiceTest {
     }
 
 
+    /**
+     * Verifica que cuando se busca un cliente por un email existente,
+     * el servicio retorne el objeto Cliente correctamente.
+     */
     @Test
     void buscarPorEmail_ClienteExiste_DevuelveCliente() {
         String email = "juan@test.com";
@@ -341,6 +415,10 @@ class ClienteServiceTest {
     }
 
 
+    /**
+     * Verifica que al buscar un cliente por un email que no existe en la base de datos,
+     * el servicio lance una excepción indicando que no fue encontrado.
+     */
     @Test
     void buscarPorEmail_ClienteNoExiste_LanzaExcepcion() {
         // Hacemos que si alguien llama al email le devuelva algo nulo
@@ -362,7 +440,9 @@ class ClienteServiceTest {
     }
 
 
-
+    /**
+     * Prueba la recuperación exitosa de un cliente utilizando su número de DNI.
+     */
     @Test
     void buscarPorDni_ClienteExiste_DevuelveCliente() {
         String dni = "12345678A";
@@ -381,7 +461,9 @@ class ClienteServiceTest {
         log.info("Test buscarPorDni_ClienteExiste pasado");
     }
 
-
+    /**
+     * Verifica que se lance una excepción cuando se intenta buscar por DNI de un cliente que no está registrado.
+     */
     @Test
     void buscarPorDni_ClienteNoExiste_LanzaExcepcion() {
         // Hacemos que si alguien llama al dnii le devuelva algo nulo
@@ -405,6 +487,11 @@ class ClienteServiceTest {
 
 
     // DATOS INVALDOS - ACUALIZAR
+    /**
+     * Test de actualización exitosa.
+     * Comprueba que se puedan modificar los datos de un cliente existente, 
+     * validando que los nuevos datos (Email/DNI) no colisionen con otros registros.
+     */
     @Test
     void actualizarCliente_DatosValidos_ClienteActualizadoCorrectamente() {
         Long id = 1L;
@@ -453,6 +540,10 @@ class ClienteServiceTest {
 
 
     // Email duplicado
+    /**
+     * Prueba que al intentar actualizar un cliente con un email que ya pertenece a otro usuario,
+     * se lance una excepción de tipo RuntimeException.
+     */
     @Test
     void actualizarCliente_EmailDuplicado_LanzaExcepcion() {
         Long id = 1L;
@@ -482,6 +573,10 @@ class ClienteServiceTest {
 
 
     // DNI duplicado
+    /**
+     * Prueba que al intentar actualizar un cliente con un DNI que ya existe en el sistema,
+     * se lance una excepción con el mensaje correspondiente.
+     */
     @Test
     void actualizarCliente_DniDuplicado_LanzaExcepcion() {
         Long id = 1L;
@@ -511,6 +606,11 @@ class ClienteServiceTest {
 
     // ELIMINAR
     //Cliente existente
+    /**
+     * Test de borrado exitoso.
+     * Verifica que el servicio llame correctamente al método de eliminación del 
+     * repositorio cuando el cliente existe.
+     */
     @Test
     void eliminarCliente_ClienteExiste_EliminadoCorrectamente() {
         Long id = 1L;
@@ -525,6 +625,10 @@ class ClienteServiceTest {
     }
 
     //Cliente que no existe
+    /**
+     * Test de error en borrado: Cliente no encontrado.
+     * Asegura que no se intente eliminar un registro que no existe en el sistema.
+     */
     @Test
     void eliminarCliente_ClienteNoExiste_LanzaExcepcion() {
         Long id = 999L;

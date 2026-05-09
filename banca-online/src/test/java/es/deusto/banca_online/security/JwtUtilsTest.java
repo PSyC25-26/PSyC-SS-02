@@ -21,9 +21,20 @@ class JwtUtilsTest {
 
     private static final Logger log = LoggerFactory.getLogger(JwtUtilsTest.class);
 
+    /**
+     * Utilidad de JWT inyectada para pruebas.
+     * Se configura mediante {@link TestPropertySource} con una clave secreta 
+     * y tiempo de expiración específicos para el entorno de test.
+     */
     @Autowired
     private JwtUtils jwtUtils;
 
+    /**
+     * Test de generación de token para perfil Administrador.
+     * Verifica que cuando un administrador inicia sesión, el token generado
+     * contenga el rol 'ADMIN' y que el claim 'clienteId' sea nulo, ya que 
+     * los administradores no tienen un perfil de cliente asociado.
+     */
     @Test
     void generarToken_admin_clienteIdClaimEsNull() {
         log.info("Test: generarToken con ADMIN deveolver clienteId null");
@@ -43,6 +54,12 @@ class JwtUtilsTest {
         log.info("Test PASADO: ADMIN token tiene clienteId=null");
     }
 
+    /**
+     * Test de generación de token para perfil Cliente.
+     * Valida que el token incluya correctamente el 'clienteId' en los claims.
+     * Esto es crítico para que el sistema identifique qué cuentas pertenecen 
+     * al usuario autenticado en peticiones posteriores.
+     */
     @Test
     void generarToken_cliente_clienteIdClaimCorrecto() {
         log.info("Test: generarToken con CLIENTE deveolver clienteId correcto");
@@ -65,6 +82,11 @@ class JwtUtilsTest {
         log.info("Test PASADO: CLIENTE token tiene clienteId=42");
     }
 
+    /**
+     * Test de integridad: Validación de token correcto.
+     * Asegura que un token recién generado con la clave secreta del sistema
+     * sea reconocido como válido por los filtros de seguridad.
+     */
     @Test
     void esValido_tokenValido_retornaTrue() {
         Usuario usuario = new Usuario();
@@ -76,6 +98,11 @@ class JwtUtilsTest {
         assertTrue(jwtUtils.esValido(token));
     }
 
+    /**
+     * Test de seguridad: Rechazo de tokens malformados o falsificados.
+     * Verifica que cualquier cadena que no cumpla el estándar JWT o que no
+     * esté firmada por nuestra clave secreta sea rechazada (false).
+     */
     @Test
     void esValido_tokenInvalido_retornaFalse() {
         assertFalse(jwtUtils.esValido("token.invalido"));

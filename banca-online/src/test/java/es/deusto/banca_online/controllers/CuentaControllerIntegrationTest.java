@@ -65,6 +65,11 @@ class CuentaControllerIntegrationTest {
     // ===================== POST /api/cuentas =====================
 
     /** TEST DE REMOTENESS: llama al servidor real a traves de HTTP (MockMvc) */
+    /**
+     * Test de integración (Remoteness): Creación de cuenta por un Administrador.
+     * Verifica que un usuario con rol 'ADMIN' puede dar de alta nuevas cuentas.
+     * Valida que el mapeo JSON sea correcto y se reciba un HTTP 201.
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void crearCuenta_adminValido_retorna201() throws Exception {
@@ -87,6 +92,11 @@ class CuentaControllerIntegrationTest {
         log.info("Test integracion pasado: cuenta creada via HTTP");
     }
 
+    /**
+     * Test de seguridad: Restricción de creación de cuentas para el rol Cliente.
+     * Verifica que la política de seguridad bloquee (HTTP 403 Forbidden) a los
+     * clientes que intenten acceder a funciones administrativas de creación.
+     */
     @Test
     @WithMockUser(roles = "CLIENTE")
     void crearCuenta_rolCliente_retorna403() throws Exception {
@@ -103,6 +113,10 @@ class CuentaControllerIntegrationTest {
         log.info("Test integracion pasado: 403 para CLIENTE");
     }
 
+    /**
+     * Test de seguridad: Acceso anónimo denegado.
+     * Asegura que cualquier petición no autenticada sea rechazada por el filtro de seguridad.
+     */
     @Test
     void crearCuenta_sinAutenticacion_retorna401() throws Exception {
         log.info("Test integracion: POST /api/cuentas sin autenticacion debe retornar 401");
@@ -118,6 +132,11 @@ class CuentaControllerIntegrationTest {
         log.info("Test integracion pasado: 401 sin autenticacion");
     }
 
+    /**
+     * Test de error: Creación de cuenta para un cliente inexistente.
+     * Valida que el controlador gestione correctamente las excepciones de negocio
+     * transformándolas en un error 404 (Not Found).
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void crearCuenta_clienteNoExiste_retorna404() throws Exception {
@@ -137,6 +156,11 @@ class CuentaControllerIntegrationTest {
         log.info("Test integracion pasado: 404 para cliente inexistente");
     }
 
+    /**
+     * Test de validación: Tipo de cuenta no soportado.
+     * Verifica que si se intenta crear una cuenta con un tipo inválido (Enum),
+     * el sistema responda con un HTTP 400 (Bad Request).
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void crearCuenta_tipoInvalido_retorna400() throws Exception {
@@ -158,6 +182,11 @@ class CuentaControllerIntegrationTest {
 
     // ===================== GET /api/cuentas?clienteId=X =====================
 
+    /**
+     * Test de consulta: Listado de cuentas por ID de cliente.
+     * Verifica la integración con los parámetros de consulta (query params)
+     * y la correcta serialización de la lista de cuentas del cliente.
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void obtenerCuentas_adminConClienteId_retornaLista() throws Exception {
@@ -173,7 +202,11 @@ class CuentaControllerIntegrationTest {
     }
 
     // ===================== POST /api/cuentas/depositar =====================
-
+    /**
+     * Test de operación: Depósito de efectivo exitoso.
+     * Valida el flujo completo de la petición de depósito y la recepción
+     * del estado 200 (OK).
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void depositar_montoValido_retorna200() throws Exception {
@@ -192,6 +225,10 @@ class CuentaControllerIntegrationTest {
         log.info("Test integracion pasado: deposito realizado");
     }
 
+    /**
+     * Test de error: Depósito con monto inválido (negativo o cero).
+     * Asegura que las restricciones de validación de montos retornen HTTP 400.
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void depositar_montoInvalido_retorna400() throws Exception {
@@ -213,6 +250,10 @@ class CuentaControllerIntegrationTest {
 
     // ===================== POST /api/cuentas/retirar =====================
 
+    /**
+     * Test de operación: Retiro de efectivo con fondos suficientes.
+     * Verifica que el endpoint de retiro procese la solicitud y retorne éxito.
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void retirar_saldoSuficiente_retorna200() throws Exception {
@@ -231,6 +272,11 @@ class CuentaControllerIntegrationTest {
         log.info("Test integracion pasado: retiro realizado");
     }
 
+    /**
+     * Test de error: Retiro con saldo insuficiente.
+     * Verifica que el controlador capture el error de lógica de negocio y
+     * devuelva un HTTP 400 avisando al cliente del error.
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void retirar_saldoInsuficiente_retorna400() throws Exception {
@@ -252,6 +298,11 @@ class CuentaControllerIntegrationTest {
 
     // ===================== POST /api/cuentas/transferir =====================
 
+    /**
+     * Test de integración: Proceso de transferencia entre cuentas.
+     * Valida la colaboración entre CuentaController y TransferService a través de HTTP,
+     * verificando que el DTO de transferencia sea procesado y devuelto correctamente.
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void transferir_datosValidos_retorna200() throws Exception {
@@ -274,6 +325,11 @@ class CuentaControllerIntegrationTest {
 
     // ===================== GET /api/cuentas/saldo/{id} =====================
 
+    /**
+     * Test de consulta: Visualización de saldo de una cuenta existente.
+     * Verifica que el endpoint de consulta de saldo retorne el valor numérico
+     * esperado bajo el rol de administrador.
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void verSaldo_cuentaExistente_retorna200() throws Exception {
@@ -287,6 +343,11 @@ class CuentaControllerIntegrationTest {
         log.info("Test integracion pasado: saldo retornado via HTTP");
     }
 
+    /**
+     * Test de error: Consulta de saldo sobre cuenta inexistente.
+     * Verifica que el sistema responda con 404 al intentar consultar fondos de
+     * una cuenta que no está en la base de datos.
+     */
     @Test
     @WithMockUser(roles = "ADMIN")
     void verSaldo_cuentaNoExistente_retorna404() throws Exception {

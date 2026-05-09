@@ -15,22 +15,45 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDate;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import org.junit.Ignore;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClienteServicePerformanceTest {
 
+    /**
+     * Regla de ContiPerf que habilita la ejecución de tests de rendimiento y 
+     * la generación de informes estadísticos (latencia, rendimiento, percentiles).
+     */
     @Rule public ContiPerfRule contiPerfRule = new ContiPerfRule();
 
+    /**
+     * Mock del repositorio de clientes para evitar latencia de E/S de red o disco.
+     */
     @Mock private IClienteRepository clienteRepository;
+    /**
+     * Mock del repositorio de usuarios.
+     */
     @Mock private IUsuarioRepository usuarioRepository;
+    /**
+     * Mock del codificador de contraseñas, permitiendo medir el impacto del 
+     * procesamiento de CPU del algoritmo de hashing (Bcrypt).
+     */
     @Mock private PasswordEncoder passwordEncoder;
 
+    /**
+     * Servicio donde se inyectan los mocks para medir el rendimiento de la lógica de negocio pura.
+     */
     @InjectMocks private ClienteService clienteService;
 
     private ClienteRequest requestValido;
 
+    /**
+     * Configuración de los mocks y datos de prueba.
+     * Define comportamientos instantáneos para que los resultados de rendimiento
+     * se centren en la eficiencia del código del servicio y no en la base de datos.
+     */
     @Before
     public void setUp() {
         requestValido = new ClienteRequest();
@@ -58,6 +81,11 @@ public class ClienteServicePerformanceTest {
     }
 
     // EL BASELINE
+    /**
+     * Test de Línea Base (Baseline).
+     * Ejecuta una única operación para establecer el tiempo de respuesta de referencia
+     * en condiciones óptimas de un solo hilo y una sola invocación.
+     */
     @Test
     @Ignore("Test de rendimiento para ejecución manual")
     @PerfTest(invocations = 1, threads = 1)
@@ -66,6 +94,12 @@ public class ClienteServicePerformanceTest {
     }
 
     // saturacion 1
+    /**
+     * Test de estrés - Nivel Bajo (20 hilos).
+     * Mantiene una carga constante de 20 usuarios concurrentes durante 60 segundos.
+     * Útil para observar el comportamiento inicial del recolector de basura (GC) 
+     * y el uso de CPU a través de herramientas como VisualVM.
+     */
     @Test
     @Ignore("Test de rendimiento para ejecución manual")
     @PerfTest(duration = 60000, threads = 20) // 60 segundos para que te dé tiempo a ver VisualVM
@@ -78,6 +112,11 @@ public class ClienteServicePerformanceTest {
         }
     }
 
+    /**
+     * Test de estrés - Nivel Medio (40 hilos).
+     * Duplica la carga concurrente para identificar posibles cuellos de botella 
+     * en la gestión de hilos y la contención de recursos.
+     */
     @Test
     @Ignore("Test de rendimiento para ejecución manual")
     @PerfTest(duration = 60000, threads = 40)
@@ -90,6 +129,12 @@ public class ClienteServicePerformanceTest {
         }
     }
 
+    /**
+     * Test de estrés - Nivel Alto (80 hilos).
+     * Somete al servicio a una carga pesada de 80 hilos concurrentes.
+     * El objetivo es determinar el punto de ruptura o la degradación máxima 
+     * admisible de los tiempos de respuesta bajo máxima demanda.
+     */
     @Test
     @Ignore("Test de rendimiento para ejecución manual")
     @PerfTest(duration = 60000, threads = 80)

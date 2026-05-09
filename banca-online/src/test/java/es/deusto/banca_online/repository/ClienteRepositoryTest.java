@@ -22,25 +22,51 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 class ClienteRepositoryTest {
 
-    // Logger con log4j2.xml
+    /** Logger con log4j2.xml */ 
     private static final Logger logger = LoggerFactory.getLogger(ClienteRepositoryTest.class);
 
     // Inyectamos el repostorio sin tener que crear uno
+    /**
+     * Repositorio de clientes inyectado para las pruebas de persistencia.
+     */
     @Autowired
     private IClienteRepository clienteRepository;
 
+    /**
+     * Repositorio de usuarios inyectado para gestionar la autenticación asociada.
+     */
     @Autowired
     private IUsuarioRepository usuarioRepository;
 
+    /**
+     * Repositorio de cuentas inyectado para las pruebas.
+     * Se utiliza principalmente en el método de limpieza (setUp) para eliminar 
+     * registros que dependen de los clientes, asegurando la integridad referencial.
+     */
     @Autowired
     private ICuentaRepository cuentaRepository;
 
+    /**
+     * Repositorio de transacciones inyectado para las pruebas.
+     * Al ser el nivel más bajo de la jerarquía de datos (depende de cuentas), 
+     * es el primer repositorio que se vacía durante la limpieza de la base de datos.
+     */
     @Autowired
     private ITransaccionRepository transaccionRepository;
 
+    /**
+     * Componente para el cifrado de contraseñas.
+     * Se utiliza para generar hashes de contraseñas válidos al crear entidades 
+     * de tipo Usuario en los tests que verifican la relación Cliente-Usuario.
+     */
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Limpieza previa de la base de datos antes de cada test.
+     * Garantiza la independencia de las pruebas eliminando registros en el orden
+     * correcto para respetar las restricciones de integridad referencial (FK).
+     */
     @BeforeEach
     void limpiarBD() {
         // Eliminar en orden: transacciones (FK) -> cuentas (FK) -> usuarios (FK) -> clientes
@@ -53,6 +79,11 @@ class ClienteRepositoryTest {
     /*------------
         TESTS
      ------------*/
+    /**
+     * Test de persistencia: Guardado básico de un cliente.
+     * Verifica que la entidad Cliente se mapee correctamente a las columnas de la tabla
+     * y que la base de datos genere y retorne un identificador único (ID).
+     */
     @Test
     void testGuardarCliente() {
         // 1. CREAR: Preparamos un cliente de prueba
@@ -76,6 +107,11 @@ class ClienteRepositoryTest {
     }
 
     // Devolver todos los clientes si existen - VÁLIDO
+    /**
+     * Test de consulta masiva: Recuperación de todos los clientes registrados.
+     * Valida que el método findAll() devuelva el número exacto de entidades
+     * insertadas y que los datos críticos (como el email) coincidan con los de entrada.
+     */
     @Test
     void findAll_DeberiaRetornarTodosLosClientes() {
         // Crear y guardar varios clientes
@@ -115,6 +151,11 @@ class ClienteRepositoryTest {
 
 
     // Devolver todos los clientes si existen - IINVÁLIDO
+    /**
+     * Test de consulta masiva (caso vacío): Comportamiento sin datos.
+     * Asegura que el repositorio devuelva una lista vacía y no nula cuando no existen
+     * registros, evitando posibles NullPointerException en la aplicación.
+     */
     @Test
     void findAll_CuandoNoHayClientes_DeberiaRetornarListaVacia() {
         List<Cliente> clientes = clienteRepository.findAll();
@@ -124,7 +165,11 @@ class ClienteRepositoryTest {
     }
 
 
-
+    /**
+     * Test de consulta personalizada: Búsqueda por email a través de la relación Usuario-Cliente.
+     * Verifica que el repositorio sea capaz de realizar el Join necesario para encontrar
+     * un cliente basado en las credenciales de su usuario asociado.
+     */
     @Test
     void testFindByEmail() {
         // 1. CREAR: Preparamos datos
@@ -154,6 +199,11 @@ class ClienteRepositoryTest {
 
         logger.info("Cliente encontrado por email: {}", encontrado.get().getNombre());    }
 
+    /**
+     * Test de consulta: Búsqueda por DNI.
+     * Valida la recuperación de un cliente utilizando su documento nacional de identidad,
+     * asegurando que la búsqueda sea exacta y sensible a los datos persistidos.
+     */
     @Test
     void testFindByDni() {
         // 1. CREAR
@@ -176,6 +226,11 @@ class ClienteRepositoryTest {
         logger.info("Cliente encontrado por DNI correctamente");
     }
 
+    /**
+     * Test de verificación: Existencia de email en el sistema.
+     * Comprueba que la lógica de comprobación de existencia (existsByEmail) retorne
+     * correctamente true para emails registrados y false para los que no lo están.
+     */
     @Test
     void testExistsByEmail() {
         // 1. CREAR
@@ -207,6 +262,11 @@ class ClienteRepositoryTest {
         logger.debug("Comprobación de existencia de email finalizada (Existe: {}, No existe: {})", existe, noExiste);
     }
 
+    /**
+     * Test de error (Búsqueda): Email inexistente.
+     * Confirma que el método findByEmail retorne un Optional vacío cuando el registro
+     * solicitado no existe, siguiendo el estándar de Java 8+.
+     */
     @Test
     void testFindByEmail_NoExiste() {
         // EJECUTAR: Buscar un email que no existe
