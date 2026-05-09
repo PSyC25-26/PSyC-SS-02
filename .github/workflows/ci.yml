@@ -9,6 +9,12 @@ on:
   #   - cron: '0 18-23/2 * * *'  # 20:00–01:00 CET
   #   - cron: '0 0-6/2 * * *'    # 02:00–08:00 CET
 
+# Permisos necesarios para publicar en GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -50,6 +56,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Instalar Doxygen y Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz
+
       - name: Esperar a que MySQL esté listo
         run: |
           echo "Esperando a MySQL..."
@@ -57,18 +68,52 @@ jobs:
             sleep 2
           done
 
-      
-      # spring.sql.init.mode=always y schema.sql en tu properties.
-      # Por lo tanto, no necesitamos inyectar el SQL a mano como en la plantilla original.
+      # spring.sql.init.mode=always y schema.sql en el properties.
+      # Por lo tanto, no se necesita inyectar el SQL a mano.
 
       - name: Compilar y ejecutar Tests
         working-directory: ./banca-online
-        # "verify" compila, pasa los tests y además activa Jacoco (Issue #153)
+        # "verify" compila, pasa los tests y además activa Jacoco
         run: mvn clean verify 
 
-      - name: Generar Maven Site
+      - name: Generar Maven Site (Reportes de Tests/Jacoco)
         working-directory: ./banca-online
         run: mvn site
+
+      - name: Generar Documentación Doxygen
+        working-directory: ./banca-online
+        run: doxygen Doxyfile
+      
+      # --- PREPARACIÓN Y DESPLIEGUE ---
+      
+      - name: Preparar carpeta para Pages
+        run: |
+          mkdir public
+          # Copiamos reportes de Maven
+          cp -r banca-online/target/site public/maven-site
+          # Copiamos Doxygen (si existe la carpeta html generada por el Doxyfile)
+          if [ -d "banca-online/html" ]; then
+            cp -r banca-online/html public/doxygen
+          fi
+          # Index de navegación
+          echo "<html><body><h1>Reportes CI - Banca Online</h1><ul>" > public/index.html
+          echo "<li><a href='./maven-site/index.html'>Maven Site (Tests y Cobertura)</a></li>" >> public/index.html
+          echo "<li><a href='./doxygen/index.html'>Documentación Doxygen</a></li>" >> public/index.html
+          echo "</ul></body></html>" >> public/index.html
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v4
+
+      - name: Subir artefacto
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'public'
+
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+     
 
 
 
