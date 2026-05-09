@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+/**Componente encargado de poblar la base de datos con un usuario administrador inicial si no existe. */
 @Component
 public class DataInitializer implements CommandLineRunner {
 

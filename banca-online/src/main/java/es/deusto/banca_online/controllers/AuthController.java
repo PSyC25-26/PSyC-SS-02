@@ -13,7 +13,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
+/**
+ * Controlador encargado de la autenticación de usuarios.
+ * Gestiona el acceso al sistema mediante la validación de credenciales y generación de tokens JWT.
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -30,6 +33,12 @@ public class AuthController {
         this.usuarioRepository = usuarioRepository;
     }
 
+    /**
+     * Autentica a un usuario y devuelve un token de acceso.
+     * @param request DTO con el email y la contraseña del usuario.
+     * @return ResponseEntity con el token JWT, rol y datos básicos si el login es correcto.
+     * @throws BadCredentialsException si las credenciales son inválidas.
+     */
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         try {

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**Configuración de OpenAPI/Swagger para la generación de la documentación interactiva de la API. */
 @Configuration
 public class SwaggerConfig {
 
