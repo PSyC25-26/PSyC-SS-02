@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - '**' # Se ejecutará en todas las ramas
+    workflow_dispatch:
       #para ejecutarlo en horas especificas:
   # schedule:
   #   - cron: '0 18-23/2 * * *'  # 20:00–01:00 CET
