@@ -28,3 +28,7 @@ replay_pid*
 banca-online/logs/
 *.class
 target/
+
+# documentacion Doxygen generada
+docs/doxygen/
+html/
