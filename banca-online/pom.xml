@@ -15,7 +15,7 @@
 	<description>Sistema de banca online para gestión de clientes, cuentas y transacciones</description>
 
 	<properties>
-		<java.version>25</java.version>
+		<java.version>21</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
