@@ -113,6 +113,37 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      # ==============================================================================
+      # PASO ADICIONAL: GENERACIÓN Y ALMACENAMIENTO DE ARTEFACTOS (EJECUTABLE)
+      # ==============================================================================
+      # En este paso final, le pedimos a GitHub Actions que tome el archivo .jar 
+      # generado por el proceso de compilación de Maven (paso 'verify') y lo guarde 
+      # de forma segura en los servidores de GitHub.
+      # 
+      # Util porque para permitir a cualquier miembro del equipo o
+      # profesor descargar la aplicación lista para funcionar 
+      # directamente desde la pestaña "Actions", sin tener que descargar el código 
+      # fuente.
+      # ==============================================================================
+      
+      - name: Subir artefacto JAR de la aplicación (Ejecutable)
+        # Utilizamos la acción oficial de GitHub para subir artefactos (versión 4)
+        uses: actions/upload-artifact@v4
+        with:
+          # 'name' define el nombre del archivo .zip que se generará para la descarga
+          # en la interfaz web de GitHub Actions.
+          name: banca-online-ejecutable
+          
+          # 'path' indica la ruta exacta donde Spring Boot ha dejado el archivo compilado.
+          # Como la versión del .jar puede cambiar en el pom.xml (ej. 0.0.1-SNAPSHOT), 
+          # usamos el comodín *.jar para atrapar el archivo sin importar su versión exacta.
+          path: banca-online/target/*.jar
+          
+          # 'retention-days' define cuánto tiempo guardará GitHub este archivo en sus 
+          # servidores antes de borrarlo automáticamente para ahorrar espacio de 
+          # almacenamiento.
+          retention-days: 7
+
      
 
 
