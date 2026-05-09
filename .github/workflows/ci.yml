@@ -1,0 +1,76 @@
+name: CI Banca Online
+
+on:
+  push:
+    branches:
+      - '**' # Se ejecutará en todas las ramas
+      #para ejecutarlo en horas especificas:
+  # schedule:
+  #   - cron: '0 18-23/2 * * *'  # 20:00–01:00 CET
+  #   - cron: '0 0-6/2 * * *'    # 02:00–08:00 CET
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    # 1. Configuración del servicio de Base de Datos
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: banca_online
+          MYSQL_USER: banca_user
+          MYSQL_PASSWORD: mi_password
+        ports:
+        
+          # Mapeamos el puerto 3306 del contenedor al 3307 de la máquina
+          - 3307:3306 
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25' 
+          distribution: 'temurin'
+
+      - name: Caché de dependencias Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Esperar a que MySQL esté listo
+        run: |
+          echo "Esperando a MySQL..."
+          until mysqladmin ping -h 127.0.0.1 -P 3307 -uroot -proot --silent; do
+            sleep 2
+          done
+
+      
+      # spring.sql.init.mode=always y schema.sql en tu properties.
+      # Por lo tanto, no necesitamos inyectar el SQL a mano como en la plantilla original.
+
+      - name: Compilar y ejecutar Tests
+        working-directory: ./banca-online
+        # "verify" compila, pasa los tests y además activa Jacoco (Issue #153)
+        run: mvn clean verify 
+
+      - name: Generar Maven Site
+        working-directory: ./banca-online
+        run: mvn site
+
+
+
+
+

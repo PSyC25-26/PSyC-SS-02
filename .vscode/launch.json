@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-BancaOnlineApplication<banca-online>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "es.deusto.banca_online.BancaOnlineApplication",
+            "projectName": "banca-online",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
