@@ -1,5 +1,14 @@
 package es.deusto.banca_online.services;
 
+/**
+ * @file ClienteServiceTest.java
+ * @brief Tests unitarios del servicio de lógica de negocio de clientes.
+ * @details Verifica la creación, actualización, eliminación y búsqueda de clientes
+ *          usando mocks de los repositorios para aislar la lógica del servicio.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.ClienteRequest;
 import es.deusto.banca_online.entity.Cliente;
 import es.deusto.banca_online.entity.Usuario;

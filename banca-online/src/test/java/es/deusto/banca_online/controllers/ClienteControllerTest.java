@@ -1,5 +1,14 @@
 package es.deusto.banca_online.controllers;
 
+/**
+ * @file ClienteControllerTest.java
+ * @brief Tests de integración del controlador REST de clientes.
+ * @details Verifica los endpoints HTTP de creación, consulta, actualización y eliminación
+ *          de clientes, incluyendo la validación de permisos por rol.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import es.deusto.banca_online.dto.ClienteRequest;

@@ -1,5 +1,15 @@
 package es.deusto.banca_online.services;
 
+/**
+ * @file CuentaServicePerformanceTest.java
+ * @brief Tests de rendimiento del servicio de cuentas bancarias con ContiPerf.
+ * @details Mide throughput, latencia máxima y comportamiento bajo carga de operaciones
+ *          como crearCuenta, depositarDinero y retirarDinero. Genera un informe en
+ *          target/contiperf-report/index.html.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.entity.*;
 import es.deusto.banca_online.repository.IClienteRepository;

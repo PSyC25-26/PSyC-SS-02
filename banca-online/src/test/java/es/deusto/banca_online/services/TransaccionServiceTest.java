@@ -1,5 +1,13 @@
 package es.deusto.banca_online.services;
 
+/**
+ * @file TransaccionServiceTest.java
+ * @brief Tests unitarios del servicio de historial de transacciones.
+ * @details Verifica la recuperación y el mapeo correcto de movimientos bancarios
+ *          (depósitos, retiros y transferencias) para su presentación al usuario.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
 
 import es.deusto.banca_online.dto.TransaccionResponse;
 import es.deusto.banca_online.entity.Cuenta;

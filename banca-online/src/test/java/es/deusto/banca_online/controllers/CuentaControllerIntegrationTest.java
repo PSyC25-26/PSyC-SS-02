@@ -1,5 +1,14 @@
 package es.deusto.banca_online.controllers;
 
+/**
+ * @file CuentaControllerIntegrationTest.java
+ * @brief Tests de integración del controlador REST de cuentas bancarias.
+ * @details Verifica los endpoints de creación, consulta de saldo, depósitos, retiros
+ *          y transferencias, incluyendo validaciones de seguridad por rol.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.deusto.banca_online.dto.*;
 import es.deusto.banca_online.services.CuentaService;

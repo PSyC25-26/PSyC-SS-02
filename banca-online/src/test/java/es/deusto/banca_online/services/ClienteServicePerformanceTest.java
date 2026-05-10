@@ -1,5 +1,15 @@
 package es.deusto.banca_online.services;
 
+/**
+ * @file ClienteServicePerformanceTest.java
+ * @brief Tests de rendimiento del servicio de clientes con ContiPerf.
+ * @details Mide la latencia y el comportamiento bajo carga concurrente (20, 40 y 80 hilos)
+ *          de la operación crearCliente. Los tests están marcados con @Ignore y se
+ *          ejecutan manualmente para no penalizar el build habitual.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.ClienteRequest;
 import es.deusto.banca_online.entity.*;
 import es.deusto.banca_online.repository.*;

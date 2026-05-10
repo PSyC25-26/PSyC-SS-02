@@ -1,5 +1,14 @@
 package es.deusto.banca_online.repository;
 
+/**
+ * @file ClienteRepositoryTest.java
+ * @brief Tests de sistema sobre la capa de persistencia de Cliente contra la base de datos real.
+ * @details Verifica operaciones CRUD, búsquedas por email y DNI, y comprobaciones de existencia.
+ *          Usa @Transactional para rollback automático tras cada test.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.entity.Cliente;
 import es.deusto.banca_online.entity.ERol;
 import es.deusto.banca_online.entity.Usuario;

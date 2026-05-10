@@ -1,5 +1,14 @@
 package es.deusto.banca_online.repository;
 
+/**
+ * @file CuentaRepositoryTest.java
+ * @brief Tests de sistema sobre la capa de persistencia de Cuenta contra la base de datos real.
+ * @details Verifica guardado, búsqueda por cliente, por número de cuenta, actualización de saldo
+ *          y borrado físico. Usa @Transactional para rollback automático tras cada test.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.entity.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

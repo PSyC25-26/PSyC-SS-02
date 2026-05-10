@@ -1,5 +1,12 @@
 package es.deusto.banca_online;
 
+/**
+ * @file BancaOnlineApplicationTests.java
+ * @brief Test de arranque que verifica que el contexto de Spring Boot carga correctamente.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

@@ -1,5 +1,14 @@
 package es.deusto.banca_online.services;
 
+/**
+ * @file CuentaServiceAcceptanceTest.java
+ * @brief Tests de aceptación del servicio de cuentas bancarias.
+ * @details Verifica que el servicio cumple los criterios de aceptación definidos
+ *          en las historias de usuario, simulando flujos completos de operación.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.dto.CuentaResponse;
 import es.deusto.banca_online.entity.*;

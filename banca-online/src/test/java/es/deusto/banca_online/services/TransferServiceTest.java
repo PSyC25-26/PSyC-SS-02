@@ -1,5 +1,14 @@
 package es.deusto.banca_online.services;
 
+/**
+ * @file TransferServiceTest.java
+ * @brief Tests unitarios del servicio de transferencias entre cuentas.
+ * @details Verifica transferencias válidas como ADMIN y CLIENTE, rechazos por saldo
+ *          insuficiente, cuentas inexistentes y acceso denegado a cuentas ajenas.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.TransferenciaDTO;
 import es.deusto.banca_online.entity.*;
 import es.deusto.banca_online.repository.ICuentaRepository;

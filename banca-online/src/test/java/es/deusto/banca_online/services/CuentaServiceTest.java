@@ -1,5 +1,14 @@
 package es.deusto.banca_online.services;
 
+/**
+ * @file CuentaServiceTest.java
+ * @brief Tests unitarios del servicio de lógica de negocio de cuentas bancarias.
+ * @details Verifica la creación de cuentas, depósitos, retiros, consulta de saldo
+ *          y borrado lógico, usando mocks para aislar la lógica del servicio.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.dto.CuentaResponse;
 import es.deusto.banca_online.entity.*;

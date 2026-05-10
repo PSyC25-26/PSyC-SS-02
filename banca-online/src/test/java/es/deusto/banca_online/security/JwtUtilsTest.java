@@ -1,5 +1,14 @@
 package es.deusto.banca_online.security;
 
+/**
+ * @file JwtUtilsTest.java
+ * @brief Tests unitarios de la utilidad de generación y validación de tokens JWT.
+ * @details Verifica la generación correcta de claims para roles ADMIN y CLIENTE,
+ *          la validación de tokens correctos y el rechazo de tokens malformados.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.entity.Cliente;
 import es.deusto.banca_online.entity.ERol;
 import es.deusto.banca_online.entity.Usuario;
