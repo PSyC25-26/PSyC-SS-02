@@ -64,21 +64,75 @@ public class TransaccionServiceTest {
     @Test
     @DisplayName("Debe devolver una lista vacía si la cuenta no tiene historial")
     void testObtenerHistorial_SinTransacciones() {
-        // 1. Arrange (Preparación)
+        // =========================================================
+        // 1. Arrange (Preparación de datos)
+        // =========================================================
+
         Long cuentaId = cuentaPrincipal.getId();
-        when(transaccionRepository.findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(cuentaId, cuentaId))
-                .thenReturn(Collections.emptyList());
 
-        // 2. Act (Ejecución)
-        List<TransaccionResponse> resultado = transaccionService.obtenerHistorial(cuentaId);
+        List<Transaccion> historialVacio = Collections.emptyList();
 
-        // 3. Assert (Verificación)
-        assertNotNull(resultado, "El resultado no debería ser nulo");
-        assertTrue(resultado.isEmpty(), "La lista de transacciones debería estar vacía");
-        
-        // Verificamos que el repositorio fue llamado exactamente una vez con los parámetros correctos
+        when(
+                transaccionRepository
+                        .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                                cuentaId,
+                                cuentaId
+                        )
+        ).thenReturn(historialVacio);
+
+        // =========================================================
+        // 2. Act (Ejecución del método a probar)
+        // =========================================================
+
+        List<TransaccionResponse> resultado =
+                transaccionService.obtenerHistorial(cuentaId);
+
+        // =========================================================
+        // 3. Assert (Verificaciones)
+        // =========================================================
+
+        // Verificamos que el resultado exista
+        assertNotNull(
+                resultado,
+                "El resultado no debería ser null"
+        );
+
+        // Comprobamos explícitamente si la lista está vacía
+        boolean listaVacia = resultado.isEmpty();
+
+        assertTrue(
+                listaVacia,
+                "La lista de transacciones debería estar vacía"
+        );
+
+        // Verificamos también el tamaño exacto
+        int numeroElementos = resultado.size();
+
+        assertEquals(
+                0,
+                numeroElementos,
+                "El número de transacciones debería ser exactamente 0"
+        );
+
+        // Comprobamos que la referencia de lista no haya cambiado inesperadamente
+        assertNotSame(
+                historialVacio,
+                resultado,
+                "El servicio debería devolver una nueva lista transformada"
+        );
+
+        // =========================================================
+        // 4. Verificación de interacción con el repositorio
+        // =========================================================
+
         verify(transaccionRepository, times(1))
-                .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(cuentaId, cuentaId);
+                .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                        cuentaId,
+                        cuentaId
+                );
+
+        // Nos aseguramos de que no existan más llamadas inesperadas
+        verifyNoMoreInteractions(transaccionRepository);
     }
 
     /**
@@ -88,34 +142,187 @@ public class TransaccionServiceTest {
     @Test
     @DisplayName("Debe generar la descripción 'Transferencia RECIBIDA' cuando la cuenta es destino")
     void testObtenerHistorial_TransferenciaRecibida() {
-        // 1. Arrange
-        Long cuentaId = cuentaPrincipal.getId();
-        Transaccion transferencia = new Transaccion();
-        transferencia.setId(100L);
-        transferencia.setTotal(500.0);
-        transferencia.setFecha(LocalDateTime.now());
-        transferencia.setTipo(ETipoTransaccion.TRANSFERENCIA);
-        transferencia.setCuentaOrigen(cuentaSecundaria);
-        transferencia.setCuentaDestino(cuentaPrincipal); // La cuenta principal recibe el dinero
+        // =========================================================
+    // 1. Arrange (Preparación de datos)
+    // =========================================================
 
-        when(transaccionRepository.findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(cuentaId, cuentaId))
-                .thenReturn(Arrays.asList(transferencia));
+    Long cuentaId = cuentaPrincipal.getId();
 
-        // 2. Act
-        List<TransaccionResponse> resultado = transaccionService.obtenerHistorial(cuentaId);
+    LocalDateTime fechaOperacion = LocalDateTime.now();
 
-        // 3. Assert
-        assertEquals(1, resultado.size(), "Debería haber exactamente 1 transacción en el historial");
-        TransaccionResponse response = resultado.get(0);
-        
-        assertEquals(100L, response.getId());
-        assertEquals(500.0, response.getTotal());
-        assertEquals(ETipoTransaccion.TRANSFERENCIA.name(), response.getTipo());
-        assertEquals(cuentaSecundaria.getNumeroCuenta(), response.getCuentaOrigenNum());
-        assertEquals(cuentaPrincipal.getNumeroCuenta(), response.getCuentaDestinoNum());
-        
-        // Comprobación clave: la lógica de descripción inteligente
-        assertEquals("Transferencia RECIBIDA de " + cuentaSecundaria.getNumeroCuenta(), response.getDescripcion());
+    Transaccion transferencia = new Transaccion();
+
+    transferencia.setId(100L);
+    transferencia.setTotal(500.0);
+    transferencia.setFecha(fechaOperacion);
+    transferencia.setTipo(ETipoTransaccion.TRANSFERENCIA);
+
+    // La cuenta secundaria envía dinero
+    transferencia.setCuentaOrigen(cuentaSecundaria);
+
+    // La cuenta principal recibe dinero
+    transferencia.setCuentaDestino(cuentaPrincipal);
+
+    List<Transaccion> historialMock =
+            Arrays.asList(transferencia);
+
+    when(
+            transaccionRepository
+                    .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                            cuentaId,
+                            cuentaId
+                    )
+    ).thenReturn(historialMock);
+
+    // =========================================================
+    // 2. Act (Ejecución)
+    // =========================================================
+
+    List<TransaccionResponse> resultado =
+            transaccionService.obtenerHistorial(cuentaId);
+
+    // =========================================================
+    // 3. Assert (Verificaciones generales)
+    // =========================================================
+
+    assertNotNull(
+            resultado,
+            "La lista de resultados no debería ser null"
+    );
+
+    boolean listaVacia = resultado.isEmpty();
+
+    assertFalse(
+            listaVacia,
+            "La lista debería contener transacciones"
+    );
+
+    int totalResultados = resultado.size();
+
+    assertEquals(
+            1,
+            totalResultados,
+            "Solo debería existir una transacción"
+    );
+
+    // =========================================================
+    // 4. Validación del contenido de la respuesta
+    // =========================================================
+
+    TransaccionResponse response = resultado.get(0);
+
+    assertNotNull(
+            response,
+            "La respuesta transformada no debería ser null"
+    );
+
+    // =========================================================
+    // 5. Verificación de campos básicos
+    // =========================================================
+
+    Long idEsperado = 100L;
+    Long idReal = response.getId();
+
+    assertEquals(
+            idEsperado,
+            idReal,
+            "El ID de la transacción no coincide"
+    );
+
+    double totalEsperado = 500.0;
+    double totalReal = response.getTotal();
+
+    assertEquals(
+            totalEsperado,
+            totalReal,
+            "El importe total no coincide"
+    );
+
+    String tipoEsperado =
+            ETipoTransaccion.TRANSFERENCIA.name();
+
+    String tipoReal = response.getTipo();
+
+    assertEquals(
+            tipoEsperado,
+            tipoReal,
+            "El tipo de transacción no coincide"
+    );
+
+    // =========================================================
+    // 6. Verificación de cuentas origen/destino
+    // =========================================================
+
+    String cuentaOrigenEsperada =
+            cuentaSecundaria.getNumeroCuenta();
+
+    String cuentaOrigenReal =
+            response.getCuentaOrigenNum();
+
+    assertEquals(
+            cuentaOrigenEsperada,
+            cuentaOrigenReal,
+            "El número de cuenta origen no coincide"
+    );
+
+    String cuentaDestinoEsperada =
+            cuentaPrincipal.getNumeroCuenta();
+
+    String cuentaDestinoReal =
+            response.getCuentaDestinoNum();
+
+    assertEquals(
+            cuentaDestinoEsperada,
+            cuentaDestinoReal,
+            "El número de cuenta destino no coincide"
+    );
+
+    // =========================================================
+    // 7. Verificación de la descripción inteligente
+    // =========================================================
+
+    String descripcionEsperada =
+            "Transferencia RECIBIDA de "
+                    + cuentaSecundaria.getNumeroCuenta();
+
+    String descripcionReal =
+            response.getDescripcion();
+
+    assertNotNull(
+            descripcionReal,
+            "La descripción generada no debería ser null"
+    );
+
+    assertEquals(
+            descripcionEsperada,
+            descripcionReal,
+            "La descripción inteligente generada no es correcta"
+    );
+
+    // =========================================================
+    // 8. Validación de fecha
+    // =========================================================
+
+    String fechaEsperada = fechaOperacion.toString();
+    String fechaReal = response.getFecha();
+
+    assertEquals(
+            fechaEsperada,
+            fechaReal,
+            "La fecha transformada no coincide"
+    );
+
+    // =========================================================
+    // 9. Verificación de interacción con el repositorio
+    // =========================================================
+
+    verify(transaccionRepository, times(1))
+            .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                    cuentaId,
+                    cuentaId
+            );
+
+    verifyNoMoreInteractions(transaccionRepository);
     }
 
     /**
@@ -125,28 +332,190 @@ public class TransaccionServiceTest {
     @Test
     @DisplayName("Debe generar la descripción 'Transferencia ENVIADA' cuando la cuenta es origen")
     void testObtenerHistorial_TransferenciaEnviada() {
-        // 1. Arrange
-        Long cuentaId = cuentaPrincipal.getId();
-        Transaccion transferencia = new Transaccion();
-        transferencia.setId(101L);
-        transferencia.setTotal(300.0);
-        transferencia.setFecha(LocalDateTime.now());
-        transferencia.setTipo(ETipoTransaccion.TRANSFERENCIA);
-        transferencia.setCuentaOrigen(cuentaPrincipal); // La cuenta principal envía el dinero
-        transferencia.setCuentaDestino(cuentaSecundaria);
+        // =========================================================
+    // 1. Arrange (Preparación de datos)
+    // =========================================================
 
-        when(transaccionRepository.findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(cuentaId, cuentaId))
-                .thenReturn(Arrays.asList(transferencia));
+    Long cuentaId = cuentaPrincipal.getId();
 
-        // 2. Act
-        List<TransaccionResponse> resultado = transaccionService.obtenerHistorial(cuentaId);
+    LocalDateTime fechaTransferencia = LocalDateTime.now();
 
-        // 3. Assert
-        assertFalse(resultado.isEmpty());
-        TransaccionResponse response = resultado.get(0);
-        
-        // Comprobación clave: la lógica de descripción inteligente cambia
-        assertEquals("Transferencia ENVIADA a " + cuentaSecundaria.getNumeroCuenta(), response.getDescripcion());
+    Transaccion transferencia = new Transaccion();
+
+    transferencia.setId(101L);
+    transferencia.setTotal(300.0);
+    transferencia.setFecha(fechaTransferencia);
+    transferencia.setTipo(ETipoTransaccion.TRANSFERENCIA);
+
+    // La cuenta principal realiza el envío
+    transferencia.setCuentaOrigen(cuentaPrincipal);
+
+    // La cuenta secundaria recibe el dinero
+    transferencia.setCuentaDestino(cuentaSecundaria);
+
+    List<Transaccion> historialMock =
+            Arrays.asList(transferencia);
+
+    when(
+            transaccionRepository
+                    .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                            cuentaId,
+                            cuentaId
+                    )
+    ).thenReturn(historialMock);
+
+    // =========================================================
+    // 2. Act (Ejecución del método)
+    // =========================================================
+
+    List<TransaccionResponse> resultado =
+            transaccionService.obtenerHistorial(cuentaId);
+
+    // =========================================================
+    // 3. Assert (Comprobaciones generales)
+    // =========================================================
+
+    assertNotNull(
+            resultado,
+            "La lista devuelta no debería ser null"
+    );
+
+    boolean resultadoVacio = resultado.isEmpty();
+
+    assertFalse(
+            resultadoVacio,
+            "La lista debería contener al menos una transacción"
+    );
+
+    int numeroResultados = resultado.size();
+
+    assertEquals(
+            1,
+            numeroResultados,
+            "Solo debería existir una transacción"
+    );
+
+    // =========================================================
+    // 4. Obtención y validación de la respuesta
+    // =========================================================
+
+    TransaccionResponse response = resultado.get(0);
+
+    assertNotNull(
+            response,
+            "La respuesta obtenida no debería ser null"
+    );
+
+    // =========================================================
+    // 5. Validación de datos básicos
+    // =========================================================
+
+    Long idEsperado = 101L;
+    Long idReal = response.getId();
+
+    assertEquals(
+            idEsperado,
+            idReal,
+            "El ID de la transacción no coincide"
+    );
+
+    double totalEsperado = 300.0;
+    double totalReal = response.getTotal();
+
+    assertEquals(
+            totalEsperado,
+            totalReal,
+            "El total de la transferencia no coincide"
+    );
+
+    String tipoEsperado =
+            ETipoTransaccion.TRANSFERENCIA.name();
+
+    String tipoReal = response.getTipo();
+
+    assertEquals(
+            tipoEsperado,
+            tipoReal,
+            "El tipo de transacción devuelto no es correcto"
+    );
+
+    // =========================================================
+    // 6. Validación de cuentas origen y destino
+    // =========================================================
+
+    String cuentaOrigenEsperada =
+            cuentaPrincipal.getNumeroCuenta();
+
+    String cuentaOrigenReal =
+            response.getCuentaOrigenNum();
+
+    assertEquals(
+            cuentaOrigenEsperada,
+            cuentaOrigenReal,
+            "La cuenta origen no coincide"
+    );
+
+    String cuentaDestinoEsperada =
+            cuentaSecundaria.getNumeroCuenta();
+
+    String cuentaDestinoReal =
+            response.getCuentaDestinoNum();
+
+    assertEquals(
+            cuentaDestinoEsperada,
+            cuentaDestinoReal,
+            "La cuenta destino no coincide"
+    );
+
+    // =========================================================
+    // 7. Verificación de descripción inteligente
+    // =========================================================
+
+    String descripcionEsperada =
+            "Transferencia ENVIADA a "
+                    + cuentaSecundaria.getNumeroCuenta();
+
+    String descripcionReal =
+            response.getDescripcion();
+
+    assertNotNull(
+            descripcionReal,
+            "La descripción generada no debería ser null"
+    );
+
+    assertEquals(
+            descripcionEsperada,
+            descripcionReal,
+            "La descripción de transferencia enviada no es correcta"
+    );
+
+    // =========================================================
+    // 8. Validación de fecha
+    // =========================================================
+
+    String fechaEsperada =
+            fechaTransferencia.toString();
+
+    String fechaReal =
+            response.getFecha();
+
+    assertEquals(
+            fechaEsperada,
+            fechaReal,
+            "La fecha transformada no coincide"
+    );
+
+    // =========================================================
+    // 9. Verificación de interacción con el repositorio
+    // =========================================================
+
+    verify(transaccionRepository, times(1))
+            .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                    cuentaId,
+                    cuentaId
+            );
+
+    verifyNoMoreInteractions(transaccionRepository);
     }
 
     /**
@@ -156,30 +525,189 @@ public class TransaccionServiceTest {
     @Test
     @DisplayName("Debe conservar la descripción original para DEPÓSITOS y RETIROS")
     void testObtenerHistorial_DepositoMantieneDescripcion() {
-        // 1. Arrange
-        Long cuentaId = cuentaPrincipal.getId();
-        Transaccion deposito = new Transaccion();
-        deposito.setId(102L);
-        deposito.setTotal(1000.0);
-        deposito.setFecha(LocalDateTime.now());
-        deposito.setTipo(ETipoTransaccion.DEPOSITO);
-        deposito.setDescripcion("Ingreso de nómina");
-        deposito.setCuentaDestino(cuentaPrincipal); // En los depósitos origen es nulo
+        // =========================================================
+    // 1. Arrange (Preparación de datos)
+    // =========================================================
 
-        when(transaccionRepository.findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(cuentaId, cuentaId))
-                .thenReturn(Arrays.asList(deposito));
+    Long cuentaId = cuentaPrincipal.getId();
 
-        // 2. Act
-        List<TransaccionResponse> resultado = transaccionService.obtenerHistorial(cuentaId);
+    LocalDateTime fechaDeposito = LocalDateTime.now();
 
-        // 3. Assert
-        TransaccionResponse response = resultado.get(0);
-        
-        assertEquals(ETipoTransaccion.DEPOSITO.name(), response.getTipo());
-        assertEquals("N/A", response.getCuentaOrigenNum(), "Si no hay cuenta de origen, debe ser 'N/A'");
-        assertEquals(cuentaPrincipal.getNumeroCuenta(), response.getCuentaDestinoNum());
-        
-        // Comprobación clave: No modifica la descripción original
-        assertEquals("Ingreso de nómina", response.getDescripcion());
+    Transaccion deposito = new Transaccion();
+
+    deposito.setId(102L);
+    deposito.setTotal(1000.0);
+    deposito.setFecha(fechaDeposito);
+
+    deposito.setTipo(ETipoTransaccion.DEPOSITO);
+
+    String descripcionOriginal = "Ingreso de nómina";
+
+    deposito.setDescripcion(descripcionOriginal);
+
+    // En un depósito la cuenta origen puede ser null
+    deposito.setCuentaOrigen(null);
+
+    deposito.setCuentaDestino(cuentaPrincipal);
+
+    List<Transaccion> historialMock =
+            Arrays.asList(deposito);
+
+    when(
+            transaccionRepository
+                    .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                            cuentaId,
+                            cuentaId
+                    )
+    ).thenReturn(historialMock);
+
+    // =========================================================
+    // 2. Act (Ejecución del método)
+    // =========================================================
+
+    List<TransaccionResponse> resultado =
+            transaccionService.obtenerHistorial(cuentaId);
+
+    // =========================================================
+    // 3. Assert (Comprobaciones generales)
+    // =========================================================
+
+    assertNotNull(
+            resultado,
+            "La lista devuelta no debería ser null"
+    );
+
+    boolean listaVacia = resultado.isEmpty();
+
+    assertFalse(
+            listaVacia,
+            "La lista debería contener una transacción"
+    );
+
+    int numeroResultados = resultado.size();
+
+    assertEquals(
+            1,
+            numeroResultados,
+            "Solo debería existir una transacción"
+    );
+
+    // =========================================================
+    // 4. Obtención de la respuesta transformada
+    // =========================================================
+
+    TransaccionResponse response = resultado.get(0);
+
+    assertNotNull(
+            response,
+            "La respuesta transformada no debería ser null"
+    );
+
+    // =========================================================
+    // 5. Validación de datos básicos
+    // =========================================================
+
+    Long idEsperado = 102L;
+    Long idReal = response.getId();
+
+    assertEquals(
+            idEsperado,
+            idReal,
+            "El ID del depósito no coincide"
+    );
+
+    double totalEsperado = 1000.0;
+    double totalReal = response.getTotal();
+
+    assertEquals(
+            totalEsperado,
+            totalReal,
+            "El importe del depósito no coincide"
+    );
+
+    String tipoEsperado =
+            ETipoTransaccion.DEPOSITO.name();
+
+    String tipoReal =
+            response.getTipo();
+
+    assertEquals(
+            tipoEsperado,
+            tipoReal,
+            "El tipo de transacción debería ser DEPÓSITO"
+    );
+
+    // =========================================================
+    // 6. Validación de cuentas origen y destino
+    // =========================================================
+
+    String cuentaOrigenEsperada = "N/A";
+
+    String cuentaOrigenReal =
+            response.getCuentaOrigenNum();
+
+    assertEquals(
+            cuentaOrigenEsperada,
+            cuentaOrigenReal,
+            "Cuando no existe cuenta origen debería mostrarse 'N/A'"
+    );
+
+    String cuentaDestinoEsperada =
+            cuentaPrincipal.getNumeroCuenta();
+
+    String cuentaDestinoReal =
+            response.getCuentaDestinoNum();
+
+    assertEquals(
+            cuentaDestinoEsperada,
+            cuentaDestinoReal,
+            "La cuenta destino no coincide"
+    );
+
+    // =========================================================
+    // 7. Verificación de descripción original
+    // =========================================================
+
+    String descripcionReal =
+            response.getDescripcion();
+
+    assertNotNull(
+            descripcionReal,
+            "La descripción no debería ser null"
+    );
+
+    assertEquals(
+            descripcionOriginal,
+            descripcionReal,
+            "La descripción original del depósito debería mantenerse"
+    );
+
+    // =========================================================
+    // 8. Validación de fecha
+    // =========================================================
+
+    String fechaEsperada =
+            fechaDeposito.toString();
+
+    String fechaReal =
+            response.getFecha();
+
+    assertEquals(
+            fechaEsperada,
+            fechaReal,
+            "La fecha transformada no coincide"
+    );
+
+    // =========================================================
+    // 9. Verificación de interacción con el repositorio
+    // =========================================================
+
+    verify(transaccionRepository, times(1))
+            .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                    cuentaId,
+                    cuentaId
+            );
+
+    verifyNoMoreInteractions(transaccionRepository);
     }
 }
