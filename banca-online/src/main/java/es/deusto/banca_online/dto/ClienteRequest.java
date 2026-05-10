@@ -1,5 +1,12 @@
 package es.deusto.banca_online.dto;
 
+/**
+ * @file ClienteRequest.java
+ * @brief DTO con los datos de entrada para crear o actualizar un cliente.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

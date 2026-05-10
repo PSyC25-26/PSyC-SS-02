@@ -1,5 +1,12 @@
 package es.deusto.banca_online.services;
 
+/**
+ * @file CuentaService.java
+ * @brief Servicio de lógica de negocio para cuentas bancarias: saldos, depósitos y retiros.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.CuentaRequest;
 import es.deusto.banca_online.dto.CuentaResponse;
 import es.deusto.banca_online.entity.*;

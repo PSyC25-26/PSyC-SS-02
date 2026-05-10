@@ -1,5 +1,12 @@
 package es.deusto.banca_online.dto;
 
+/**
+ * @file RetiroRequest.java
+ * @brief DTO con los datos necesarios para realizar un retiro de una cuenta.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 

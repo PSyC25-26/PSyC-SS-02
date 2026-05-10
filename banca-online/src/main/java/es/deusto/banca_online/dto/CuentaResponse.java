@@ -1,5 +1,12 @@
 package es.deusto.banca_online.dto;
 
+/**
+ * @file CuentaResponse.java
+ * @brief DTO de salida con el estado actual de una cuenta bancaria.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import lombok.Data;
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;

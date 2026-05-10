@@ -1,5 +1,12 @@
 package es.deusto.banca_online.security;
 
+/**
+ * @file SecurityConfig.java
+ * @brief Configuración principal de Spring Security: filtros, política de sesiones y rutas públicas.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

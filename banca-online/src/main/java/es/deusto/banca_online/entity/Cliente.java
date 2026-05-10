@@ -1,5 +1,12 @@
 package es.deusto.banca_online.entity;
 
+/**
+ * @file Cliente.java
+ * @brief Entidad JPA que representa la información personal y de contacto de un cliente.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 

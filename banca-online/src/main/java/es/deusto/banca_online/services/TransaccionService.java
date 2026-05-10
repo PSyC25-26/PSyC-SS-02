@@ -1,5 +1,12 @@
 package es.deusto.banca_online.services;
 
+/**
+ * @file TransaccionService.java
+ * @brief Servicio para la consulta y mapeo del historial de transacciones bancarias.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.TransaccionResponse;
 import es.deusto.banca_online.entity.Transaccion;
 import es.deusto.banca_online.repository.ITransaccionRepository;

@@ -1,5 +1,12 @@
 package es.deusto.banca_online.entity;
 
+/**
+ * @file Usuario.java
+ * @brief Entidad JPA de seguridad que gestiona las credenciales de acceso e implementa UserDetails.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;

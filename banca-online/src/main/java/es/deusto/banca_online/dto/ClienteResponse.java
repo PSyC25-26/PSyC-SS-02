@@ -1,5 +1,12 @@
 package es.deusto.banca_online.dto;
 
+/**
+ * @file ClienteResponse.java
+ * @brief DTO de salida con la información de un cliente para enviar a través de la API.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 

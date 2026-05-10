@@ -1,5 +1,12 @@
 package es.deusto.banca_online.controllers;
 
+/**
+ * @file CuentaController.java
+ * @brief Controlador REST para la gestión de cuentas bancarias, depósitos, retiros y transferencias.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.*;
 import es.deusto.banca_online.services.CuentaService;
 import es.deusto.banca_online.services.TransferService;

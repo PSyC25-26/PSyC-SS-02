@@ -1,5 +1,12 @@
 package es.deusto.banca_online.security;
 
+/**
+ * @file UserDetailsServiceImpl.java
+ * @brief Implementación de UserDetailsService que carga usuarios desde la base de datos por email.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.entity.Usuario;
 import es.deusto.banca_online.repository.IUsuarioRepository;
 import org.springframework.security.core.userdetails.UserDetails;

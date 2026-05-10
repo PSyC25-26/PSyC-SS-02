@@ -1,5 +1,12 @@
 package es.deusto.banca_online;
 
+/**
+ * @file BancaOnlineApplication.java
+ * @brief Clase principal de la aplicación Banca Online que inicia el contexto de Spring Boot.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

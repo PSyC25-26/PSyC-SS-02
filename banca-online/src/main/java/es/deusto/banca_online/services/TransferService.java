@@ -1,5 +1,12 @@
 package es.deusto.banca_online.services;
 
+/**
+ * @file TransferService.java
+ * @brief Servicio especializado en la ejecución atómica de transferencias entre cuentas.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.TransferenciaDTO;
 import es.deusto.banca_online.entity.Cuenta;
 import es.deusto.banca_online.entity.Transaccion;

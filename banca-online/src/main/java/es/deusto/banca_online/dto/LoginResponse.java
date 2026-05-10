@@ -1,5 +1,12 @@
 package es.deusto.banca_online.dto;
 
+/**
+ * @file LoginResponse.java
+ * @brief DTO de respuesta al login con el token JWT, rol, clienteId y email del usuario.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

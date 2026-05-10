@@ -1,5 +1,12 @@
 package es.deusto.banca_online.security;
 
+/**
+ * @file AuthChecks.java
+ * @brief Componente de validación de permisos y propiedad de recursos en tiempo de ejecución.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.entity.Cuenta;
 import es.deusto.banca_online.entity.Usuario;
 import org.springframework.security.access.AccessDeniedException;

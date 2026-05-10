@@ -1,5 +1,12 @@
 package es.deusto.banca_online.config;
 
+/**
+ * @file SwaggerConfig.java
+ * @brief Configuración de OpenAPI/Swagger con autenticación Bearer JWT global.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;

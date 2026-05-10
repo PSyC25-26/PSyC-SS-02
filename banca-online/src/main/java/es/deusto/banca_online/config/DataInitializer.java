@@ -1,5 +1,12 @@
 package es.deusto.banca_online.config;
 
+/**
+ * @file DataInitializer.java
+ * @brief Pobla la base de datos con un usuario administrador inicial al arrancar la aplicación.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.entity.ERol;
 import es.deusto.banca_online.entity.Usuario;
 import es.deusto.banca_online.repository.IUsuarioRepository;

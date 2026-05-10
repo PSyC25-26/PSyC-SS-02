@@ -1,5 +1,12 @@
 package es.deusto.banca_online.repository;
 
+/**
+ * @file IUsuarioRepository.java
+ * @brief Repositorio JPA para la entidad Usuario, con búsquedas por email y cliente asociado.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

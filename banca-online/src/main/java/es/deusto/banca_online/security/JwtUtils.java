@@ -1,5 +1,12 @@
 package es.deusto.banca_online.security;
 
+/**
+ * @file JwtUtils.java
+ * @brief Utilidades para la generación, validación y extracción de claims de tokens JWT.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.entity.Usuario;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

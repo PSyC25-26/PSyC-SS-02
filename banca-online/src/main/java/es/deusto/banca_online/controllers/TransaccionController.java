@@ -1,5 +1,12 @@
 package es.deusto.banca_online.controllers;
 
+/**
+ * @file TransaccionController.java
+ * @brief Controlador REST para la consulta del historial de movimientos bancarios.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.TransaccionResponse;
 import es.deusto.banca_online.services.TransaccionService;
 import org.springframework.http.ResponseEntity;

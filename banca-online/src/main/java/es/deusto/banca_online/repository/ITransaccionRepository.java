@@ -1,4 +1,12 @@
 package es.deusto.banca_online.repository;
+
+/**
+ * @file ITransaccionRepository.java
+ * @brief Repositorio JPA para la entidad Transaccion, con consultas por cuenta origen y destino.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.entity.Transaccion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

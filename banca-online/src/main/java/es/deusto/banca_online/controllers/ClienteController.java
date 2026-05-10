@@ -1,5 +1,12 @@
 package es.deusto.banca_online.controllers;
 
+/**
+ * @file ClienteController.java
+ * @brief Controlador REST para la gestión de clientes (CRUD y perfil propio).
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.ClienteRequest;
 import es.deusto.banca_online.dto.ClienteResponse;
 import es.deusto.banca_online.entity.Cliente;

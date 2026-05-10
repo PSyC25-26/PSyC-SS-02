@@ -1,5 +1,12 @@
 package es.deusto.banca_online.entity;
 
+/**
+ * @file Transaccion.java
+ * @brief Entidad JPA que registra cada movimiento de dinero (depósito, retiro o transferencia).
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;

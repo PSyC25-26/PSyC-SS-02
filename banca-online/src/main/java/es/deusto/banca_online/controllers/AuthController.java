@@ -1,5 +1,12 @@
 package es.deusto.banca_online.controllers;
 
+/**
+ * @file AuthController.java
+ * @brief Controlador REST para la autenticación de usuarios mediante JWT.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.dto.LoginRequest;
 import es.deusto.banca_online.dto.LoginResponse;
 import es.deusto.banca_online.entity.Usuario;

@@ -1,5 +1,12 @@
 package es.deusto.banca_online.repository;
 
+/**
+ * @file ICuentaRepository.java
+ * @brief Repositorio JPA para la entidad Cuenta, con filtros por cliente y estado activo.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.entity.Cuenta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

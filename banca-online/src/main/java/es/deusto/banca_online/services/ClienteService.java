@@ -1,5 +1,12 @@
 package es.deusto.banca_online.services;
 
+/**
+ * @file ClienteService.java
+ * @brief Servicio de lógica de negocio para la gestión completa del ciclo de vida de clientes.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.entity.Cliente;
 import es.deusto.banca_online.entity.ERol;
 import es.deusto.banca_online.entity.Usuario;

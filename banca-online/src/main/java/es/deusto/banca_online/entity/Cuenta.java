@@ -1,5 +1,12 @@
 package es.deusto.banca_online.entity;
 
+/**
+ * @file Cuenta.java
+ * @brief Entidad JPA que representa una cuenta bancaria con su saldo, tipo y titular.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.Data;

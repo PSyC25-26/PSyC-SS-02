@@ -1,5 +1,12 @@
 package es.deusto.banca_online.security;
 
+/**
+ * @file JwtAuthFilter.java
+ * @brief Filtro HTTP que intercepta cada petición para validar y procesar el token JWT.
+ * @author Equipo Banca Online - Universidad de Deusto
+ * @version 0.3.0-SNAPSHOT
+ */
+
 import es.deusto.banca_online.repository.IUsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
