@@ -30,5 +30,11 @@ banca-online/logs/
 target/
 
 # documentacion Doxygen generada
-docs/doxygen/
-html/
+banca-online/docs/doxygen/*
+!banca-online/docs/doxygen/html/
+!banca-online/docs/doxygen/latex/
+
+banca-online/docs/doxygen/html/*
+banca-online/docs/doxygen/latex/*
+
+!banca-online/docs/doxygen/latex/refman.pdf
