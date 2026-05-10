@@ -92,14 +92,22 @@ jobs:
           mkdir public
           # Copiamos reportes de Maven
           cp -r banca-online/target/site public/maven-site
-          # Copiamos Doxygen (ajustado a la ruta de vuestro Doxyfile)
+
+          # Copiamos ContiPerf
+          if [ -d "banca-online/target/contiperf-report" ]; then
+            cp -r banca-online/target/contiperf-report public/maven-site/contiperf-report
+          fi
+
+          # Copiamos Doxygen
           if [ -d "banca-online/docs/doxygen/html" ]; then
             cp -r banca-online/docs/doxygen/html public/doxygen
           fi
+
           # Index de navegación
           echo "<html><body><h1>Reportes CI - Banca Online</h1><ul>" > public/index.html
           echo "<li><a href='./maven-site/index.html'>Maven Site (Tests y Cobertura)</a></li>" >> public/index.html
           echo "<li><a href='./doxygen/index.html'>Documentación Doxygen</a></li>" >> public/index.html
+          echo "<li><a href='./maven-site/contiperf-report/index.html'>Reporte de Rendimiento (ContiPerf)</a></li>" >> public/index.html
           echo "</ul></body></html>" >> public/index.html
 
       - name: Configurar Pages
