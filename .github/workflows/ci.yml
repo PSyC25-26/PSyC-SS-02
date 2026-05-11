@@ -77,6 +77,22 @@ jobs:
         # "verify" compila, pasa los tests y además activa Jacoco
         run: mvn clean verify 
 
+      # ==============================================================================
+      # ANÁLISIS DE CALIDAD DE CÓDIGO CON SONARCLOUD
+      # ==============================================================================
+      # Este paso lee los resultados de los tests y envía el análisis a SonarCloud.
+      - name: Analizar código con SonarCloud
+        working-directory: ./banca-online
+        env:
+          # El token de seguridad que guardaste en los Secrets de GitHub
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
+          -Dsonar.projectKey=PSyC25-26_PSyC-SS-02
+          -Dsonar.organization=psyc25-26
+          -Dsonar.host.url=https://sonarcloud.io 
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
       - name: Generar Maven Site (Reportes de Tests/Jacoco)
         working-directory: ./banca-online
         run: mvn site
