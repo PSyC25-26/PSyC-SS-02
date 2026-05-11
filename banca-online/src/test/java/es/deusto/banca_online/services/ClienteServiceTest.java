@@ -10,13 +10,16 @@ package es.deusto.banca_online.services;
  */
 
 import es.deusto.banca_online.dto.ClienteRequest;
+import es.deusto.banca_online.dto.ClienteUpdateDTO;
 import es.deusto.banca_online.entity.Cliente;
 import es.deusto.banca_online.entity.Usuario;
 import es.deusto.banca_online.repository.IClienteRepository;
 import es.deusto.banca_online.repository.IUsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -650,4 +653,605 @@ class ClienteServiceTest {
         assertEquals("Cliente no encontrado", exception.getMessage());
         verify(clienteRepository, never()).delete(any(Cliente.class));
     }
+
+    @Test
+@DisplayName("Debe actualizar correctamente teléfono y dirección del cliente")
+void testActualizarPerfilPropio_ActualizacionCompleta() {
+
+    // ===========
+    // 1. Arrange
+    // ===========
+
+    String emailCliente = "cliente@test.com";
+
+    Cliente clienteExistente = new Cliente();
+
+    clienteExistente.setId(1L);
+    clienteExistente.setNombre("Jon");
+
+    clienteExistente.setTelefono("600111111");
+    clienteExistente.setDireccion("Dirección antigua");
+
+    clienteExistente.setEmail(emailCliente);
+
+    ClienteUpdateDTO request = new ClienteUpdateDTO();
+
+    request.setTelefono("699999999");
+    request.setDireccion("Nueva dirección");
+
+    when(clienteRepository.findByEmail(emailCliente))
+            .thenReturn(Optional.of(clienteExistente));
+
+    when(clienteRepository.save(any(Cliente.class)))
+            .thenReturn(clienteExistente);
+
+    // =======
+    // 2. Act
+    // =======
+
+    Cliente resultado =
+            clienteService.actualizarPerfilPropio(
+                    emailCliente,
+                    request
+            );
+
+    // ==========
+    // 3. Assert
+    // ==========
+
+    assertNotNull(resultado);
+
+    assertEquals(1L, resultado.getId());
+
+    assertEquals(
+            "699999999",
+            resultado.getTelefono()
+    );
+
+    assertEquals(
+            "Nueva dirección",
+            resultado.getDireccion()
+    );
+
+    assertEquals(
+            "Jon",
+            resultado.getNombre()
+    );
+
+    assertEquals(
+            emailCliente,
+            resultado.getEmail()
+    );
+
+    verify(clienteRepository, times(1))
+            .findByEmail(emailCliente);
+
+    verify(clienteRepository, times(1))
+            .save(clienteExistente);
+
+    verifyNoMoreInteractions(clienteRepository);
+}
+
+@Test
+@DisplayName("Debe actualizar únicamente el teléfono")
+void testActualizarPerfilPropio_SoloTelefono() {
+
+    // =============
+    // 1. Arrange
+    // =============
+
+    String emailCliente = "cliente@test.com";
+
+    Cliente clienteExistente = new Cliente();
+
+    clienteExistente.setId(2L);
+
+    clienteExistente.setTelefono("600000000");
+    clienteExistente.setDireccion("Dirección original");
+
+    ClienteUpdateDTO request = new ClienteUpdateDTO();
+
+    request.setTelefono("611111111");
+
+    request.setDireccion(null);
+
+    when(clienteRepository.findByEmail(emailCliente))
+            .thenReturn(Optional.of(clienteExistente));
+
+    when(clienteRepository.save(any(Cliente.class)))
+            .thenReturn(clienteExistente);
+
+    // =========
+    // 2. Act
+    // =========
+
+    Cliente resultado =
+            clienteService.actualizarPerfilPropio(
+                    emailCliente,
+                    request
+            );
+
+    // ============
+    // 3. Assert
+    // ============
+
+    assertNotNull(resultado);
+
+    assertEquals(
+            "611111111",
+            resultado.getTelefono()
+    );
+
+    assertEquals(
+            "Dirección original",
+            resultado.getDireccion()
+    );
+
+    verify(clienteRepository, times(1))
+            .findByEmail(emailCliente);
+
+    verify(clienteRepository, times(1))
+            .save(clienteExistente);
+
+    verifyNoMoreInteractions(clienteRepository);
+}
+
+@Test
+@DisplayName("Debe actualizar únicamente la dirección")
+void testActualizarPerfilPropio_SoloDireccion() {
+
+    // ===========
+    // 1. Arrange
+    // ===========
+
+    String emailCliente = "cliente@test.com";
+
+    Cliente clienteExistente = new Cliente();
+
+    clienteExistente.setId(3L);
+
+    clienteExistente.setTelefono("688888888");
+    clienteExistente.setDireccion("Dirección antigua");
+
+    ClienteUpdateDTO request = new ClienteUpdateDTO();
+
+    request.setTelefono(null);
+
+    request.setDireccion("Nueva dirección actualizada");
+
+    when(clienteRepository.findByEmail(emailCliente))
+            .thenReturn(Optional.of(clienteExistente));
+
+    when(clienteRepository.save(any(Cliente.class)))
+            .thenReturn(clienteExistente);
+
+    // =========
+    // 2. Act
+    // =========
+
+    Cliente resultado =
+            clienteService.actualizarPerfilPropio(
+                    emailCliente,
+                    request
+            );
+
+    // ===========
+    // 3. Assert
+    // ===========
+
+    assertNotNull(resultado);
+
+    assertEquals(
+            "688888888",
+            resultado.getTelefono()
+    );
+
+    assertEquals(
+            "Nueva dirección actualizada",
+            resultado.getDireccion()
+    );
+
+    verify(clienteRepository, times(1))
+            .findByEmail(emailCliente);
+
+    verify(clienteRepository, times(1))
+            .save(clienteExistente);
+
+    verifyNoMoreInteractions(clienteRepository);
+}
+
+@Test
+@DisplayName("No debe actualizar campos vacíos")
+void testActualizarPerfilPropio_CamposVacios() {
+
+    // ============
+    // 1. Arrange
+    // ============
+
+    String emailCliente = "cliente@test.com";
+
+    Cliente clienteExistente = new Cliente();
+
+    clienteExistente.setTelefono("677777777");
+
+    clienteExistente.setDireccion("Dirección correcta");
+
+    ClienteUpdateDTO request = new ClienteUpdateDTO();
+
+    request.setTelefono("");
+
+    request.setDireccion("   ");
+
+    when(clienteRepository.findByEmail(emailCliente))
+            .thenReturn(Optional.of(clienteExistente));
+
+    when(clienteRepository.save(any(Cliente.class)))
+            .thenReturn(clienteExistente);
+
+    // ==========
+    // 2. Act
+    // =========
+
+    Cliente resultado =
+            clienteService.actualizarPerfilPropio(
+                    emailCliente,
+                    request
+            );
+
+    // ===========
+    // 3. Assert
+    // ===========
+
+    assertNotNull(resultado);
+
+    assertEquals(
+            "677777777",
+            resultado.getTelefono()
+    );
+
+    assertEquals(
+            "Dirección correcta",
+            resultado.getDireccion()
+    );
+
+    verify(clienteRepository, times(1))
+            .findByEmail(emailCliente);
+
+    verify(clienteRepository, times(1))
+            .save(clienteExistente);
+
+    verifyNoMoreInteractions(clienteRepository);
+}
+
+@Test
+@DisplayName("Debe lanzar excepción cuando el cliente no existe")
+void testActualizarPerfilPropio_ClienteNoEncontrado() {
+
+    // =============
+    // 1. Arrange
+    // =============
+
+    String emailCliente = "inexistente@test.com";
+
+    ClienteUpdateDTO request = new ClienteUpdateDTO();
+
+    request.setTelefono("600000000");
+
+    request.setDireccion("Dirección");
+
+    when(clienteRepository.findByEmail(emailCliente))
+            .thenReturn(Optional.empty());
+
+    // ==================
+    // 2. Act + Assert
+    // ==================
+
+    RuntimeException exception =
+            assertThrows(
+                    RuntimeException.class,
+                    () -> clienteService.actualizarPerfilPropio(
+                            emailCliente,
+                            request
+                    )
+            );
+
+    String mensajeEsperado = "Cliente no encontrado";
+
+    String mensajeReal = exception.getMessage();
+
+    assertEquals(
+            mensajeEsperado,
+            mensajeReal
+    );
+
+    verify(clienteRepository, times(1))
+            .findByEmail(emailCliente);
+
+    verify(clienteRepository, never())
+            .save(any(Cliente.class));
+
+    verifyNoMoreInteractions(clienteRepository);
+}
+
+@Test
+@DisplayName("Debe guardar correctamente el cliente actualizado usando ArgumentCaptor")
+void testActualizarPerfilPropio_ValidarObjetoGuardado() {
+
+    // ============
+    // 1. Arrange
+    // ============
+
+    String emailCliente = "cliente@test.com";
+
+    Cliente clienteExistente = new Cliente();
+
+    clienteExistente.setId(10L);
+
+    clienteExistente.setNombre("Ane");
+
+    clienteExistente.setTelefono("600000000");
+
+    clienteExistente.setDireccion("Dirección antigua");
+
+    clienteExistente.setEmail(emailCliente);
+
+    ClienteUpdateDTO request = new ClienteUpdateDTO();
+
+    request.setTelefono("699999999");
+
+    request.setDireccion("Nueva dirección");
+
+    when(clienteRepository.findByEmail(emailCliente))
+            .thenReturn(Optional.of(clienteExistente));
+
+    when(clienteRepository.save(any(Cliente.class)))
+            .thenReturn(clienteExistente);
+
+    // =========
+    // 2. Act
+    // =========
+
+    Cliente resultado =
+            clienteService.actualizarPerfilPropio(
+                    emailCliente,
+                    request
+            );
+
+    // ===========
+    // 3. Assert
+    // ===========
+
+    assertNotNull(resultado);
+
+    ArgumentCaptor<Cliente> captor =
+            ArgumentCaptor.forClass(Cliente.class);
+
+    verify(clienteRepository, times(1))
+            .save(captor.capture());
+
+    Cliente clienteGuardado = captor.getValue();
+
+    assertNotNull(clienteGuardado);
+
+    assertEquals(
+            "699999999",
+            clienteGuardado.getTelefono()
+    );
+
+    assertEquals(
+            "Nueva dirección",
+            clienteGuardado.getDireccion()
+    );
+
+    assertEquals(
+            "Ane",
+            clienteGuardado.getNombre()
+    );
+
+    assertEquals(
+            emailCliente,
+            clienteGuardado.getEmail()
+    );
+
+    assertSame(
+            clienteExistente,
+            clienteGuardado
+    );
+
+    verify(clienteRepository, times(1))
+            .findByEmail(emailCliente);
+
+    verifyNoMoreInteractions(clienteRepository);
+}
+
+@Test
+@DisplayName("Debe mantener intactos los datos no modificados")
+void testActualizarPerfilPropio_MantenerDatosOriginales() {
+
+    // ============
+    // 1. Arrange
+    // ============
+
+    String emailCliente = "cliente@test.com";
+
+    LocalDate fechaNacimiento =
+            LocalDate.of(1995, 5, 10);
+
+    LocalDateTime fechaCreacion =
+            LocalDateTime.now().minusYears(2);
+
+    Cliente clienteExistente = new Cliente();
+
+    clienteExistente.setId(20L);
+
+    clienteExistente.setDni("12345678A");
+
+    clienteExistente.setNombre("Iker");
+
+    clienteExistente.setPrimerApellido("García");
+
+    clienteExistente.setSegundoApellido("López");
+
+    clienteExistente.setFechaNacimiento(fechaNacimiento);
+
+    clienteExistente.setFechaCreacion(fechaCreacion);
+
+    clienteExistente.setEmail(emailCliente);
+
+    clienteExistente.setTelefono("611111111");
+
+    clienteExistente.setDireccion("Dirección antigua");
+
+    ClienteUpdateDTO request = new ClienteUpdateDTO();
+
+    request.setTelefono("622222222");
+
+    request.setDireccion(null);
+
+    when(clienteRepository.findByEmail(emailCliente))
+            .thenReturn(Optional.of(clienteExistente));
+
+    when(clienteRepository.save(any(Cliente.class)))
+            .thenReturn(clienteExistente);
+
+    // ===========
+    // 2. Act
+    // ===========
+
+    Cliente resultado =
+            clienteService.actualizarPerfilPropio(
+                    emailCliente,
+                    request
+            );
+
+    // =============
+    // 3. Assert
+    // =============
+
+    assertNotNull(resultado);
+
+    // Campo actualizado
+    assertEquals(
+            "622222222",
+            resultado.getTelefono()
+    );
+
+    // Campo no actualizado
+    assertEquals(
+            "Dirección antigua",
+            resultado.getDireccion()
+    );
+
+    // Verificación de integridad de datos
+    assertEquals(
+            "12345678A",
+            resultado.getDni()
+    );
+
+    assertEquals(
+            "Iker",
+            resultado.getNombre()
+    );
+
+    assertEquals(
+            "García",
+            resultado.getPrimerApellido()
+    );
+
+    assertEquals(
+            "López",
+            resultado.getSegundoApellido()
+    );
+
+    assertEquals(
+            fechaNacimiento,
+            resultado.getFechaNacimiento()
+    );
+
+    assertEquals(
+            fechaCreacion,
+            resultado.getFechaCreacion()
+    );
+
+    assertEquals(
+            emailCliente,
+            resultado.getEmail()
+    );
+
+    verify(clienteRepository, times(1))
+            .findByEmail(emailCliente);
+
+    verify(clienteRepository, times(1))
+            .save(clienteExistente);
+
+    verifyNoMoreInteractions(clienteRepository);
+}
+
+@Test
+@DisplayName("Debe actualizar dirección aunque el teléfono esté vacío")
+void testActualizarPerfilPropio_TelefonoVacioDireccionValida() {
+
+    // ===========
+    // 1. Arrange
+    // ===========
+
+    String emailCliente = "cliente@test.com";
+
+    Cliente clienteExistente = new Cliente();
+
+    clienteExistente.setId(30L);
+
+    clienteExistente.setTelefono("633333333");
+
+    clienteExistente.setDireccion("Dirección antigua");
+
+    ClienteUpdateDTO request = new ClienteUpdateDTO();
+
+    // Teléfono inválido
+    request.setTelefono("   ");
+
+    // Dirección válida
+    request.setDireccion("Nueva dirección válida");
+
+    when(clienteRepository.findByEmail(emailCliente))
+            .thenReturn(Optional.of(clienteExistente));
+
+    when(clienteRepository.save(any(Cliente.class)))
+            .thenReturn(clienteExistente);
+
+    // =========
+    // 2. Act
+    // =========
+    Cliente resultado =
+            clienteService.actualizarPerfilPropio(
+                    emailCliente,
+                    request
+            );
+
+    // ==============
+    // 3. Assert
+    // ==============
+
+    assertNotNull(resultado);
+
+    // El teléfono debe mantenerse
+    assertEquals(
+            "633333333",
+            resultado.getTelefono()
+    );
+
+    // La dirección sí debe actualizarse
+    assertEquals(
+            "Nueva dirección válida",
+            resultado.getDireccion()
+    );
+
+    verify(clienteRepository, times(1))
+            .findByEmail(emailCliente);
+
+    verify(clienteRepository, times(1))
+            .save(clienteExistente);
+
+    verifyNoMoreInteractions(clienteRepository);
+}
 }
