@@ -718,4 +718,324 @@ public class TransaccionServiceTest {
 
     verifyNoMoreInteractions(transaccionRepository);
     }
+
+    @Test
+@DisplayName("Debe mostrar N/A cuando la cuenta origen es null")
+void testObtenerHistorial_TransferenciaSinCuentaOrigen() {
+
+    Long cuentaId = cuentaPrincipal.getId();
+
+    Transaccion transferencia = new Transaccion();
+
+    transferencia.setId(200L);
+    transferencia.setTotal(150.0);
+    transferencia.setFecha(LocalDateTime.now());
+
+    transferencia.setTipo(ETipoTransaccion.TRANSFERENCIA);
+
+    transferencia.setCuentaOrigen(null);
+
+    transferencia.setCuentaDestino(cuentaPrincipal);
+
+    List<Transaccion> historialMock =
+            Arrays.asList(transferencia);
+
+    when(
+            transaccionRepository
+                    .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                            cuentaId,
+                            cuentaId
+                    )
+    ).thenReturn(historialMock);
+
+    List<TransaccionResponse> resultado =
+            transaccionService.obtenerHistorial(cuentaId);
+
+    assertNotNull(resultado);
+
+    assertEquals(1, resultado.size());
+
+    TransaccionResponse response = resultado.get(0);
+
+    assertNotNull(response);
+
+    assertEquals("N/A", response.getCuentaOrigenNum());
+
+    assertEquals(
+            cuentaPrincipal.getNumeroCuenta(),
+            response.getCuentaDestinoNum()
+    );
+
+    verify(transaccionRepository, times(1))
+            .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                    cuentaId,
+                    cuentaId
+            );
+
+    verifyNoMoreInteractions(transaccionRepository);
+}
+
+@Test
+@DisplayName("Debe mostrar N/A cuando la cuenta destino es null")
+void testObtenerHistorial_TransferenciaSinCuentaDestino() {
+
+    Long cuentaId = cuentaPrincipal.getId();
+
+    Transaccion transferencia = new Transaccion();
+
+    transferencia.setId(201L);
+    transferencia.setTotal(250.0);
+    transferencia.setFecha(LocalDateTime.now());
+
+    transferencia.setTipo(ETipoTransaccion.TRANSFERENCIA);
+
+    transferencia.setCuentaOrigen(cuentaPrincipal);
+
+    transferencia.setCuentaDestino(null);
+
+    List<Transaccion> historialMock =
+            Arrays.asList(transferencia);
+
+    when(
+            transaccionRepository
+                    .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                            cuentaId,
+                            cuentaId
+                    )
+    ).thenReturn(historialMock);
+
+    List<TransaccionResponse> resultado =
+            transaccionService.obtenerHistorial(cuentaId);
+
+    assertNotNull(resultado);
+
+    assertEquals(1, resultado.size());
+
+    TransaccionResponse response = resultado.get(0);
+
+    assertNotNull(response);
+
+    assertEquals(
+            cuentaPrincipal.getNumeroCuenta(),
+            response.getCuentaOrigenNum()
+    );
+
+    assertEquals("N/A", response.getCuentaDestinoNum());
+
+    assertEquals(
+            "Transferencia ENVIADA a N/A",
+            response.getDescripcion()
+    );
+
+    verify(transaccionRepository, times(1))
+            .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                    cuentaId,
+                    cuentaId
+            );
+}
+
+@Test
+@DisplayName("Debe devolver correctamente múltiples transacciones")
+void testObtenerHistorial_MultiplesTransacciones() {
+
+    Long cuentaId = cuentaPrincipal.getId();
+
+    Transaccion deposito = new Transaccion();
+
+    deposito.setId(300L);
+    deposito.setTotal(1000.0);
+    deposito.setFecha(LocalDateTime.now());
+
+    deposito.setTipo(ETipoTransaccion.DEPOSITO);
+
+    deposito.setDescripcion("Ingreso mensual");
+
+    deposito.setCuentaDestino(cuentaPrincipal);
+
+    Transaccion transferencia = new Transaccion();
+
+    transferencia.setId(301L);
+    transferencia.setTotal(200.0);
+    transferencia.setFecha(LocalDateTime.now().minusHours(1));
+
+    transferencia.setTipo(ETipoTransaccion.TRANSFERENCIA);
+
+    transferencia.setCuentaOrigen(cuentaPrincipal);
+
+    transferencia.setCuentaDestino(cuentaSecundaria);
+
+    List<Transaccion> historialMock =
+            Arrays.asList(deposito, transferencia);
+
+    when(
+            transaccionRepository
+                    .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                            cuentaId,
+                            cuentaId
+                    )
+    ).thenReturn(historialMock);
+
+    List<TransaccionResponse> resultado =
+            transaccionService.obtenerHistorial(cuentaId);
+
+    assertNotNull(resultado);
+
+    assertEquals(2, resultado.size());
+
+    TransaccionResponse primera = resultado.get(0);
+    TransaccionResponse segunda = resultado.get(1);
+
+    assertNotNull(primera);
+    assertNotNull(segunda);
+
+    assertEquals(300L, primera.getId());
+
+    assertEquals(
+            "Ingreso mensual",
+            primera.getDescripcion()
+    );
+
+    assertEquals(301L, segunda.getId());
+
+    assertEquals(
+            "Transferencia ENVIADA a "
+                    + cuentaSecundaria.getNumeroCuenta(),
+            segunda.getDescripcion()
+    );
+
+    verify(transaccionRepository, times(1))
+            .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                    cuentaId,
+                    cuentaId
+            );
+
+    verifyNoMoreInteractions(transaccionRepository);
+}
+
+@Test
+@DisplayName("Debe mantener la descripción original en retiros")
+void testObtenerHistorial_RetiroMantieneDescripcion() {
+
+    Long cuentaId = cuentaPrincipal.getId();
+
+    Transaccion retiro = new Transaccion();
+
+    retiro.setId(400L);
+    retiro.setTotal(80.0);
+
+    retiro.setFecha(LocalDateTime.now());
+
+    retiro.setTipo(ETipoTransaccion.RETIRO);
+
+    retiro.setDescripcion("Retirada en cajero");
+
+    retiro.setCuentaOrigen(cuentaPrincipal);
+
+    retiro.setCuentaDestino(null);
+
+    when(
+            transaccionRepository
+                    .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                            cuentaId,
+                            cuentaId
+                    )
+    ).thenReturn(Arrays.asList(retiro));
+
+    List<TransaccionResponse> resultado =
+            transaccionService.obtenerHistorial(cuentaId);
+
+    assertNotNull(resultado);
+
+    assertEquals(1, resultado.size());
+
+    TransaccionResponse response = resultado.get(0);
+
+    assertEquals(
+            ETipoTransaccion.RETIRO.name(),
+            response.getTipo()
+    );
+
+    assertEquals(
+            "Retirada en cajero",
+            response.getDescripcion()
+    );
+
+    assertEquals(
+            cuentaPrincipal.getNumeroCuenta(),
+            response.getCuentaOrigenNum()
+    );
+
+    assertEquals(
+            "N/A",
+            response.getCuentaDestinoNum()
+    );
+
+    verify(transaccionRepository, times(1))
+            .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                    cuentaId,
+                    cuentaId
+            );
+}
+
+@Test
+@DisplayName("Debe procesar transferencias a la misma cuenta")
+void testObtenerHistorial_TransferenciaMismaCuenta() {
+
+    Long cuentaId = cuentaPrincipal.getId();
+
+    Transaccion transferencia = new Transaccion();
+
+    transferencia.setId(500L);
+
+    transferencia.setTotal(50.0);
+
+    transferencia.setFecha(LocalDateTime.now());
+
+    transferencia.setTipo(ETipoTransaccion.TRANSFERENCIA);
+
+    transferencia.setCuentaOrigen(cuentaPrincipal);
+
+    transferencia.setCuentaDestino(cuentaPrincipal);
+
+    when(
+            transaccionRepository
+                    .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                            cuentaId,
+                            cuentaId
+                    )
+    ).thenReturn(Arrays.asList(transferencia));
+
+    List<TransaccionResponse> resultado =
+            transaccionService.obtenerHistorial(cuentaId);
+
+    assertNotNull(resultado);
+
+    assertEquals(1, resultado.size());
+
+    TransaccionResponse response = resultado.get(0);
+
+    assertEquals(
+            cuentaPrincipal.getNumeroCuenta(),
+            response.getCuentaOrigenNum()
+    );
+
+    assertEquals(
+            cuentaPrincipal.getNumeroCuenta(),
+            response.getCuentaDestinoNum()
+    );
+
+    assertEquals(
+            "Transferencia RECIBIDA de "
+                    + cuentaPrincipal.getNumeroCuenta(),
+            response.getDescripcion()
+    );
+
+    verify(transaccionRepository, times(1))
+            .findByCuentaOrigenIdOrCuentaDestinoIdOrderByFechaDesc(
+                    cuentaId,
+                    cuentaId
+            );
+
+    verifyNoMoreInteractions(transaccionRepository);
+}
 }
