@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Playwright ###
+test-results/
+playwright-report/
