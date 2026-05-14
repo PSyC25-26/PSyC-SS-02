@@ -1,0 +1,16 @@
+{
+  "name": "banca-online",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "playwright:install": "npx playwright install",
+    "test": "npx playwright test",
+    "report": "npx playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0",
+    "typescript": "^5.5.0",
+    "ts-node": "^10.9.2",
+    "node-fetch": "^2.7.0"
+  }
+}
