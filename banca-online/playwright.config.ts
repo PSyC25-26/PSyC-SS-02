@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:8080';
 
@@ -9,5 +9,13 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: BASE_URL,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
   },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
 });
