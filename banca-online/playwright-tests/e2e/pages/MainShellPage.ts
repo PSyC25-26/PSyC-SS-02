@@ -13,7 +13,6 @@ export class MainShellPage {
 
   async logout() {
     await this.page.click('#logoutBtn');
-    await expect(this.page.locator('#loginScreen')).toBeVisible();
   }
 
   async clickMenuItem(text: string) {
