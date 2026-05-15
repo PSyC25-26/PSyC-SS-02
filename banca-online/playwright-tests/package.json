@@ -5,8 +5,8 @@
   "scripts": {
     "playwright:install": "npx playwright install chromium",
     "test": "npx playwright test",
-    "test:api": "npx playwright test --project=chromium tests/api/",
-    "test:e2e": "npx playwright test --project=chromium tests/e2e/",
+    "test:api": "npx playwright test api/",
+    "test:e2e": "npx playwright test e2e/",
     "report": "npx playwright show-report"
   },
   "devDependencies": {
