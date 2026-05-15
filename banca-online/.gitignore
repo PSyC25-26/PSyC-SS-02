@@ -32,6 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 
-### Playwright ###
-test-results/
-playwright-report/
+### Playwright / Node ###
+playwright-tests/node_modules/
+playwright-tests/test-results/
+playwright-tests/playwright-report/
+src/test/js/node_modules/

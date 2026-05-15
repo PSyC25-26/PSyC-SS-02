@@ -1,5 +1,5 @@
 {
-  "name": "banca-online",
+  "name": "banca-online-e2e",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,8 @@
     "report": "npx playwright show-report"
   },
   "devDependencies": {
-    "@playwright/test": "^1.47.0",
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.8.0",
     "typescript": "^5.5.0",
     "ts-node": "^10.9.2",
     "node-fetch": "^2.7.0"
