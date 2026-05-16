@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures/admin.fixture';
 import { LoginPage } from './pages/LoginPage';
 
-test.describe('E2E — login', () => {
+test.describe('E2E parte login', () => {
   test('admin login muestra el panel principal con rol Administrador', async ({ page, adminShell }) => {
     await expect(page.locator('#mainApp')).toBeVisible();
     const role = await adminShell.userRole();

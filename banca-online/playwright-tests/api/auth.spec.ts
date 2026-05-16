@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { BASE_URL, ADMIN_EMAIL, ADMIN_PASSWORD } from '../support/env';
 
-test.describe('API — auth', () => {
+test.describe('API parte Auth', () => {
   test('login retorna token JWT y rol ADMIN', async ({ request }) => {
     const res = await request.post(`${BASE_URL}/api/auth/login`, {
       data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },

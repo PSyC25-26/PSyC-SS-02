@@ -3,13 +3,13 @@ import { BASE_URL } from '../support/env';
 import { loginComoAdmin, bearerHeaders } from '../support/api';
 import { clientePayload } from '../support/data';
 
-test.describe('API — clientes', () => {
-  test('GET /api/clientes sin token retorna 403', async ({ request }) => {
+test.describe('API parte clientes', () => {
+  test('Conseguir clientes sin token retorna 403', async ({ request }) => {
     const res = await request.get(`${BASE_URL}/api/clientes`);
     expect(res.status()).toBe(403);
   });
 
-  test('GET /api/clientes con JWT retorna 200 y array', async ({ request }) => {
+  test('Conseguir clientes con JWT retorna 200 con lista', async ({ request }) => {
     const token = await loginComoAdmin(request);
     const res = await request.get(`${BASE_URL}/api/clientes`, {
       headers: bearerHeaders(token),
@@ -20,7 +20,7 @@ test.describe('API — clientes', () => {
     expect(Array.isArray(body)).toBe(true);
   });
 
-  test('POST /api/clientes crea un cliente y retorna 201', async ({ request }) => {
+  test('Crea un cliente y retorna 201', async ({ request }) => {
     const token = await loginComoAdmin(request);
     const res = await request.post(`${BASE_URL}/api/clientes`, {
       headers: bearerHeaders(token),
