@@ -9,6 +9,7 @@
 ![Maven](https://img.shields.io/badge/Maven-3.9-red)
 ![JUnit](https://img.shields.io/badge/JUnit-5-green)
 ![Coverage](https://img.shields.io/badge/Coverage-50%25%2B-yellowgreen)
+![Jenkins](https://img.shields.io/badge/Jenkins-CI/CD-red)
 
 **Una aplicación de banca en línea construida con Spring Boot para gestionar clientes, cuentas bancarias y transferencias de dinero, con autenticación JWT y control de acceso por roles.**
 
@@ -24,6 +25,7 @@
 - [Estructura](#estructura)
 - [Endpoints API](#endpoints-api)
 - [Tests](#tests)
+- [Integración Continua (Jenkins)](#integración-continua-jenkins)
 ---
 
 ##  Descripción
@@ -289,6 +291,35 @@ cd src/test/js
 npm install
 npm test
 ```
+
+## Integración Continua (Jenkins)
+
+El proyecto utiliza Jenkins como servidor de integración contínua.
+La pipeline está definida en el [`Jenkinsfile`](./Jenkinsfile) en la raíz del repositorio.
+
+### Stages del pipeline
+
+1. **Checkout**: Clona el repositorio desde GitHub
+2. **Build**: Compila el proyecto con `mvnw clean compile`
+3. **Test**: Ejecuta los 167 tests (unitarios, integración, aceptación, rendimiento)
+4. **Coverage Report**: Genera el reporte JaCoCo de cobertura
+
+### Configuración local
+
+Para levantar Jenkins en local con Docker:
+
+````bash
+docker run -d -p 8090:8080 -p 50000:50000 \
+  -v jenkins_home:/var/jenkins_home \
+  --name jenkins \
+  jenkins/jenkins:lts
+````
+
+Acceder a http://localhost:8090 y configurar:
+- Pipeline → "Pipeline script from SCM"
+- Repository URL: `https://github.com/PSyC25-26/PSyC-SS-02.git`
+- Branch: `*/main`
+- Script Path: `Jenkinsfile`
 
 ---
 
