@@ -25,6 +25,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -368,5 +370,199 @@ class CuentaControllerIntegrationTest {
                 .andExpect(status().isNotFound());
 
         log.info("Test integracion pasado: 404 para cuenta inexistente");
+    }
+
+    // ===================== GET /api/cuentas/saldo/{cuentaId} =====================
+
+    @Test
+    @WithMockUser(roles = "CLIENTE")
+    void verSaldo_clienteAccedeASuCuenta_retorna200() throws Exception {
+        log.info("Test: CLIENTE accediendo a su propia cuenta retorna 200");
+        when(cuentaService.obtenerSaldo(eq(5L), any())).thenReturn(250.0);
+
+        mockMvc.perform(get("/api/cuentas/saldo/5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.saldo").value(250.0));
+
+        log.info("Test pasado: CLIENTE puede ver saldo de su cuenta");
+    }
+
+    // ===================== GET /api/cuentas/saldo (vista HTML) =====================
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void vistaSaldo_retornaNombreDeVista() throws Exception {
+        log.info("Test: GET /api/cuentas/saldo retorna nombre de vista");
+        mockMvc.perform(get("/api/cuentas/saldo"))
+                .andExpect(status().isOk());
+        log.info("Test pasado: endpoint vista accesible");
+    }
+
+    // ===================== GET /api/cuentas/{clienteId} =====================
+
+    @Test
+    @WithMockUser(roles = "CLIENTE")
+    void obtenerCuentasPorClienteId_clientePropio_retorna200() throws Exception {
+        log.info("Test: CLIENTE consulta sus cuentas retorna lista");
+
+        CuentaResponse cuentaPropia = new CuentaResponse();
+        cuentaPropia.setId(1L);
+        cuentaPropia.setNumeroCuenta("ES-CLI-001");
+        cuentaPropia.setSaldo(1000.0);
+        cuentaPropia.setTipoCuenta("CORRIENTE");
+        cuentaPropia.setClienteId(1L);
+
+        when(cuentaService.obtenerCuentasPorCliente(eq(1L), any())).thenReturn(List.of(cuentaPropia));
+
+        mockMvc.perform(get("/api/cuentas/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].numeroCuenta").value("ES-CLI-001"));
+
+        log.info("Test pasado: cliente accede a sus cuentas");
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void obtenerCuentasPorClienteId_clienteInexistente_retorna404() throws Exception {
+        log.info("Test: GET /api/cuentas/99 cliente inexistente retorna 404");
+        when(cuentaService.obtenerCuentasPorCliente(eq(99L), any()))
+                .thenThrow(new RuntimeException("Cliente no encontrado"));
+
+        mockMvc.perform(get("/api/cuentas/99"))
+                .andExpect(status().isNotFound());
+
+        log.info("Test pasado: 404 para cliente inexistente");
+    }
+
+    // ===================== POST /api/cuentas/transferir - rama 404 =====================
+
+    @Test
+    @WithMockUser(roles = "CLIENTE")
+    void transferir_cuentaNoEncontrada_retorna404() throws Exception {
+        log.info("Test: transferencia con cuenta inexistente retorna 404");
+
+        TransferenciaDTO dto = new TransferenciaDTO();
+        dto.setCuentaOrigen("ES-INEXISTENTE");
+        dto.setCuentaDestino("ES-DESTINO-002");
+        dto.setCantidad(100.0);
+
+        when(transferService.transferirDinero(any(), any()))
+                .thenThrow(new RuntimeException("Cuenta no encontrada"));
+
+        mockMvc.perform(post("/api/cuentas/transferir")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isNotFound());
+
+        log.info("Test pasado: 404 por cuenta no encontrada");
+    }
+
+    // ===================== POST /api/cuentas/depositar - rama 404 =====================
+
+    @Test
+    @WithMockUser(roles = "CLIENTE")
+    void depositar_cuentaNoEncontrada_retorna404() throws Exception {
+        log.info("Test: deposito en cuenta inexistente retorna 404");
+
+        DepositoRequest req = new DepositoRequest();
+        req.setCuentaId(999L);
+        req.setMonto(100.0);
+
+        when(cuentaService.depositarDinero(anyLong(), anyDouble(), any()))
+                .thenThrow(new RuntimeException("Cuenta no encontrada"));
+
+        mockMvc.perform(post("/api/cuentas/depositar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isNotFound());
+
+        log.info("Test pasado: 404 por cuenta inexistente");
+    }
+
+    // ===================== POST /api/cuentas/retirar - ramas adicionales =====================
+
+    @Test
+    @WithMockUser(roles = "CLIENTE")
+    void retirar_cuentaNoEncontrada_retorna404() throws Exception {
+        log.info("Test: retiro de cuenta inexistente retorna 404");
+
+        RetiroRequest req = new RetiroRequest();
+        req.setCuentaId(999L);
+        req.setMonto(100.0);
+
+        when(cuentaService.retirarDinero(anyLong(), anyDouble(), any()))
+                .thenThrow(new RuntimeException("Cuenta no encontrada"));
+
+        mockMvc.perform(post("/api/cuentas/retirar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isNotFound());
+
+        log.info("Test pasado: 404 por cuenta inexistente");
+    }
+
+    @Test
+    @WithMockUser(roles = "CLIENTE")
+    void retirar_datosValidos_retorna200() throws Exception {
+        log.info("Test: retiro valido retorna 200");
+
+        RetiroRequest req = new RetiroRequest();
+        req.setCuentaId(1L);
+        req.setMonto(100.0);
+
+        CuentaResponse responseOk = new CuentaResponse();
+        responseOk.setId(1L);
+        responseOk.setSaldo(400.0);
+
+        when(cuentaService.retirarDinero(eq(1L), eq(100.0), any())).thenReturn(responseOk);
+
+        mockMvc.perform(post("/api/cuentas/retirar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.saldo").value(400.0));
+
+        log.info("Test pasado: retiro exitoso");
+    }
+
+    // ===================== DELETE /api/cuentas/{id} =====================
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void eliminarCuentaInactiva_cuentaConSaldoCero_retorna204() throws Exception {
+        log.info("Test: DELETE /api/cuentas/1 con saldo 0 retorna 204");
+
+        mockMvc.perform(delete("/api/cuentas/1"))
+                .andExpect(status().isNoContent());
+
+        log.info("Test pasado: cuenta eliminada (204)");
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void eliminarCuentaInactiva_cuentaConSaldo_retorna400() throws Exception {
+        log.info("Test: DELETE de cuenta con saldo > 0 retorna 400");
+
+        org.mockito.Mockito.doThrow(new IllegalArgumentException("No se puede eliminar cuenta con saldo"))
+                .when(cuentaService).eliminarCuentaInactiva(1L);
+
+        mockMvc.perform(delete("/api/cuentas/1"))
+                .andExpect(status().isBadRequest());
+
+        log.info("Test pasado: 400 al eliminar cuenta con saldo");
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void eliminarCuentaInactiva_cuentaNoEncontrada_retorna404() throws Exception {
+        log.info("Test: DELETE de cuenta inexistente retorna 404");
+
+        org.mockito.Mockito.doThrow(new RuntimeException("Cuenta no encontrada"))
+                .when(cuentaService).eliminarCuentaInactiva(999L);
+
+        mockMvc.perform(delete("/api/cuentas/999"))
+                .andExpect(status().isNotFound());
+
+        log.info("Test pasado: 404 al eliminar cuenta inexistente");
     }
 }
