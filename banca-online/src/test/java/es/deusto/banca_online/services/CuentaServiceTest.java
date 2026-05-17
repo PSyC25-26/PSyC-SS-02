@@ -30,7 +30,8 @@ import org.springframework.security.core.Authentication;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Optional;;
+import static org.mockito.ArgumentMatchers.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -456,5 +457,113 @@ class CuentaServiceTest {
         lenient().when(authentication.getPrincipal()).thenReturn(usuario);
         lenient().when(authChecks.isAdmin(authentication)).thenReturn(false);
         lenient().when(authChecks.clienteIdOrNull(authentication)).thenReturn(clienteId);
+    }
+
+    // ===================== eliminarCuentaInactiva =====================
+
+    @Test
+    void eliminarCuentaInactiva_saldoCero_desactivaCuenta() {
+        // Cuenta con saldo 0 se puede desactivar (borrado logico)
+        Cuenta cuentaSaldoCero = new Cuenta();
+        cuentaSaldoCero.setId(10L);
+        cuentaSaldoCero.setNumeroCuenta("ES-DEL-001");
+        cuentaSaldoCero.setSaldo(0.0);
+        cuentaSaldoCero.setTipoCuenta(ETipoCuenta.CORRIENTE);
+        cuentaSaldoCero.setCliente(cliente);
+        cuentaSaldoCero.setActiva(true);
+
+        when(cuentaRepository.findById(10L)).thenReturn(Optional.of(cuentaSaldoCero));
+        when(cuentaRepository.save(any(Cuenta.class))).thenReturn(cuentaSaldoCero);
+
+        cuentaService.eliminarCuentaInactiva(10L);
+
+        // Verificamos que la cuenta queda desactivada y se guarda
+        verify(cuentaRepository, times(1)).save(any(Cuenta.class));
+        assertFalse(cuentaSaldoCero.getActiva());
+    }
+
+    @Test
+    void eliminarCuentaInactiva_saldoPositivo_lanzaIllegalArgument() {
+        // Cuenta con saldo > 0 NO se puede eliminar (restriccion de negocio)
+        Cuenta cuentaConSaldo = new Cuenta();
+        cuentaConSaldo.setId(10L);
+        cuentaConSaldo.setSaldo(500.0);
+        cuentaConSaldo.setCliente(cliente);
+
+        when(cuentaRepository.findById(10L)).thenReturn(Optional.of(cuentaConSaldo));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.eliminarCuentaInactiva(10L));
+
+        // Verificamos el mensaje y que NO se llama a save
+        assertTrue(ex.getMessage().contains("saldo"));
+        verify(cuentaRepository, never()).save(any(Cuenta.class));
+    }
+
+    @Test
+    void eliminarCuentaInactiva_cuentaNoExiste_lanzaRuntimeException() {
+        // Cuenta inexistente lanza excepcion
+        when(cuentaRepository.findById(999L)).thenReturn(Optional.empty());
+
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> cuentaService.eliminarCuentaInactiva(999L));
+
+        assertEquals("Cuenta no encontrada", ex.getMessage());
+    }
+
+    // ===================== actualizarSaldo =====================
+
+    @Test
+    void actualizarSaldo_cuentaExistente_actualizaCorrectamente() {
+        // Actualizar el saldo de una cuenta existente
+        Cuenta cuentaParaActualizar = new Cuenta();
+        cuentaParaActualizar.setId(10L);
+        cuentaParaActualizar.setSaldo(100.0);
+        cuentaParaActualizar.setCliente(cliente);
+
+        when(cuentaRepository.findById(10L)).thenReturn(Optional.of(cuentaParaActualizar));
+        when(cuentaRepository.save(any(Cuenta.class))).thenReturn(cuentaParaActualizar);
+
+        cuentaService.actualizarSaldo(10L, 500.0);
+
+        // Verificamos que el saldo se actualizo y se guardo
+        assertEquals(500.0, cuentaParaActualizar.getSaldo());
+        verify(cuentaRepository, times(1)).save(cuentaParaActualizar);
+    }
+
+    @Test
+    void actualizarSaldo_cuentaNoExiste_lanzaRuntimeException() {
+        // Actualizar saldo de cuenta inexistente lanza excepcion
+        when(cuentaRepository.findById(999L)).thenReturn(Optional.empty());
+
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> cuentaService.actualizarSaldo(999L, 100.0));
+
+        assertEquals("Cuenta no encontrada", ex.getMessage());
+        verify(cuentaRepository, never()).save(any(Cuenta.class));
+    }
+
+    // ===================== obtenerCuentasPorCliente con Authentication =====================
+
+    @Test
+    void obtenerCuentasPorCliente_conAuthentication_validaPropietarioYDevuelveLista() {
+        // Verificamos que la sobrecarga con Authentication valida permisos antes de devolver datos
+        Cuenta cuentaCliente = new Cuenta();
+        cuentaCliente.setId(10L);
+        cuentaCliente.setNumeroCuenta("ES-AUTH-001");
+        cuentaCliente.setSaldo(100.0);
+        cuentaCliente.setTipoCuenta(ETipoCuenta.CORRIENTE);
+        cuentaCliente.setCliente(cliente);
+        cuentaCliente.setFechaCreacion(LocalDateTime.now());
+
+        when(cuentaRepository.findByClienteId(1L)).thenReturn(List.of(cuentaCliente));
+
+        var result = cuentaService.obtenerCuentasPorCliente(1L,
+                mock(org.springframework.security.core.Authentication.class));
+
+        // Verificaciones
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(authChecks, times(1)).assertOwnsCliente(any(), eq(1L));
     }
 }
