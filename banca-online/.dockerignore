@@ -1,0 +1,44 @@
+# Build artifacts
+target/
+*.jar
+!**/target/banca-online-*.jar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Logs
+*.log
+logs/
+
+# Tests / reports
+docs/reports/
+**/jacoco.exec
+**/surefire-reports/
+
+# Docker (no nos copiamos a nosotros mismos)
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Node (tests JS)
+node_modules/
+package-lock.json
+src/test/js/node_modules/
+
+# Otros
+README.md
+*.md

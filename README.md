@@ -85,28 +85,63 @@ Para poder ejecutar los test del lado cliente de manera correcta es necesario te
 
 ##  Instalación Rápida Con Docker
 
+El proyecto está **totalmente dockerizado**. Solo necesitas tener Docker instalado.
+No requiere Java, Maven ni configuración adicional en la máquina.
 
-1.  **Clonar el repositorio**
+### Opción 1 — Levantar todo con un solo comando (recomendado)
+
 ```bash
-git clone https://github.com/tu-usuario/banca-online.git
-cd banca-online
+git clone https://github.com/PSyC25-26/PSyC-SS-02.git
+cd PSyC-SS-02/banca-online
+docker-compose up -d --build
 ```
 
-2.  **Iniciar MySQL con Docker Compose**
-```bash
-docker-compose up -d
-```
+Esto levanta:
+- **MySQL 8.0** en `localhost:3307` (con datos persistentes)
+- **App Spring Boot** en `localhost:8080`
 
-3.  **Ejecutar la aplicación**
+La primera vez tarda ~3-5 minutos (descarga Java 25, dependencias Maven y compila).
+Las siguientes ejecuciones son casi instantáneas.
+
+### Opción 2 — Solo BD (desarrollo con IntelliJ)
+
+Si prefieres ejecutar la app desde IntelliJ y usar Docker solo para la BD:
+
 ```bash
+docker-compose up -d mysql
 ./mvnw spring-boot:run
 ```
 
- **¡Listo!** La aplicación estará disponible en:
+### Acceso a la aplicación
+
+**¡Listo!** La aplicación estará disponible en:
 - Frontend: http://localhost:8080/index.html
 - API base: http://localhost:8080/api
 - Swagger UI: http://localhost:8080/swagger-ui.html
 
+### Datos de prueba (seed)
+
+El fichero `data.sql` inicializa automáticamente la BD con:
+
+| Email | Password | Rol |
+|-------|----------|-----|
+| `admin@banco.com` | `admin123` | ADMIN |
+| `cliente@banco.com` | `cliente123` | CLIENTE |
+| `maria@banco.com` | `cliente123` | CLIENTE |
+| `pedro@banco.com` | `cliente123` | CLIENTE |
+
+Cada cliente tiene cuentas y transacciones pre-cargadas para facilitar el testing.
+
+### Comandos útiles
+
+```bash
+docker-compose up -d --build   # Construye y arranca todo
+docker-compose down            # Para los contenedores (mantiene datos)
+docker-compose down -v         # Para los contenedores Y BORRA todos los datos
+docker-compose logs -f app     # Ver logs de la app en tiempo real
+docker-compose logs -f mysql   # Ver logs de MySQL en tiempo real
+docker-compose restart app     # Reiniciar solo la app
+```
 ---
 
 ##  Autenticación y Seguridad

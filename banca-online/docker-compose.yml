@@ -1,17 +1,27 @@
-# Levanta MySQL con datos persistentes para todos.
+# ============================================================================
+# Banca Online - Docker Compose
+# ============================================================================
+# Levanta TODA la aplicacion (BD + backend) con un solo comando.
 #
-# USO:
-#   docker-compose up -d           # Arranca MySQL en segundo plano
-#   docker-compose down            # Para MySQL (mantiene los datos)
-#   docker-compose down -v         # Para MySQL Y BORRA los datos (reset total)
-#   docker-compose logs -f mysql   # Ver logs en tiempo real
+# USO BASICO:
+#   docker-compose up -d --build    # Construye y arranca todos en segundo plano
+#   docker-compose down             # Para todos (mantiene los datos)
+#   docker-compose down -v          # Para todos Y BORRA los datos (reset)
+#   docker-compose logs -f          # Ver logs en tiempo real
+#   docker-compose logs -f app      # Solo logs de la app
 #
-# Los datos del esquema (schema.sql) y los datos seed (data.sql) los gestiona
-# Spring Boot al arrancar la app.
+# USO PARCIAL (solo BD, util en desarrollo con IntelliJ):
+#   docker-compose up -d mysql      # Solo MySQL (la app la arrancas en IntelliJ)
+#
+# La app estara disponible en: http://localhost:8080
+# ============================================================================
 
 version: '3.8'
 
 services:
+  # --------------------------------------------------------------------------
+  # Base de datos MySQL
+  # --------------------------------------------------------------------------
   mysql:
     image: mysql:8.0
     container_name: banca-mysql
@@ -31,7 +41,46 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - banca-net
 
+  # --------------------------------------------------------------------------
+  # Aplicacion Spring Boot
+  # --------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: banca-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      # La app se conecta a MySQL usando el nombre del servicio Docker
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: banca_online
+      DB_USER: banca_user
+      DB_PASSWORD: mi_password
+      JWT_SECRET: dGhpcytlc3R1bmErc2VjcmV0YStjbGF2ZSttdXkrbGFyZ2E=
+      JWT_EXPIRATION_MS: 3600000
+    ports:
+      - "8080:8080"
+    networks:
+      - banca-net
+
+# --------------------------------------------------------------------------
+# Volumenes persistentes
+# --------------------------------------------------------------------------
 volumes:
   banca_mysql_data:
     name: banca_mysql_data
+
+# --------------------------------------------------------------------------
+# Red interna para que app y mysql se hablen
+# --------------------------------------------------------------------------
+networks:
+  banca-net:
+    name: banca-net
+    driver: bridge
