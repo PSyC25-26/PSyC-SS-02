@@ -1,8 +1,21 @@
+# Levanta MySQL con datos persistentes para todos.
+#
+# USO:
+#   docker-compose up -d           # Arranca MySQL en segundo plano
+#   docker-compose down            # Para MySQL (mantiene los datos)
+#   docker-compose down -v         # Para MySQL Y BORRA los datos (reset total)
+#   docker-compose logs -f mysql   # Ver logs en tiempo real
+#
+# Los datos del esquema (schema.sql) y los datos seed (data.sql) los gestiona
+# Spring Boot al arrancar la app.
+
 version: '3.8'
+
 services:
   mysql:
     image: mysql:8.0
     container_name: banca-mysql
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: banca_online
       MYSQL_USER: banca_user
@@ -12,6 +25,13 @@ services:
       - "3307:3306"
     volumes:
       - banca_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
   banca_mysql_data:
+    name: banca_mysql_data
