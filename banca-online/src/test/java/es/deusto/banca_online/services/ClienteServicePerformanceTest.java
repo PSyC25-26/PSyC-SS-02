@@ -27,7 +27,9 @@ import java.time.LocalDate;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+import org.mockito.MockitoAnnotations;
 import org.junit.Ignore;
+import org.databene.contiperf.Required;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClienteServicePerformanceTest {
@@ -41,31 +43,27 @@ public class ClienteServicePerformanceTest {
     /**
      * Mock del repositorio de clientes para evitar latencia de E/S de red o disco.
      */
-    @Mock private IClienteRepository clienteRepository;
-    /**
+    private static final IClienteRepository clienteRepository = mock(IClienteRepository.class);    /**
      * Mock del repositorio de usuarios.
      */
-    @Mock private IUsuarioRepository usuarioRepository;
-    /**
-     * Mock del codificador de contraseñas, permitiendo medir el impacto del 
+    private static final IUsuarioRepository usuarioRepository = mock(IUsuarioRepository.class);    /**
+     * Mock del codificador de contraseñas, permitiendo medir el impacto del
      * procesamiento de CPU del algoritmo de hashing (Bcrypt).
      */
-    @Mock private PasswordEncoder passwordEncoder;
-
+    private static final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
     /**
      * Servicio donde se inyectan los mocks para medir el rendimiento de la lógica de negocio pura.
      */
-    @InjectMocks private ClienteService clienteService;
+    private static final ClienteService clienteService = new ClienteService(clienteRepository, usuarioRepository, passwordEncoder);
 
-    private ClienteRequest requestValido;
-
+    private static final ClienteRequest requestValido;
     /**
      * Configuración de los mocks y datos de prueba.
      * Define comportamientos instantáneos para que los resultados de rendimiento
      * se centren en la eficiencia del código del servicio y no en la base de datos.
      */
-    @Before
-    public void setUp() {
+
+    static {
         requestValido = new ClienteRequest();
         requestValido.setDni("12345678A");
         requestValido.setNombre("Juan");
@@ -111,8 +109,8 @@ public class ClienteServicePerformanceTest {
      * y el uso de CPU a través de herramientas como VisualVM.
      */
     @Test
-    @Ignore("Test de rendimiento para ejecución manual")
-    @PerfTest(duration = 60000, threads = 20) // 60 segundos para que te dé tiempo a ver VisualVM
+//    @Ignore("Test de rendimiento para ejecución manual")
+    @PerfTest(duration = 60000, threads = 20, warmUp = 2000) // 60 segundos para que te dé tiempo a ver VisualVM
     public void saturar_crearCliente_20threads() {
         try {
             // Ejecutamos la lógica para que la CPU trabaje
@@ -129,7 +127,7 @@ public class ClienteServicePerformanceTest {
      */
     @Test
     @Ignore("Test de rendimiento para ejecución manual")
-    @PerfTest(duration = 60000, threads = 40)
+    @PerfTest(duration = 60000, threads = 40, warmUp = 3000)
     public void saturar_crearCliente_40threads() {
         try {
             // Ejecutamos la lógica para que la CPU trabaje
@@ -147,7 +145,8 @@ public class ClienteServicePerformanceTest {
      */
     @Test
     @Ignore("Test de rendimiento para ejecución manual")
-    @PerfTest(duration = 60000, threads = 80)
+    @PerfTest(duration = 60000, threads = 80, warmUp = 2500)
+    @Required(max = 2000, throughput = 10)
     public void saturar_crearCliente_80threads() {
         try {
             // Ejecutamos la lógica para que la CPU trabaje
