@@ -10,6 +10,10 @@
 ![JUnit](https://img.shields.io/badge/JUnit-5-green)
 ![Coverage](https://img.shields.io/badge/Coverage-50%25%2B-yellowgreen)
 ![Jenkins](https://img.shields.io/badge/Jenkins-CI/CD-red)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI/CD-2088FF)
+![SonarCloud](https://img.shields.io/badge/SonarCloud-Quality_Gate-F3702A)
+![Playwright](https://img.shields.io/badge/Playwright-E2E-2EAD33)
+![Doxygen](https://img.shields.io/badge/Doxygen-Docs-blue)
 
 **Una aplicación de banca en línea construida con Spring Boot para gestionar clientes, cuentas bancarias y transferencias de dinero, con autenticación JWT y control de acceso por roles.**
 
@@ -63,6 +67,9 @@ Para poder ejecutar los test del lado cliente de manera correcta es necesario te
 -  **Swagger/OpenAPI** — Documentación interactiva de la API
 -  **Docker Support** — Docker Compose para despliegue simple
 -  **Logging** — Log4J2 con configuración personalizada
+- **CI/CD Automatizado** — Pipeline en GitHub Actions para compilación, testing y despliegue.
+- **Calidad de Código** — Análisis estático integrado con SonarCloud (bugs, vulnerabilidades y code smells).
+- **Documentación Dinámica** — Generación automática con Doxygen desplegada en GitHub Pages.
 
 ### Frontend
 -  **Interfaz Web** — Formularios HTML/CSS/JavaScript
@@ -70,6 +77,7 @@ Para poder ejecutar los test del lado cliente de manera correcta es necesario te
 -  **Integración AJAX** — Comunicación dinámica con la API
 -  **Validación Frontend** — Validación antes de enviar al servidor
 -  **Gestión de Sesión** — Almacenamiento y uso del JWT en el cliente
+- **Tests End-to-End (E2E)** — Pruebas de integración completa simulando el navegador con Playwright.
 
 ---
 
@@ -180,44 +188,51 @@ La aplicación usa **Spring Security + JWT** con política de sesión stateless.
 ## Estructura
  
 ```
-static/
-├── index.html                  # Página principal
-├── css/
-│   ├── base.css
-│   ├── estilo.css
-│   ├── admin.css
-│   ├── cliente.css
-│   ├── componentes.css
-│   └── modales.css
-├── js/
-│   ├── app.js                  # Lógica principal y navegación
-│   ├── auth.js                 # Login y gestión del JWT
-│   ├── modales.js              # Carga de modales
-│   └── servicios/
-│       ├── listarClientes.js
-│       ├── crearClienteForm.js
-│       ├── editarClienteForm.js
-│       ├── eliminarClienteForm.js
-│       ├── listarCuentas.js
-│       ├── crearCuentaForm.js
-│       ├── detalleCuenta.js
-│       ├── consultarSaldo.js
-│       ├── depositoForm.js
-│       ├── retiroForm.js
-│       ├── transferenciaForm.js
-│       └── utils.js
-└── modales/
-    ├── listarClientes.html
-    ├── crearClienteForm.html
-    ├── editarClienteForm.html
-    ├── eliminarClienteForm.html
-    ├── listarCuentas.html
-    ├── crearCuentaForm.html
-    ├── detalleCuenta.html
-    ├── consultarSaldo.html
-    ├── depositoForm.html
-    ├── retiroForm.html
-    └── transferenciaForm.html
+├── playwright-tests/                 # TESTS E2E con Playwright (Sprint 3)
+│   ├── playwright.config.ts
+│   └── api/
+└── static/
+    ├── index.html                    # Página principal
+    ├── css/
+    │   ├── base.css
+    │   ├── estilo.css
+    │   ├── admin.css
+    │   ├── cliente.css
+    │   ├── componentes.css
+    │   └── modales.css
+    ├── js/
+    │   ├── app.js                    # Lógica principal y navegación
+    │   ├── auth.js                   # Login y gestión del JWT
+    │   ├── modales.js                # Carga de modales
+    │   └── servicios/
+    │       ├── listarClientes.js
+    │       ├── crearClienteForm.js
+    │       ├── editarClienteForm.js
+    │       ├── eliminarClienteForm.js
+    │       ├── listarCuentas.js
+    │       ├── crearCuentaForm.js
+    │       ├── detalleCuenta.js
+    │       ├── consultarSaldo.js
+    │       ├── depositoForm.js
+    │       ├── retiroForm.js
+    │       ├── transferenciaForm.js
+    │       ├── historialTransacciones.js  
+    │       ├── editarPerfilForm.js       
+    │       └── utils.js
+    └── modales/
+        ├── listarClientes.html
+        ├── crearClienteForm.html
+        ├── editarClienteForm.html
+        ├── eliminarClienteForm.html
+        ├── listarCuentas.html
+        ├── crearCuentaForm.html
+        ├── detalleCuenta.html
+        ├── consultarSaldo.html
+        ├── depositoForm.html
+        ├── retiroForm.html
+        ├── transferenciaForm.html
+        ├── historialTransacciones.html    
+        └── editarPerfil.html              
 ```
 ---
 
@@ -294,6 +309,9 @@ El proyecto incluye cinco tipos de tests:
 ### Tests de cliente JavaScript (Jest + node-fetch)
 - `src/test/js/client.test.js` : tests de integración que llaman al servidor desde Node.js simulando un cliente real
 
+### Tests End-to-End (Playwright)
+- `playwright-tests/api/` : Tests de integración y frontend simulando el navegador Chromium contra el servidor real levantado. Evalúa flujos completos (Auth, Clientes, Cuentas).
+
 **Ejecución:**
 ```bash
 # Tests Java
@@ -307,6 +325,13 @@ mvn test -Dtest=CuentaServicePerformanceTest#rendimiento_crearCuenta_100invocaci
 cd src/test/js
 npm install
 npm test
+
+
+#Desde banca-online/playwright-tests/
+# Tests E2E con Playwright (requiere servidor levantado en localhost:8080)
+cd playwright-tests
+npm install   # solo la primera vez
+npx playwright test
 ```
 
 
@@ -327,8 +352,16 @@ npm install
 npm test
 ```
 
-## Integración Continua (Jenkins)
+## CI/CD y Calidad de Código
 
+El proyecto cuenta con un flujo de integración continuo automatizado mediante **GitHub Actions**. En cada *push*, el pipeline:
+1. Levanta la base de datos y compila el backend.
+2. Ejecuta todos los tests (Unitarios, Integración, ContiPerf y Playwright).
+3. Envía el reporte de JaCoCo a **SonarCloud** para evaluar la calidad del código.
+4. Genera la documentación de **Doxygen** y la web de Maven, desplegándolas en **GitHub Pages**.
+5. Guarda el archivo `.jar` compilado como un Artefacto descargable.
+
+Adicionalmente, el proyecto utiliza Jenkins como servidor de integración continua alternativo en local.
 El proyecto utiliza Jenkins como servidor de integración contínua.
 La pipeline está definida en el [`Jenkinsfile`](./Jenkinsfile) en la raíz del repositorio.
 
