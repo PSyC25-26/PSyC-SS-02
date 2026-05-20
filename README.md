@@ -416,8 +416,8 @@ Eneko Barbadillo, Alberto García, Haizea González, Nora Ibarguren e Imanol Uga
 
 ##  Última Actualización
 
-- **Fecha**: 19 de Abril de 2026
-- **Versión**: 2.0.0 (Sprint 2)
+- **Fecha**: 19 de Mayo de 2026
+- **Versión**: 3.0.0 (Sprint 3)
 - **Estado**: Funcional
 
 ---
