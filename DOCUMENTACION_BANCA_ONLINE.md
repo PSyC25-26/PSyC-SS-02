@@ -1,9 +1,9 @@
 #  Documentación Técnica - Banca Online
 
-**Versión:** 2.0  (Sprint 2)  
-**Fecha:** Abril 2026  
+**Versión:** 3.0  (Sprint 3)  
+**Fecha:** Mayo 2026  
 **Autores:** Equipo de Desarrollo Banca Online: Eneko Barbadillo, Alberto García, Haizea González, Nora Ibarguren e Imanol Ugarte.  
-**Última modificación:** 20 de Abril de 2026  
+**Última modificación:** 19 de Mayo de 2026  
 **Estado:** Funcional
 
 ---
@@ -18,8 +18,10 @@
 6. [Configuración](#configuración)
 7. [Base de Datos](#base-de-datos)
 8. [Seguridad](#seguridad)
-10. [Frontend](#frontend)
-11. [Estrategia de Testing](#estrategia-de-testing)
+9. [Frontend](#frontend)
+10. [Estrategia de Testing](#estrategia-de-testing)
+11. [CI/CD y Calidad de Código](#cicd-y-calidad-de-código)
+12. [Historial de Cambios — Sprint 3 (Mayo 2026)](#historial-de-cambios--sprint-3-mayo-2026)
 
 ---
 
@@ -98,12 +100,17 @@ Banca Online es una aplicación Backend desarrollada con **Spring Boot** que pro
 | **Build Tool**          | Maven               | 3.9.12 |
 | **Testing**             | JUnit 5, Mockito    | Latest |
 | **Testing Rendimiento** | ContiPerf + JUnit 4 | 2.3.4 |
+| **Testing E2E**         | Playwright          | Latest |
 | **Cobertura**           | JaCoCo              | 0.8.13 |
-| **Testing JS**          | Jest + node-fetch   | — |
+| **Calidad de Código**   | SonarCloud          | — |
 | **Documentación API**   | Springdoc OpenAPI   | 3.0.2 |
+| **Documentación Código**| Doxygen             | — |
 | **Validación**          | Jakarta Validation  | Incluido en Spring |
 | **Logging**             | SLF4J + Log4J2      | 2.25.3 |
-| **Lombook**             | -                   | 1.18.42|
+| **Lombok**              | -                   | 1.18.42|
+| **CI/CD**               | GitHub Actions      | — |
+| **CI Alternativo**      | Jenkins             | — |
+| **Contenedores**        | Docker + Compose    | — |
 
 ### Requisitos del Sistema
 
@@ -165,9 +172,11 @@ Controller → Service → Repository → Database
 
 #### 3. Patrón DTO (Data Transfer Object)
 - ClienteRequest/ClienteResponse
+- ClienteUpdateDTO (edición limitada de perfil)
 - CuentaRequest/CuentaResponse
 - DepositoRequest, RetiroRequest
 - TransferenciaDTO
+- TransaccionResponse (historial de movimientos)
 - SaldoResponse
 - LoginRequest / LoginResponse
 
@@ -391,6 +400,7 @@ CREATE TABLE IF NOT EXISTS cuenta (
     tipo_cuenta   ENUM('CORRIENTE','AHORRO') NOT NULL,
     saldo         DOUBLE NOT NULL DEFAULT 0,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    activa        BOOLEAN NOT NULL DEFAULT TRUE,  -- borrado lógico (Sprint 3)
     FOREIGN KEY (cliente_id) REFERENCES cliente(id)
 );
 ```
@@ -477,6 +487,8 @@ static/
 │       ├── depositoForm.js
 │       ├── retiroForm.js
 │       ├── transferenciaForm.js
+│       ├── historialTransacciones.js  # (Sprint 3)
+│       ├── editarPerfilForm.js        # (Sprint 3)
 │       └── utils.js
 └── modales/
     ├── listarClientes.html
@@ -489,7 +501,9 @@ static/
     ├── consultarSaldo.html
     ├── depositoForm.html
     ├── retiroForm.html
-    └── transferenciaForm.html
+    ├── transferenciaForm.html
+    ├── historialTransacciones.html    # (Sprint 3)
+    └── editarPerfil.html              # (Sprint 3)
 ```
  
 ### Funcionamiento
@@ -508,9 +522,12 @@ El frontend usa `fetch` con la cabecera `Authorization: Bearer <token>` en todas
 | Services | Aceptación | JUnit 5 + Mockito |
 | Services | Rendimiento | ContiPerf + JUnit 4 |
 | Controllers | Integración | Spring Boot Test + MockMvc |
+| Controllers | Auth (permisos, tokens) | Spring Boot Test + MockMvc |
 | Repositories | Integración | Spring Boot Test |
 | Cliente JS | Integración E2E | Jest + node-fetch |
+| Frontend / API | E2E con navegador | Playwright (Chromium) |
 | Cobertura global | — | JaCoCo (≥ 50 %) |
+| Calidad global | — | SonarCloud |
  
 ### Tests Unitarios
  
@@ -576,7 +593,88 @@ npm test
 ```
  
 El umbral mínimo configurado es **50 % de instrucciones** a nivel de bundle. Si no se alcanza, el build falla en la fase `verify`.
- 
+
+### Tests E2E con Playwright (Sprint 3)
+
+A partir del Sprint 3 se integró **Playwright** para tests end-to-end contra la API y el frontend, usando el navegador **Chromium**. La configuración unificada reside en `banca-online/playwright-tests/`:
+
+```
+playwright-tests/
+├── playwright.config.ts        # Configuración base (baseURL, browser)
+├── package.json
+├── support/
+│   ├── api.ts                  # Helpers para llamadas HTTP
+│   ├── data.ts                 # Datos de prueba compartidos
+│   ├── env.ts                  # Variables de entorno
+│   └── healthcheck.ts          # Espera a que el servidor esté listo
+└── api/
+    ├── auth.spec.ts            # Tests de autenticación (login, token)
+    ├── clientes.spec.ts        # Tests de endpoints de clientes
+    ├── cuentas.spec.ts         # Tests de endpoints de cuentas
+    └── swagger.spec.ts         # Verificación de que Swagger está accesible
+```
+
+**Ejecución:**
+```bash
+# Desde banca-online/playwright-tests/
+npm install        # solo la primera vez
+npx playwright test
+```
+
+Los tests de Playwright se lanzan automáticamente en el workflow de GitHub Actions una vez el servidor está en marcha.
+
+### Tests de Autenticación (Sprint 3)
+
+Se añadieron tests específicos para la capa de seguridad:
+
+- Tests de autenticación de **permisos** (acceso con rol correcto vs. incorrecto)
+- Tests de autenticación de **tokens** (token inválido, expirado, ausente)
+- Tests de **integración de autenticación** completos (login → token → operación protegida)
+
+Estos tests usan `MockMvc` con `spring-security-test` y cubren los controladores `AuthController`, `ClienteController` y `CuentaController`.
+
+ ---
+
+##  CI/CD y Calidad de Código
+
+### GitHub Actions
+
+El workflow principal (`.github/workflows/ci.yml`) realiza las siguientes fases en cada push/PR:
+
+1. **Build y Tests Java**: `mvn verify` con JaCoCo para cobertura
+2. **Generación de documentación con Doxygen**: produce HTML y PDF a partir de los comentarios Javadoc del código
+3. **Despliegue en GitHub Pages**: los informes (Javadoc, JaCoCo, Maven Site) se publican automáticamente
+4. **Análisis de SonarCloud**: análisis estático de calidad de código, detección de code smells, bugs y vulnerabilidades
+5. **Tests E2E con Playwright**: arranque del servidor y ejecución de tests Playwright contra Chromium
+
+El workflow también puede lanzarse manualmente vía API de GitHub.
+
+### SonarCloud
+
+SonarCloud analiza el proyecto en cada ejecución del workflow. Métricas clave monitorizadas:
+
+- Cobertura de código (enlazada con el informe JaCoCo)
+- Duplicaciones de código
+- Code smells y bugs estáticos
+- Vulnerabilidades de seguridad
+
+### Doxygen
+
+La documentación técnica del código se genera con **Doxygen** a partir de los comentarios en las clases Java. El `Doxyfile` configura las rutas de entrada (`banca-online/src`) y salida (`docs/`). El resultado (HTML navegable + PDF) se despliega automáticamente en GitHub Pages.
+
+### Maven Site
+
+Con `mvn site`, Maven genera un único sitio web que agrega:
+
+- Informe de cobertura JaCoCo
+- Informe de tests ContiPerf
+- Informe de checkstyle (si configurado)
+
+El sitio se publica en `docs/reports/site/`.
+
+### Jenkins
+
+Se añadió un `Jenkinsfile` en la raíz del repositorio como alternativa de CI local. El pipeline define las etapas de build, test y reporte, permitiendo ejecutar el pipeline en un servidor Jenkins propio sin depender de GitHub Actions.
 
  ---
 
@@ -592,8 +690,8 @@ Eneko Barbadillo, Alberto García, Haizea González, Nora Ibarguren e Imanol Uga
 
 ##  Última Actualización
 
-- **Fecha**: 20 de Abril de 2026
-- **Versión**: 2.0.0 (Sprint 2)
+- **Fecha**: 19 de Mayo de 2026
+- **Versión**: 3.0.0 (Sprint 3)
 - **Estado**: Funcional
 
 ---
